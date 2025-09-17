@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OXO Protocol</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      width: 1448px;
+      height: 650px;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.35; /* %35 görünürlük */
+    }
+
+    .tagline {
+      position: absolute;
+      left: 486px;
+      top: 139px;
+      width: 545px;
+      height: 53px;
+      font-size: 44px;
+      font-weight: 500;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .logo {
+      position: absolute;
+      left: 383px;
+      top: 166px;
+      width: 827px;
+      height: 465px;
+      animation: pulse 2s infinite ease-in-out;
+      z-index: 1;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <div class="tagline">Something big is brewing.</div>
+  <img src="logo.png" alt="OXO Logo" class="logo">
+
+  <script>
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = Array.from({ length: 200 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5,
+      dx: (Math.random() - 0.5) * 0.4, // biraz daha hızlı
+      dy: (Math.random() - 0.5) * 0.4,
+      color: Math.random() > 0.5 ? "#ffffff" : "rgba(0,200,255,0.8)"
+    }));
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
