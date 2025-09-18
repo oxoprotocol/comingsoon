@@ -21,14 +21,14 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       z-index: 0;
     }
 
     .tagline {
       position: absolute;
-      top: 20%; 
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
@@ -38,15 +38,16 @@
       opacity: 0;
       animation: fadeIn 1.2s ease-in-out forwards;
       animation-delay: 0.2s;
+      white-space: nowrap;
     }
 
     .logo-wrapper {
       position: absolute;
-      top: 54%;   /* 🌐 Web: biraz daha aşağı */
-      left: 50%;
+      top: 54%;
+      left: 52%; /* Web için %5 sağa kaydırıldı */
       transform: translate(-50%, -50%);
-      width: 744px;  /* 🌐 Web: %10 küçültülmüş */
-      max-width: 80%;
+      width: 870px; /* Web için %5 büyütüldü */
+      max-width: 85%;
       z-index: 2;
       animation: pulse 2s infinite ease-in-out;
     }
@@ -66,7 +67,7 @@
       position: fixed;
       bottom: 15px;
       right: 15px;
-      font-size: 11px; /* web için biraz küçültüldü */
+      font-size: 12px;
       color: rgba(255,255,255,0.7);
       font-weight: 500;
       z-index: 3;
@@ -81,20 +82,26 @@
       to {opacity: 1;}
     }
 
-    /* 📱 Mobil için ek düzenlemeler */
+    /* 📱 Mobil ayarları */
     @media (max-width: 768px) {
+      .tagline {
+        font-size: 28px;
+        top: 15%;
+        white-space: normal;
+      }
+
       .logo-wrapper {
-        width: 140vw;   /* 📱 biraz daha büyütme */
-        max-width: 750px;
-        top: 58%;       /* 📱 biraz daha aşağı */
-        left: 52%;      /* 📱 biraz sağa kaydır */
+        width: 140vw;   /* Daha büyük logo */
+        max-width: 90%;
+        top: 60%;       /* Daha aşağı */
+        left: 50%;      /* Ortalanmış */
         transform: translate(-50%, -50%);
       }
 
       .footer {
-        font-size: 9px;
-        bottom: 6px;
-        right: 6px;
+        font-size: 10px;
+        bottom: 10px;
+        right: 10px;
       }
     }
   </style>
@@ -118,7 +125,6 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // Particles
     const stars = Array.from({ length: 250 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -128,7 +134,7 @@
       twinkle: Math.random() < 0.1
     }));
 
-    let velocityX = -0.2; // default sola akış
+    let velocityX = -0.2;
     let velocityY = 0;
 
     function draw() {
@@ -159,7 +165,6 @@
     }
     draw();
 
-    // Desktop mouse hareketi
     document.addEventListener("mousemove", (e) => {
       const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
       const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -167,7 +172,6 @@
       velocityY = moveY;
     });
 
-    // Mobil gyroscope (izinli)
     function enableGyro() {
       if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
         DeviceOrientationEvent.requestPermission().then(permissionState => {
@@ -185,7 +189,6 @@
       velocityY = (e.beta / 45) * 1.5;
     }
 
-    // Kullanıcı dokununca izin iste
     document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
