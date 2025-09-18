@@ -13,163 +13,143 @@
       color: #fff;
       overflow: hidden;
       height: 100vh;
-      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
       position: relative;
     }
 
-    canvas {
-      position: fixed;
+    canvas#stars {
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #000;
       z-index: 0;
     }
 
     .tagline {
-      position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
       font-size: 42px;
       font-weight: 500;
       text-align: center;
-      z-index: 2;
+      margin-bottom: 20px;
+      z-index: 1;
       opacity: 0;
-      animation: fadeIn 1.2s ease-in-out forwards;
-      animation-delay: 0.2s;
+      animation: fadeIn 1.2s ease forwards;
     }
 
     .logo-wrapper {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 900px;          /* 🔥 logo biraz büyütüldü */
-      max-width: 85%;
-      z-index: 2;
+      z-index: 1;
       animation: pulse 2s infinite ease-in-out;
     }
 
-    .logo {
+    .logo-wrapper img {
       width: 100%;
       height: auto;
       display: block;
     }
 
-    @keyframes pulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.08); }
-    }
-
-    .footer {
-      position: fixed;
+    footer {
+      position: absolute;
       bottom: 12px;
       right: 12px;
-      font-size: 10px;      /* 🔥 footer küçültüldü */
-      color: rgba(255,255,255,0.7);
-      font-weight: 500;
-      z-index: 3;
+      font-size: 14px;
+      color: #aaa;
+      z-index: 1;
     }
 
-    .footer span {
-      font-weight: 800;
-      margin-right: 2px;
+    /* Animasyonlar */
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
     }
 
     @keyframes fadeIn {
-      to {opacity: 1;}
+      to { opacity: 1; }
+    }
+
+    /* 📱 Mobil uyumluluk */
+    @media (max-width: 768px) {
+      .tagline {
+        font-size: 22px;
+        top: 15%;
+        margin-bottom: 25px;
+      }
+
+      .logo-wrapper {
+        width: 75%;        /* mavi daireden biraz küçük */
+        max-width: 420px;  
+        min-width: 300px;
+      }
+
+      footer {
+        font-size: 10px;   /* footer küçüldü */
+        right: 8px;
+        bottom: 8px;
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="starfield"></canvas>
+  <canvas id="stars"></canvas>
+
   <div class="tagline">Something big is brewing.</div>
+
   <div class="logo-wrapper">
-    <img src="./logo.png" alt="OXO Logo" class="logo">
+    <img src="logo.png" alt="OXO Logo">
   </div>
-  <div class="footer"><span>OXO</span>Protocol © 2025</div>
+
+  <footer>© 2025 OXO Protocol</footer>
 
   <script>
-    const canvas = document.getElementById("starfield");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    const numStars = 120;
+    let w, h;
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    // Particles
-    const stars = Array.from({ length: 250 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.8 + 0.3,
-      alpha: Math.random() * 0.4 + 0.1,
-      depth: Math.random() * 1.2 + 0.3,
-      twinkle: Math.random() < 0.1
-    }));
-
-    let velocityX = -0.2; 
-    let velocityY = 0;
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      stars.forEach(star => {
-        let starAlpha = star.alpha;
-        if (star.twinkle) {
-          starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
-          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
-        }
-
-        ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        star.x += velocityX * star.depth * 0.9;
-        star.y += velocityY * star.depth * 0.9;
-
-        if (star.x < 0) star.x = canvas.width;
-        if (star.x > canvas.width) star.x = 0;
-        if (star.y < 0) star.y = canvas.height;
-        if (star.y > canvas.height) star.y = 0;
-      });
-
-      requestAnimationFrame(draw);
-    }
-    draw();
-
-    // Desktop mouse hareketi
-    document.addEventListener("mousemove", (e) => {
-      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
-      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
-      velocityX = moveX;
-      velocityY = moveY;
-    });
-
-    // Mobil gyroscope
-    function enableGyro() {
-      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-        DeviceOrientationEvent.requestPermission().then(permissionState => {
-          if (permissionState === "granted") {
-            window.addEventListener("deviceorientation", handleOrientation);
-          }
-        }).catch(console.error);
-      } else {
-        window.addEventListener("deviceorientation", handleOrientation);
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      stars = [];
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          radius: Math.random() * 1.5,
+          speed: Math.random() * 0.4 + 0.2,
+          opacity: Math.random() * 0.35 + 0.15
+        });
       }
     }
 
-    function handleOrientation(e) {
-      velocityX = (e.gamma / 45) * 1.5;
-      velocityY = (e.beta / 45) * 1.5;
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#fff";
+      stars.forEach(star => {
+        ctx.globalAlpha = star.opacity;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      update();
+      requestAnimationFrame(draw);
     }
 
-    document.body.addEventListener("click", enableGyro, { once: true });
+    function update() {
+      stars.forEach(star => {
+        star.y += star.speed;
+        if (star.y > h) {
+          star.y = 0;
+          star.x = Math.random() * w;
+        }
+      });
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
   </script>
 </body>
 </html>
