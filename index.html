@@ -42,10 +42,10 @@
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;
+      top: 52%;   /* 🌐 Web: biraz aşağı */
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 827px;
+      width: 744px;  /* 🌐 Web: %10 küçültülmüş */
       max-width: 80%;
       z-index: 2;
       animation: pulse 2s infinite ease-in-out;
@@ -84,13 +84,13 @@
     /* 📱 Mobil için ek düzenlemeler */
     @media (max-width: 768px) {
       .logo-wrapper {
-        width: 95vw;   /* mobilde logoyu daha büyük yap */
-        max-width: 600px;
-        top: 55%;      /* biraz daha aşağı alsın */
+        width: 130vw;   /* 📱 %40 büyütme */
+        max-width: 700px;
+        top: 58%;       /* 📱 biraz daha aşağı */
       }
 
       .footer {
-        font-size: 9px; /* mobilde footer daha küçük */
+        font-size: 9px;
         bottom: 6px;
         right: 6px;
       }
