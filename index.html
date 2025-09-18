@@ -8,159 +8,168 @@
   <style>
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
+      background-color: #000;
       font-family: 'Inter', sans-serif;
-      height: 100vh;
+      color: #fff;
       overflow: hidden;
+      height: 100vh;
+      width: 100vw;
       position: relative;
     }
 
     canvas {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       z-index: 0;
     }
 
     .tagline {
       position: absolute;
-      top: 15%;
+      top: 20%; /* her çözünürlükte yukarıdan %20 */
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
       font-weight: 500;
       text-align: center;
-      opacity: 0;
-      animation: fadeIn 1.5s ease forwards;
       z-index: 2;
-      white-space: nowrap; /* webde yan yana */
+      opacity: 0;
+      animation: fadeIn 1.2s ease-in-out forwards;
+      animation-delay: 0.2s;
     }
 
     .logo-wrapper {
       position: absolute;
-      top: 40%;
+      top: 50%;   /* tam dikey ortada */
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 400px;
+      width: 827px;
+      max-width: 80%;
       z-index: 2;
+      animation: pulse 2s infinite ease-in-out;
     }
 
-    .logo-wrapper img {
+    .logo {
       width: 100%;
       height: auto;
-      animation: pulse 2.5s infinite ease-in-out;
-    }
-
-    footer {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      font-size: 14px;
-      color: #ccc;
-      z-index: 2;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+      display: block;
     }
 
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.08); }
     }
 
-    /* 📱 Mobil uyumluluk */
-    @media (max-width: 768px) {
-      .tagline {
-        font-size: 22px;
-        top: 18%;
-        white-space: normal; /* mobilde alt alta */
-        width: 90%;
-      }
-      .logo-wrapper {
-        width: 80%;
-        min-width: 280px;
-      }
-      footer {
-        font-size: 12px;
-      }
+    .footer {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+      z-index: 3;
+    }
+
+    .footer span {
+      font-weight: 800;
+      margin-right: 2px;
+    }
+
+    @keyframes fadeIn {
+      to {opacity: 1;}
     }
   </style>
 </head>
 <body>
-  <canvas id="stars"></canvas>
-
+  <canvas id="starfield"></canvas>
   <div class="tagline">Something big is brewing.</div>
-
   <div class="logo-wrapper">
-    <img src="logo.png" alt="OXO Logo">
+    <img src="./logo.png" alt="OXO Logo" class="logo">
   </div>
-
-  <footer>© 2025 <strong>OXO</strong> Protocol</footer>
+  <div class="footer"><span>OXO</span>Protocol © 2025</div>
 
   <script>
-    const canvas = document.getElementById("stars");
+    const canvas = document.getElementById("starfield");
     const ctx = canvas.getContext("2d");
-
-    let stars = [];
-    const numStars = 200;
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
-    function initStars() {
-      stars = [];
-      for (let i = 0; i < numStars; i++) {
-        stars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          radius: Math.random() * 1.5,
-          speedX: (Math.random() - 0.5) * 0.2,
-          speedY: (Math.random() - 0.5) * 0.2,
-          opacity: 0.3 + Math.random() * 0.4
-        });
-      }
-    }
-    initStars();
+    // Particles
+    const stars = Array.from({ length: 250 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.8 + 0.3,
+      alpha: Math.random() * 0.4 + 0.1,
+      depth: Math.random() * 1.2 + 0.3,
+      twinkle: Math.random() < 0.1
+    }));
 
-    function drawStars() {
+    let velocityX = -0.2; // default sola akış
+    let velocityY = 0;
+
+    function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       stars.forEach(star => {
-        ctx.fillStyle = `rgba(255,255,255,${star.opacity})`;
+        let starAlpha = star.alpha;
+        if (star.twinkle) {
+          starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
+          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
+        }
+
+        ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
         ctx.fill();
 
-        star.x += star.speedX + (mouseX * 0.002);
-        star.y += star.speedY + (mouseY * 0.002);
+        star.x += velocityX * star.depth * 0.9;
+        star.y += velocityY * star.depth * 0.9;
 
         if (star.x < 0) star.x = canvas.width;
         if (star.x > canvas.width) star.x = 0;
         if (star.y < 0) star.y = canvas.height;
         if (star.y > canvas.height) star.y = 0;
       });
-      requestAnimationFrame(drawStars);
+
+      requestAnimationFrame(draw);
     }
-    drawStars();
+    draw();
 
-    let mouseX = 0, mouseY = 0;
+    // Desktop mouse hareketi
     document.addEventListener("mousemove", (e) => {
-      mouseX = (e.clientX - window.innerWidth / 2) / 50;
-      mouseY = (e.clientY - window.innerHeight / 2) / 50;
+      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
+      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
+      velocityX = moveX;
+      velocityY = moveY;
     });
 
-    window.addEventListener("deviceorientation", (e) => {
-      if (e.gamma && e.beta) {
-        mouseX = e.gamma / 5;
-        mouseY = e.beta / 5;
+    // Mobil gyroscope (izinli)
+    function enableGyro() {
+      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission().then(permissionState => {
+          if (permissionState === "granted") {
+            window.addEventListener("deviceorientation", handleOrientation);
+          }
+        }).catch(console.error);
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation);
       }
-    });
+    }
+
+    function handleOrientation(e) {
+      velocityX = (e.gamma / 45) * 1.5;
+      velocityY = (e.beta / 45) * 1.5;
+    }
+
+    // Kullanıcı dokununca izin iste
+    document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
 </html>
