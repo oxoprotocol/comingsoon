@@ -42,7 +42,7 @@
 
     .logo-wrapper {
       position: absolute;
-      top: 50%; /* Web için merkezde */
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 827px;
@@ -81,11 +81,11 @@
       to {opacity: 1;}
     }
 
-    /* Sadece mobil için */
+    /* 🔹 Sadece mobil için düzenlemeler */
     @media (max-width: 768px) {
       .logo-wrapper {
-        top: 58%; /* biraz daha aşağı */
-        transform: translate(-50%, -50%) scale(1.2); /* %20 büyüt */
+        transform: translate(-50%, -50%) scale(2); /* %100 daha büyük */
+        top: 55%; /* biraz daha aşağı */
       }
       .footer {
         font-size: 10px;
