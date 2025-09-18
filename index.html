@@ -23,12 +23,13 @@
       left: 0;
       width: 100%;
       height: 100%;
+      background: #000;
       z-index: 0;
     }
 
     .tagline {
       position: absolute;
-      top: 20%; /* her çözünürlükte yukarıdan %20 */
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
@@ -42,11 +43,11 @@
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;   /* tam dikey ortada */
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 827px;
-      max-width: 80%;
+      width: 900px;          /* 🔥 logo biraz büyütüldü */
+      max-width: 85%;
       z-index: 2;
       animation: pulse 2s infinite ease-in-out;
     }
@@ -64,9 +65,9 @@
 
     .footer {
       position: fixed;
-      bottom: 15px;
-      right: 15px;
-      font-size: 12px;
+      bottom: 12px;
+      right: 12px;
+      font-size: 10px;      /* 🔥 footer küçültüldü */
       color: rgba(255,255,255,0.7);
       font-weight: 500;
       z-index: 3;
@@ -111,7 +112,7 @@
       twinkle: Math.random() < 0.1
     }));
 
-    let velocityX = -0.2; // default sola akış
+    let velocityX = -0.2; 
     let velocityY = 0;
 
     function draw() {
@@ -150,7 +151,7 @@
       velocityY = moveY;
     });
 
-    // Mobil gyroscope (izinli)
+    // Mobil gyroscope
     function enableGyro() {
       if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
         DeviceOrientationEvent.requestPermission().then(permissionState => {
@@ -168,7 +169,6 @@
       velocityY = (e.beta / 45) * 1.5;
     }
 
-    // Kullanıcı dokununca izin iste
     document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
