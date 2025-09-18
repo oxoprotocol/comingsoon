@@ -43,10 +43,10 @@
 
     .logo-wrapper {
       position: absolute;
-      top: 54%;
-      left: 52%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
-      width: 868px;
+      width: 827px;
       max-width: 80%;
       z-index: 2;
       animation: pulse 2s infinite ease-in-out;
@@ -82,30 +82,17 @@
       to {opacity: 1;}
     }
 
-    /* 📱 Mobil ayarları */
+    /* Mobil düzenlemeleri */
     @media (max-width: 768px) {
-      .tagline {
-        font-size: 34px;
-        top: 18%;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        white-space: normal;
-        line-height: 1.2;
-      }
-
       .logo-wrapper {
-        width: 150vw;   /* %15 daha büyük */
-        max-width: 95%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        width: 120%; /* %50 büyütme */
+        max-width: none;
+        top: 55%; /* biraz daha aşağı */
       }
-
       .footer {
-        font-size: 10px;
-        bottom: 10px;
-        right: 10px;
+        font-size: 10px; /* küçült */
+        bottom: 8px;
+        right: 8px;
       }
     }
   </style>
@@ -129,16 +116,17 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
+    // Yıldızlar
     const stars = Array.from({ length: 250 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       r: Math.random() * 1.8 + 0.3,
-      alpha: Math.random() * 0.4 + 0.1,
+      alpha: Math.random() * 0.4 + 0.2,
       depth: Math.random() * 1.2 + 0.3,
       twinkle: Math.random() < 0.1
     }));
 
-    let velocityX = -0.1;
+    let velocityX = -0.2; // default sola akış
     let velocityY = 0;
 
     function draw() {
@@ -148,7 +136,7 @@
         let starAlpha = star.alpha;
         if (star.twinkle) {
           starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
-          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
+          starAlpha = Math.max(0.1, Math.min(0.8, starAlpha));
         }
 
         ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
@@ -156,8 +144,8 @@
         ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
         ctx.fill();
 
-        star.x += velocityX * star.depth * 0.9;
-        star.y += velocityY * star.depth * 0.9;
+        star.x += velocityX * star.depth;
+        star.y += velocityY * star.depth;
 
         if (star.x < 0) star.x = canvas.width;
         if (star.x > canvas.width) star.x = 0;
@@ -169,35 +157,23 @@
     }
     draw();
 
-    // 🌐 Desktop mouse hareketi
+    // Desktop mouse hareketi
     document.addEventListener("mousemove", (e) => {
-      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
-      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
-      velocityX = moveX * 1;   // hız arttırıldı
-      velocityY = moveY * 1;
+      const moveX = (e.clientX / window.innerWidth - 0.5) * 1.5;
+      const moveY = (e.clientY / window.innerHeight - 0.5) * 1.5;
+      velocityX = moveX;
+      velocityY = moveY;
     });
 
-    // 📱 Mobil gyroscope
-    function enableGyro() {
-      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-        DeviceOrientationEvent.requestPermission().then(permissionState => {
-          if (permissionState === "granted") {
-            window.addEventListener("deviceorientation", handleOrientation);
-          }
-        }).catch(console.error);
-      } else {
-        window.addEventListener("deviceorientation", handleOrientation);
-      }
-    }
-
+    // Mobil gyroscope
     function handleOrientation(e) {
-      velocityX = (e.gamma / 45) * 0.8;
-      velocityY = (e.beta / 45) * 0.8;
+      velocityX = (e.gamma / 45) * 1.2;
+      velocityY = (e.beta / 45) * 1.2;
     }
 
-    // hem click hem touch ile izin iste
-    document.body.addEventListener("click", enableGyro, { once: true });
-    document.body.addEventListener("touchstart", enableGyro, { once: true });
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", handleOrientation, true);
+    }
   </script>
 </body>
 </html>
