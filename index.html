@@ -88,13 +88,15 @@
         font-size: 32px;
         white-space: normal; /* satır kaymasına izin ver */
         width: 90%;
+        left: 50%;
+        transform: translateX(-50%); /* tam ortala */
       }
       .logo-wrapper {
-        width: 120%; /* %50 büyütme */
+        width: 120%; /* logoyu %50 büyüt */
         max-width: none;
         top: 55%;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) scale(1.5); /* ekstra büyütme */
       }
       .footer {
         font-size: 10px;
@@ -133,7 +135,7 @@
       twinkle: Math.random() < 0.1
     }));
 
-    let velocityX = -0.2; // default sola akış
+    let velocityX = -0.2;
     let velocityY = 0;
 
     function draw() {
