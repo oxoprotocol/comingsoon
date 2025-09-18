@@ -32,7 +32,7 @@
 
     .tagline {
       position: absolute;
-      top: 20%; /* her çözünürlükte yukarıdan %20 */
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
@@ -46,7 +46,7 @@
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;   /* tam dikey ortada */
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 827px;
@@ -81,6 +81,24 @@
       margin-right: 2px;
     }
 
+    .footer-left {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      z-index: 3;
+    }
+
+    .x-icon {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      transition: opacity 0.3s ease;
+    }
+
+    .x-icon:hover {
+      opacity: 0.7;
+    }
+
     @keyframes fadeIn {
       to {opacity: 1;}
     }
@@ -92,6 +110,17 @@
   <div class="logo-wrapper">
     <img src="./logo.png" alt="OXO Logo" class="logo">
   </div>
+
+  <!-- Sol altta X ikonu -->
+  <div class="footer-left">
+    <a href="https://x.com/oxoprotocol" target="_blank" aria-label="OXO on X">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1227" class="x-icon">
+        <path d="M714 519L1160 0H1057L667 450L383 0H0L459 696L0 1227H103L470 750L787 1227H1169L714 519Z"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Sağ altta © yazısı -->
   <div class="footer"><span>OXO</span>Protocol © 2025</div>
 
   <script>
@@ -105,7 +134,6 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // Particles
     const stars = Array.from({ length: 250 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -115,7 +143,7 @@
       twinkle: Math.random() < 0.1
     }));
 
-    let velocityX = -0.2; // default sola akış
+    let velocityX = -0.2;
     let velocityY = 0;
 
     function draw() {
@@ -146,7 +174,6 @@
     }
     draw();
 
-    // Desktop mouse hareketi
     document.addEventListener("mousemove", (e) => {
       const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
       const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -154,7 +181,6 @@
       velocityY = moveY;
     });
 
-    // Mobil gyroscope (izinli)
     function enableGyro() {
       if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
         DeviceOrientationEvent.requestPermission().then(permissionState => {
@@ -172,7 +198,6 @@
       velocityY = (e.beta / 45) * 1.5;
     }
 
-    // Kullanıcı dokununca izin iste
     document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
