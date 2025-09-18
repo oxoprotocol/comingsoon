@@ -84,18 +84,22 @@
 
     /* Mobil düzenlemeleri */
     @media (max-width: 768px) {
+      .tagline {
+        font-size: 32px;
+        white-space: normal; /* satır kaymasına izin ver */
+        width: 90%;
+      }
       .logo-wrapper {
-        width: 120%; /* sadece logoyu büyüt */
+        width: 120%; /* %50 büyütme */
         max-width: none;
-        top: 55%; /* biraz daha aşağı */
+        top: 55%;
+        left: 50%;
+        transform: translate(-50%, -50%);
       }
       .footer {
-        font-size: 10px; /* küçült */
+        font-size: 10px;
         bottom: 8px;
         right: 8px;
-      }
-      .tagline {
-        font-size: 32px; /* tagline önceki haline dönsün */
       }
     }
   </style>
