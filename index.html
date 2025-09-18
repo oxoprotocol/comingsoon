@@ -28,7 +28,7 @@
 
     .tagline {
       position: absolute;
-      top: 20%; /* her çözünürlükte yukarıdan %20 */
+      top: 20%; 
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
@@ -42,7 +42,7 @@
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;   /* tam dikey ortada */
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 827px;
@@ -66,7 +66,7 @@
       position: fixed;
       bottom: 15px;
       right: 15px;
-      font-size: 12px;
+      font-size: 11px; /* web için biraz küçültüldü */
       color: rgba(255,255,255,0.7);
       font-weight: 500;
       z-index: 3;
@@ -84,14 +84,15 @@
     /* 📱 Mobil için ek düzenlemeler */
     @media (max-width: 768px) {
       .logo-wrapper {
-        width: 90vw;   /* mobilde logoyu büyüt */
-        max-width: 500px;
+        width: 95vw;   /* mobilde logoyu daha büyük yap */
+        max-width: 600px;
+        top: 55%;      /* biraz daha aşağı alsın */
       }
 
       .footer {
-        font-size: 10px; /* mobilde footer küçült */
-        bottom: 8px;
-        right: 8px;
+        font-size: 9px; /* mobilde footer daha küçük */
+        bottom: 6px;
+        right: 6px;
       }
     }
   </style>
