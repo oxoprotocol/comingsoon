@@ -1,297 +1,176 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OXO Protocol — Layer of Everything</title>
-
-  <!-- SEO / Sosyal -->
-  <meta name="description" content="OXO Protocol, Bitcoin güvenliğini ZK-rollup ve BFT finality ile birleştiren Layer-1.5 yürütme katmanıdır." />
-  <meta property="og:title" content="OXO Protocol — Layer of Everything" />
-  <meta property="og:description" content="Bitcoin güvenliği + modern Web3 ölçeklenebilirliği." />
-  <meta property="og:image" content="/og.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <!-- Launch öncesi görünürlük kontrolü -->
-  <!-- <meta name="robots" content="noindex,nofollow" /> -->
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OXO Protocol</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-
-  <link rel="icon" href="/favicon.ico" />
-
   <style>
-    :root {
-      --fg: #fff;
-      --fg-dim: rgba(255,255,255,.7);
-      --bg: #000;
-    }
-
-    /* Reduce motion tercihi: animasyon ve rAF baştan kapatılabilir (JS tarafında da kontrol var) */
-    @media (prefers-reduced-motion: reduce) {
-      .pulse { animation: none !important; }
-    }
-
-    html, body {
-      height: 100%;
-    }
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      overflow: hidden;                 /* tek ekranlık hero */
-      min-height: 100dvh;               /* mobil toolbar güvenli */
+      background-color: #000;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
       position: relative;
     }
 
     canvas {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       z-index: 0;
-      /* Tıklamaları engellemesin */
-      pointer-events: none;
     }
 
     .tagline {
       position: absolute;
-      top: 20%;
+      top: 20%; /* her çözünürlükte yukarıdan %20 */
       left: 50%;
       transform: translateX(-50%);
+      font-size: 42px;
+      font-weight: 500;
       text-align: center;
       z-index: 2;
       opacity: 0;
       animation: fadeIn 1.2s ease-in-out forwards;
-      animation-delay: .2s;
-    }
-    .tagline h1 {
-      margin: 0;
-      font-weight: 600;
-      /* küçük ekranda 24px, büyükte 48px; arada akışkan */
-      font-size: clamp(24px, 4vw, 48px);
-      letter-spacing: 0.2px;
+      animation-delay: 0.2s;
     }
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;
+      top: 50%;   /* tam dikey ortada */
       left: 50%;
-      transform: translate(-50%, -50%); /* base transform */
-      width: min(827px, 80vw);
+      transform: translate(-50%, -50%);
+      width: 827px;
+      max-width: 80%;
       z-index: 2;
-      will-change: transform;
-    }
-    .pulse {
       animation: pulse 2s infinite ease-in-out;
     }
+
     .logo {
       width: 100%;
       height: auto;
       display: block;
     }
 
-    .cta {
-      position: absolute;
-      top: calc(20% + 72px);
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      opacity: 0;
-      animation: fadeIn 1s ease-in-out forwards;
-      animation-delay: .6s;
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.08); }
     }
-    .btn {
-      appearance: none;
-      border: 1px solid rgba(255,255,255,.2);
-      background: rgba(255,255,255,.06);
-      color: var(--fg);
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      backdrop-filter: blur(6px);
-    }
-    .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
-    footer.footer {
+    .footer {
       position: fixed;
       bottom: 15px;
       right: 15px;
       font-size: 12px;
-      color: var(--fg-dim);
+      color: rgba(255,255,255,0.7);
       font-weight: 500;
       z-index: 3;
     }
-    footer.footer span { font-weight: 800; margin-right: 2px; }
 
-    @keyframes pulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50%      { transform: translate(-50%, -50%) scale(1.08); }
+    .footer span {
+      font-weight: 800;
+      margin-right: 2px;
     }
-    @keyframes fadeIn { to { opacity: 1; } }
+
+    @keyframes fadeIn {
+      to {opacity: 1;}
+    }
   </style>
 </head>
 <body>
-  <canvas id="starfield" aria-hidden="true"></canvas>
-
-  <div class="tagline" role="banner" aria-live="polite">
-    <h1>Something big is brewing.</h1>
+  <canvas id="starfield"></canvas>
+  <div class="tagline">Something big is brewing.</div>
+  <div class="logo-wrapper">
+    <img src="./logo.png" alt="OXO Logo" class="logo">
   </div>
-
-  <div class="cta">
-    <button class="btn" id="waitlist">Join waitlist</button>
-    <button class="btn" id="enable-gyro" aria-pressed="false">Enable motion</button>
-  </div>
-
-  <div class="logo-wrapper pulse" id="logoWrap">
-    <img src="./logo.png" alt="OXO Protocol logo" class="logo" width="827" height="220">
-  </div>
-
-  <footer class="footer"><span>OXO</span>Protocol © 2025</footer>
+  <div class="footer"><span>OXO</span>Protocol © 2025</div>
 
   <script>
-    (function () {
-      const canvas = document.getElementById('starfield');
-      const ctx = canvas.getContext('2d');
-      const state = {
-        running: true,
-        dpr: Math.min(window.devicePixelRatio || 1, 2),
-        stars: [],
-        vx: -0.2, vy: 0,
-        last: performance.now()
-      };
+    const canvas = document.getElementById("starfield");
+    const ctx = canvas.getContext("2d");
 
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReduced) state.running = false;
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
-      function resizeCanvas() {
-        const { innerWidth: w, innerHeight: h } = window;
-        const dpr = state.dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvas.width  = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        canvas.style.width  = w + 'px';
-        canvas.style.height = h + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // çizim koordinatlarını CSS piksele eşitle
+    // Particles
+    const stars = Array.from({ length: 250 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.8 + 0.3,
+      alpha: Math.random() * 0.4 + 0.1,
+      depth: Math.random() * 1.2 + 0.3,
+      twinkle: Math.random() < 0.1
+    }));
 
-        // Ekran alanına göre yıldız sayısını ölçekle
-        const target = Math.max(120, Math.floor((w * h) / 9000));
-        const diff = target - state.stars.length;
-        if (diff > 0) {
-          for (let i = 0; i < diff; i++) state.stars.push(makeStar(w, h));
-        } else if (diff < 0) {
-          state.stars.splice(target);
+    let velocityX = -0.2; // default sola akış
+    let velocityY = 0;
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach(star => {
+        let starAlpha = star.alpha;
+        if (star.twinkle) {
+          starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
+          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
         }
-      }
 
-      function makeStar(w, h) {
-        return {
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: Math.random() * 1.8 + 0.3,
-          a: Math.random() * 0.4 + 0.1,
-          depth: Math.random() * 1.2 + 0.3,
-          tw: Math.random() < 0.1
-        };
-      }
+        ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        ctx.fill();
 
-      function draw(now = performance.now()) {
-        if (!state.running) return; // reduce motion
+        star.x += velocityX * star.depth * 0.9;
+        star.y += velocityY * star.depth * 0.9;
 
-        const dt = Math.min(40, now - state.last) / 16.6667; // ~60fps bazlı delta
-        state.last = now;
+        if (star.x < 0) star.x = canvas.width;
+        if (star.x > canvas.width) star.x = 0;
+        if (star.y < 0) star.y = canvas.height;
+        if (star.y > canvas.height) star.y = 0;
+      });
 
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
+      requestAnimationFrame(draw);
+    }
+    draw();
 
-        ctx.clearRect(0, 0, w, h);
+    // Desktop mouse hareketi
+    document.addEventListener("mousemove", (e) => {
+      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
+      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
+      velocityX = moveX;
+      velocityY = moveY;
+    });
 
-        for (let i = 0; i < state.stars.length; i++) {
-          const s = state.stars[i];
-
-          let alpha = s.a;
-          if (s.tw) {
-            alpha = s.a + Math.sin(now / 500) * 0.2;
-            alpha = Math.max(0.1, Math.min(0.7, alpha));
+    // Mobil gyroscope (izinli)
+    function enableGyro() {
+      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission().then(permissionState => {
+          if (permissionState === "granted") {
+            window.addEventListener("deviceorientation", handleOrientation);
           }
-
-          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.fill();
-
-          s.x += state.vx * s.depth * 0.9 * dt;
-          s.y += state.vy * s.depth * 0.9 * dt;
-
-          if (s.x < 0) s.x = w;
-          if (s.x > w) s.x = 0;
-          if (s.y < 0) s.y = h;
-          if (s.y > h) s.y = 0;
-        }
-        state.raf = requestAnimationFrame(draw);
+        }).catch(console.error);
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation);
       }
+    }
 
-      // Etkinlikler
-      window.addEventListener('resize', resizeCanvas, { passive: true });
-      resizeCanvas();
+    function handleOrientation(e) {
+      velocityX = (e.gamma / 45) * 1.5;
+      velocityY = (e.beta / 45) * 1.5;
+    }
 
-      // Mouse/parallax
-      let mmRAF = null;
-      document.addEventListener('mousemove', (e) => {
-        if (mmRAF) cancelAnimationFrame(mmRAF);
-        mmRAF = requestAnimationFrame(() => {
-          const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
-          const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
-          state.vx = moveX;
-          state.vy = moveY;
-        });
-      }, { passive: true });
-
-      // Gyro izni - buton ile
-      const gyroBtn = document.getElementById('enable-gyro');
-      function handleOrientation(e) {
-        state.vx = Math.max(-2, Math.min(2, (e.gamma / 45) * 1.5));
-        state.vy = Math.max(-2, Math.min(2, (e.beta / 45) * 1.5));
-      }
-      gyroBtn?.addEventListener('click', async () => {
-        try {
-          if (typeof DeviceOrientationEvent !== 'undefined' &&
-              typeof DeviceOrientationEvent.requestPermission === 'function') {
-            const perm = await DeviceOrientationEvent.requestPermission();
-            if (perm !== 'granted') return;
-          }
-          window.addEventListener('deviceorientation', handleOrientation, { passive: true });
-          gyroBtn.setAttribute('aria-pressed', 'true');
-        } catch {}
-      });
-
-      // Sekme görünürlüğü (arka plandayken durdur)
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          state.running = false;
-          if (state.raf) cancelAnimationFrame(state.raf);
-        } else {
-          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          state.running = !reduced;
-          state.last = performance.now();
-          if (state.running) draw();
-        }
-      });
-
-      // Başlat
-      if (state.running) draw();
-
-      // CTA örnek (şimdilik placeholder)
-      document.getElementById('waitlist')?.addEventListener('click', () => {
-        window.location.href = '/waitlist';
-      });
-    })();
+    // Kullanıcı dokununca izin iste
+    document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
 </html>
+
