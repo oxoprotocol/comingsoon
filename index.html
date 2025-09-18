@@ -44,9 +44,9 @@
     .logo-wrapper {
       position: absolute;
       top: 54%;
-      left: 52%; /* web için biraz sağa alındı */
+      left: 52%;
       transform: translate(-50%, -50%);
-      width: 868px; /* web için %5 büyütme */
+      width: 868px;
       max-width: 80%;
       z-index: 2;
       animation: pulse 2s infinite ease-in-out;
@@ -85,8 +85,8 @@
     /* 📱 Mobil ayarları */
     @media (max-width: 768px) {
       .tagline {
-        font-size: 34px;   /* çok küçülmesin */
-        top: 18%;          /* biraz aşağıda */
+        font-size: 34px;
+        top: 18%;
         left: 50%;
         transform: translateX(-50%);
         text-align: center;
@@ -95,10 +95,10 @@
       }
 
       .logo-wrapper {
-        width: 130vw;      /* %10 büyütme */
+        width: 150vw;   /* %15 daha büyük */
         max-width: 95%;
-        top: 50%;          /* tam ortada */
-        left: 50%;         /* tam ortada */
+        top: 50%;
+        left: 50%;
         transform: translate(-50%, -50%);
       }
 
@@ -169,15 +169,15 @@
     }
     draw();
 
-    // Desktop mouse hareketi
+    // 🌐 Desktop mouse hareketi
     document.addEventListener("mousemove", (e) => {
       const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
       const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
-      velocityX = moveX * 0.5;
-      velocityY = moveY * 0.5;
+      velocityX = moveX * 1;   // hız arttırıldı
+      velocityY = moveY * 1;
     });
 
-    // Mobil gyroscope
+    // 📱 Mobil gyroscope
     function enableGyro() {
       if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
         DeviceOrientationEvent.requestPermission().then(permissionState => {
@@ -195,7 +195,9 @@
       velocityY = (e.beta / 45) * 0.8;
     }
 
+    // hem click hem touch ile izin iste
     document.body.addEventListener("click", enableGyro, { once: true });
+    document.body.addEventListener("touchstart", enableGyro, { once: true });
   </script>
 </body>
 </html>
