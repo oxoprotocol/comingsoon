@@ -8,81 +8,79 @@
   <style>
     body {
       margin: 0;
-      background-color: #000;
-      width: 100%;
-      height: 100vh;
-      font-family: 'Inter', sans-serif;
+      background: #000;
       color: #fff;
-      position: relative;
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
       overflow: hidden;
+      position: relative;
     }
 
     canvas {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       z-index: 0;
     }
 
     .tagline {
       position: absolute;
-      top: 20%;
+      top: 15%;
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
       font-weight: 500;
       text-align: center;
-      z-index: 2;
-      opacity: 0;
       white-space: nowrap;
-      animation: fadeIn 1.2s ease-in-out forwards;
-      animation-delay: 0.2s;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+      z-index: 1;
     }
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;
+      top: 40%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 827px;
-      max-width: 80%;
-      z-index: 2;
-      animation: pulse 2s infinite ease-in-out;
+      width: 400px;
+      z-index: 1;
+    }
+
+    .logo-wrapper img {
+      width: 100%;
+      height: auto;
+      animation: pulse 2.5s infinite ease-in-out;
     }
 
     footer {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      font-size: 16px;
-      color: #aaa;
-      z-index: 2;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.08); }
+      font-size: 14px;
+      color: #ccc;
+      z-index: 1;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+      from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
     }
 
     /* 📱 Mobil uyumluluk */
     @media (max-width: 768px) {
       .tagline {
         font-size: 22px;
-        top: 12%;
+        top: 18%; /* biraz daha aşağı */
       }
-
       .logo-wrapper {
-        width: 95%;      /* mobilde büyütülmüş */
-        min-width: 360px; 
+        width: 90%;
+        min-width: 350px; /* logo daha büyük */
       }
-
       footer {
         font-size: 12px;
       }
@@ -91,31 +89,43 @@
 </head>
 <body>
   <canvas id="stars"></canvas>
+
   <div class="tagline">Something big is brewing.</div>
-  <img src="logo.png" alt="OXO Logo" class="logo-wrapper">
-  <footer>© 2025 OXO Protocol</footer>
+
+  <div class="logo-wrapper">
+    <img src="logo.png" alt="OXO Logo">
+  </div>
+
+  <footer>© 2025 <strong>OXO</strong> Protocol</footer>
 
   <script>
-    // 🎇 Yıldız animasyonu
-    const canvas = document.getElementById('stars');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+
     let stars = [];
+    let numStars = 200;
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    function initStars() {
       stars = [];
-      for (let i = 0; i < 150; i++) {
+      for (let i = 0; i < numStars; i++) {
         stars.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 2,
-          speedX: (Math.random() - 0.5) * 0.2,
-          speedY: (Math.random() - 0.5) * 0.2,
-          opacity: 0.4 + Math.random() * 0.4
+          radius: Math.random() * 1.5,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: 0.3 + Math.random() * 0.4
         });
       }
     }
+    initStars();
 
     function drawStars() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -123,47 +133,34 @@
       stars.forEach(star => {
         ctx.globalAlpha = star.opacity;
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
-        star.x += star.speedX;
-        star.y += star.speedY;
+
+        star.x += star.speedX + (mouseX * 0.002);
+        star.y += star.speedY + (mouseY * 0.002);
 
         if (star.x < 0) star.x = canvas.width;
         if (star.x > canvas.width) star.x = 0;
         if (star.y < 0) star.y = canvas.height;
         if (star.y > canvas.height) star.y = 0;
       });
-      ctx.globalAlpha = 1;
+      ctx.globalAlpha = 1.0;
       requestAnimationFrame(drawStars);
     }
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
     drawStars();
 
-    // 🖱 Mouse hareketi
-    document.addEventListener('mousemove', e => {
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const moveX = (e.clientX - centerX) / centerX;
-      const moveY = (e.clientY - centerY) / centerY;
-      stars.forEach(star => {
-        star.x += moveX * 0.5;
-        star.y += moveY * 0.5;
-      });
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener("mousemove", (e) => {
+      mouseX = (e.clientX - window.innerWidth / 2) / 50;
+      mouseY = (e.clientY - window.innerHeight / 2) / 50;
     });
 
-    // 📱 Mobil sensör
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', e => {
-        const moveX = e.gamma / 45;
-        const moveY = e.beta / 45;
-        stars.forEach(star => {
-          star.x += moveX * 0.5;
-          star.y += moveY * 0.5;
-        });
-      });
-    }
+    window.addEventListener("deviceorientation", (e) => {
+      if (e.gamma && e.beta) {
+        mouseX = e.gamma / 5;
+        mouseY = e.beta / 5;
+      }
+    });
   </script>
 </body>
 </html>
