@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OXO Protocol</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
   <style>
@@ -16,81 +16,39 @@
       width: 100vw;
       position: relative;
     }
-
     canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
     }
-
     .tagline {
-      position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 42px;
-      font-weight: 500;
-      text-align: center;
-      z-index: 2;
-      opacity: 0;
-      animation: fadeIn 1.2s ease-in-out forwards;
-      animation-delay: 0.2s;
+      position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+      font-size: 42px; font-weight: 500; text-align: center; z-index: 2;
+      opacity: 0; animation: fadeIn 1.2s ease-in-out forwards; animation-delay: 0.2s;
     }
-
     .logo-wrapper {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 827px;
-      max-width: 80%;
-      z-index: 2;
-      animation: pulse 2s infinite ease-in-out;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 827px; max-width: 80%; z-index: 2; animation: pulse 2s infinite ease-in-out;
     }
-
-    .logo {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.08); }
-    }
-
+    .logo { width: 100%; height: auto; display: block; }
+    @keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1);} 50%{transform:translate(-50%,-50%) scale(1.08);} }
     .footer {
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.7);
-      font-weight: 500;
-      z-index: 3;
+      position: fixed; bottom: 15px; right: 15px; font-size: 12px;
+      color: rgba(255,255,255,0.7); font-weight: 500; z-index: 3;
     }
+    .footer span { font-weight: 800; margin-right: 2px; }
+    @keyframes fadeIn { to { opacity: 1; } }
 
-    .footer span {
-      font-weight: 800;
-      margin-right: 2px;
-    }
-
-    @keyframes fadeIn {
-      to {opacity: 1;}
-    }
-
-    /* 🔹 Sadece mobil için düzenlemeler */
+    /* 🔹 Sadece mobil için: logo büyüt + biraz aşağı, footer küçük kalsın  */
     @media (max-width: 768px) {
       .logo-wrapper {
-        transform: translate(-50%, -50%) scale(2); /* %100 daha büyük */
-        top: 55%; /* biraz daha aşağı */
+        animation: none;                 /* pulse mobilde transform'u ezmesin */
+        top: 58%;                        /* biraz aşağı */
+        left: 50%;
+        transform: translate(-50%, -50%);/* ortada tut */
+        width: 200vw;                    /* ikonu ciddi büyüt (yaklaşık 2x+) */
+        max-width: none;                 /* sınırı kaldır */
       }
       .footer {
-        font-size: 10px;
-        bottom: 8px;
-        right: 8px;
+        font-size: 10px; bottom: 8px; right: 8px; /* son istediğin mobil footer */
       }
     }
   </style>
@@ -106,79 +64,50 @@
   <script>
     const canvas = document.getElementById("starfield");
     const ctx = canvas.getContext("2d");
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    function resizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+    addEventListener("resize", resizeCanvas); resizeCanvas();
 
     const stars = Array.from({ length: 250 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.8 + 0.3,
-      alpha: Math.random() * 0.4 + 0.1,
-      depth: Math.random() * 1.2 + 0.3,
-      twinkle: Math.random() < 0.1
+      x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+      r: Math.random()*1.8+0.3, alpha: Math.random()*0.4+0.1,
+      depth: Math.random()*1.2+0.3, twinkle: Math.random()<0.1
     }));
-
-    let velocityX = -0.2;
-    let velocityY = 0;
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      stars.forEach(star => {
-        let starAlpha = star.alpha;
-        if (star.twinkle) {
-          starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
-          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
-        }
-
-        ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        star.x += velocityX * star.depth * 0.9;
-        star.y += velocityY * star.depth * 0.9;
-
-        if (star.x < 0) star.x = canvas.width;
-        if (star.x > canvas.width) star.x = 0;
-        if (star.y < 0) star.y = canvas.height;
-        if (star.y > canvas.height) star.y = 0;
+    let velocityX = -0.2, velocityY = 0;
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      stars.forEach(s=>{
+        let a = s.alpha;
+        if(s.twinkle){ a = s.alpha + Math.sin(Date.now()/500)*0.2; a = Math.max(0.1, Math.min(0.7, a)); }
+        ctx.fillStyle = `rgba(255,255,255,${a})`;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+        s.x += velocityX * s.depth * 0.9; s.y += velocityY * s.depth * 0.9;
+        if(s.x<0) s.x = canvas.width; if(s.x>canvas.width) s.x = 0;
+        if(s.y<0) s.y = canvas.height; if(s.y>canvas.height) s.y = 0;
       });
-
       requestAnimationFrame(draw);
     }
     draw();
 
-    document.addEventListener("mousemove", (e) => {
-      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
-      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
-      velocityX = moveX;
-      velocityY = moveY;
+    document.addEventListener("mousemove", e=>{
+      const mx = (e.clientX/innerWidth - 0.5)*2;
+      const my = (e.clientY/innerHeight - 0.5)*2;
+      velocityX = mx; velocityY = my;
     });
 
-    function enableGyro() {
-      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-        DeviceOrientationEvent.requestPermission().then(permissionState => {
-          if (permissionState === "granted") {
-            window.addEventListener("deviceorientation", handleOrientation);
-          }
+    function enableGyro(){
+      if(typeof DeviceOrientationEvent!=="undefined" && typeof DeviceOrientationEvent.requestPermission==="function"){
+        DeviceOrientationEvent.requestPermission().then(state=>{
+          if(state==="granted"){ addEventListener("deviceorientation", handleOrientation); }
         }).catch(console.error);
       } else {
-        window.addEventListener("deviceorientation", handleOrientation);
+        addEventListener("deviceorientation", handleOrientation);
       }
     }
-
-    function handleOrientation(e) {
-      velocityX = (e.gamma / 45) * 1.5;
-      velocityY = (e.beta / 45) * 1.5;
+    function handleOrientation(e){
+      velocityX = (e.gamma/45)*1.5;
+      velocityY = (e.beta/45)*1.5;
     }
-
-    document.body.addEventListener("click", enableGyro, { once: true });
+    document.body.addEventListener("click", enableGyro, { once:true });
   </script>
 </body>
 </html>
