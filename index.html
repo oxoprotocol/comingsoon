@@ -9,147 +9,149 @@
     body {
       margin: 0;
       background-color: #000;
+      width: 100%;
+      height: 100vh;
       font-family: 'Inter', sans-serif;
       color: #fff;
+      position: relative;
       overflow: hidden;
-      height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
-      position: relative;
+      text-align: center;
     }
 
-    canvas#stars {
-      position: absolute;
+    canvas {
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 0;
+      z-index: -1;
     }
 
     .tagline {
       font-size: 42px;
       font-weight: 500;
-      text-align: center;
       margin-bottom: 20px;
-      z-index: 1;
-      opacity: 0;
-      animation: fadeIn 1.2s ease forwards;
+      white-space: nowrap;
     }
 
-    .logo-wrapper {
-      z-index: 1;
-      animation: pulse 2s infinite ease-in-out;
-    }
-
-    .logo-wrapper img {
-      width: 100%;
+    .logo {
+      width: 350px;
+      max-width: 40vw;
       height: auto;
-      display: block;
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     footer {
       position: absolute;
-      bottom: 12px;
-      right: 12px;
+      bottom: 15px;
+      right: 15px;
       font-size: 14px;
-      color: #aaa;
-      z-index: 1;
+      font-weight: 400;
+      opacity: 0.8;
     }
 
-    /* Animasyonlar */
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    /* 📱 Mobil uyumluluk */
+    /* Mobil için ayarlar */
     @media (max-width: 768px) {
       .tagline {
-        font-size: 22px;
-        top: 15%;
-        margin-bottom: 25px;
+        font-size: 28px;
+        white-space: normal; /* mobilde alt alta gelebilir */
       }
 
-      .logo-wrapper {
-        width: 75%;        /* mavi daireden biraz küçük */
-        max-width: 420px;  
-        min-width: 300px;
+      .logo {
+        width: 70vw; /* mobilde büyütülmüş logo */
+        max-width: 400px;
       }
 
       footer {
-        font-size: 10px;   /* footer küçüldü */
-        right: 8px;
-        bottom: 8px;
+        font-size: 12px; /* mobilde daha küçük footer */
+        right: 10px;
+        bottom: 10px;
       }
     }
   </style>
 </head>
 <body>
-  <canvas id="stars"></canvas>
+  <canvas id="starfield"></canvas>
 
   <div class="tagline">Something big is brewing.</div>
+  <img src="logo.png" alt="OXO Logo" class="logo">
 
-  <div class="logo-wrapper">
-    <img src="logo.png" alt="OXO Logo">
-  </div>
-
-  <footer>© 2025 OXO Protocol</footer>
+  <footer>OXO Protocol © 2025</footer>
 
   <script>
-    const canvas = document.getElementById('stars');
+    // yıldız efekti
+    const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
     let stars = [];
-    const numStars = 120;
-    let w, h;
+    const numStars = 150;
 
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      stars = [];
-      for (let i = 0; i < numStars; i++) {
-        stars.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          radius: Math.random() * 1.5,
-          speed: Math.random() * 0.4 + 0.2,
-          opacity: Math.random() * 0.35 + 0.15
-        });
-      }
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2,
+        speed: 0.3 + Math.random() * 0.4,
+        opacity: 0.2 + Math.random() * 0.3
+      });
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#fff";
       stars.forEach(star => {
         ctx.globalAlpha = star.opacity;
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fill();
-      });
-      update();
-      requestAnimationFrame(draw);
-    }
-
-    function update() {
-      stars.forEach(star => {
         star.y += star.speed;
-        if (star.y > h) {
+        if (star.y > canvas.height) {
           star.y = 0;
-          star.x = Math.random() * w;
+          star.x = Math.random() * canvas.width;
         }
       });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(drawStars);
     }
+    drawStars();
 
-    window.addEventListener('resize', resize);
-    resize();
-    draw();
+    // mouse hareketi (web için)
+    document.addEventListener('mousemove', (e) => {
+      const dx = (e.clientX / window.innerWidth - 0.5) * 2;
+      const dy = (e.clientY / window.innerHeight - 0.5) * 2;
+      stars.forEach(star => {
+        star.x += dx * 0.3;
+        star.y += dy * 0.3;
+      });
+    });
+
+    // mobil sensör (gyroscope) için
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (e) => {
+        const dx = e.gamma / 45; 
+        const dy = e.beta / 45;
+        stars.forEach(star => {
+          star.x += dx * 0.5;
+          star.y += dy * 0.5;
+        });
+      });
+    }
   </script>
 </body>
 </html>
