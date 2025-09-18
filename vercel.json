@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://www.oxoprotocol.com/$1",
+      "permanent": true
+    }
+  ]
+}
