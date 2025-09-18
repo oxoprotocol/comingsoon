@@ -9,16 +9,16 @@
     body {
       margin: 0;
       background-color: #000;
+      width: 100%;
+      height: 100vh;
       font-family: 'Inter', sans-serif;
       color: #fff;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
       position: relative;
+      overflow: hidden;
     }
 
     canvas {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
@@ -28,7 +28,7 @@
 
     .tagline {
       position: absolute;
-      top: 20%; /* her çözünürlükte yukarıdan %20 */
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
@@ -36,13 +36,14 @@
       text-align: center;
       z-index: 2;
       opacity: 0;
+      white-space: nowrap;
       animation: fadeIn 1.2s ease-in-out forwards;
       animation-delay: 0.2s;
     }
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;   /* tam dikey ortada */
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 827px;
@@ -51,10 +52,13 @@
       animation: pulse 2s infinite ease-in-out;
     }
 
-    .logo {
-      width: 100%;
-      height: auto;
-      display: block;
+    footer {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 16px;
+      color: #aaa;
+      z-index: 2;
     }
 
     @keyframes pulse {
@@ -62,114 +66,104 @@
       50% { transform: translate(-50%, -50%) scale(1.08); }
     }
 
-    .footer {
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.7);
-      font-weight: 500;
-      z-index: 3;
-    }
-
-    .footer span {
-      font-weight: 800;
-      margin-right: 2px;
-    }
-
     @keyframes fadeIn {
-      to {opacity: 1;}
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* 📱 Mobil uyumluluk */
+    @media (max-width: 768px) {
+      .tagline {
+        font-size: 22px;
+        top: 12%;
+      }
+
+      .logo-wrapper {
+        width: 95%;      /* mobilde büyütülmüş */
+        min-width: 360px; 
+      }
+
+      footer {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="starfield"></canvas>
+  <canvas id="stars"></canvas>
   <div class="tagline">Something big is brewing.</div>
-  <div class="logo-wrapper">
-    <img src="./logo.png" alt="OXO Logo" class="logo">
-  </div>
-  <div class="footer"><span>OXO</span>Protocol © 2025</div>
+  <img src="logo.png" alt="OXO Logo" class="logo-wrapper">
+  <footer>© 2025 OXO Protocol</footer>
 
   <script>
-    const canvas = document.getElementById("starfield");
-    const ctx = canvas.getContext("2d");
+    // 🎇 Yıldız animasyonu
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      stars = [];
+      for (let i = 0; i < 150; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2,
+          speedX: (Math.random() - 0.5) * 0.2,
+          speedY: (Math.random() - 0.5) * 0.2,
+          opacity: 0.4 + Math.random() * 0.4
+        });
+      }
     }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
 
-    // Particles
-    const stars = Array.from({ length: 250 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.8 + 0.3,
-      alpha: Math.random() * 0.4 + 0.1,
-      depth: Math.random() * 1.2 + 0.3,
-      twinkle: Math.random() < 0.1
-    }));
-
-    let velocityX = -0.2; // default sola akış
-    let velocityY = 0;
-
-    function draw() {
+    function drawStars() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+      ctx.fillStyle = "#fff";
       stars.forEach(star => {
-        let starAlpha = star.alpha;
-        if (star.twinkle) {
-          starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
-          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
-        }
-
-        ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
+        ctx.globalAlpha = star.opacity;
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fill();
-
-        star.x += velocityX * star.depth * 0.9;
-        star.y += velocityY * star.depth * 0.9;
+        star.x += star.speedX;
+        star.y += star.speedY;
 
         if (star.x < 0) star.x = canvas.width;
         if (star.x > canvas.width) star.x = 0;
         if (star.y < 0) star.y = canvas.height;
         if (star.y > canvas.height) star.y = 0;
       });
-
-      requestAnimationFrame(draw);
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(drawStars);
     }
-    draw();
 
-    // Desktop mouse hareketi
-    document.addEventListener("mousemove", (e) => {
-      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
-      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
-      velocityX = moveX;
-      velocityY = moveY;
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    drawStars();
+
+    // 🖱 Mouse hareketi
+    document.addEventListener('mousemove', e => {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const moveX = (e.clientX - centerX) / centerX;
+      const moveY = (e.clientY - centerY) / centerY;
+      stars.forEach(star => {
+        star.x += moveX * 0.5;
+        star.y += moveY * 0.5;
+      });
     });
 
-    // Mobil gyroscope (izinli)
-    function enableGyro() {
-      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-        DeviceOrientationEvent.requestPermission().then(permissionState => {
-          if (permissionState === "granted") {
-            window.addEventListener("deviceorientation", handleOrientation);
-          }
-        }).catch(console.error);
-      } else {
-        window.addEventListener("deviceorientation", handleOrientation);
-      }
+    // 📱 Mobil sensör
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', e => {
+        const moveX = e.gamma / 45;
+        const moveY = e.beta / 45;
+        stars.forEach(star => {
+          star.x += moveX * 0.5;
+          star.y += moveY * 0.5;
+        });
+      });
     }
-
-    function handleOrientation(e) {
-      velocityX = (e.gamma / 45) * 1.5;
-      velocityY = (e.beta / 45) * 1.5;
-    }
-
-    // Kullanıcı dokununca izin iste
-    document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
 </html>
