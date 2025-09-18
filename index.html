@@ -21,8 +21,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       z-index: 0;
     }
 
@@ -44,10 +44,10 @@
     .logo-wrapper {
       position: absolute;
       top: 54%;
-      left: 52%; /* Web için %5 sağa kaydırıldı */
+      left: 52%; /* web için biraz sağa alındı */
       transform: translate(-50%, -50%);
-      width: 870px; /* Web için %5 büyütüldü */
-      max-width: 85%;
+      width: 868px; /* web için %5 büyütme */
+      max-width: 80%;
       z-index: 2;
       animation: pulse 2s infinite ease-in-out;
     }
@@ -87,14 +87,17 @@
       .tagline {
         font-size: 28px;
         top: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
         white-space: normal;
       }
 
       .logo-wrapper {
-        width: 140vw;   /* Daha büyük logo */
-        max-width: 90%;
-        top: 60%;       /* Daha aşağı */
-        left: 50%;      /* Ortalanmış */
+        width: 154vw;   /* mobilde %10 büyütme */
+        max-width: 95%;
+        top: 60%;
+        left: 50%;      /* tam ortada */
         transform: translate(-50%, -50%);
       }
 
@@ -134,7 +137,7 @@
       twinkle: Math.random() < 0.1
     }));
 
-    let velocityX = -0.2;
+    let velocityX = -0.1;
     let velocityY = 0;
 
     function draw() {
@@ -168,8 +171,8 @@
     document.addEventListener("mousemove", (e) => {
       const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
       const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
-      velocityX = moveX;
-      velocityY = moveY;
+      velocityX = moveX * 0.5;
+      velocityY = moveY * 0.5;
     });
 
     function enableGyro() {
@@ -185,8 +188,8 @@
     }
 
     function handleOrientation(e) {
-      velocityX = (e.gamma / 45) * 1.5;
-      velocityY = (e.beta / 45) * 1.5;
+      velocityX = (e.gamma / 45) * 0.8;
+      velocityY = (e.beta / 45) * 0.8;
     }
 
     document.body.addEventListener("click", enableGyro, { once: true });
