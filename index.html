@@ -28,7 +28,7 @@
 
     .tagline {
       position: absolute;
-      top: 20%;
+      top: 20%; /* her çözünürlükte yukarıdan %20 */
       left: 50%;
       transform: translateX(-50%);
       font-size: 42px;
@@ -38,12 +38,11 @@
       opacity: 0;
       animation: fadeIn 1.2s ease-in-out forwards;
       animation-delay: 0.2s;
-      white-space: nowrap;
     }
 
     .logo-wrapper {
       position: absolute;
-      top: 50%;
+      top: 50%; /* tam dikey ortada */
       left: 50%;
       transform: translate(-50%, -50%);
       width: 827px;
@@ -82,24 +81,13 @@
       to {opacity: 1;}
     }
 
-    /* Mobil düzenlemeleri */
+    /* Sadece mobil için */
     @media (max-width: 768px) {
-      .tagline {
-        font-size: 32px;
-        white-space: normal; /* satır kaymasına izin ver */
-        width: 90%;
-        left: 50%;
-        transform: translateX(-50%); /* tam ortala */
-      }
       .logo-wrapper {
-        width: 120%; /* logoyu %50 büyüt */
-        max-width: none;
-        top: 55%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(1.5); /* ekstra büyütme */
+        transform: translate(-50%, -50%) scale(1.5); /* logoyu %50 büyüt */
       }
       .footer {
-        font-size: 10px;
+        font-size: 10px; /* mobilde footer küçülsün */
         bottom: 8px;
         right: 8px;
       }
@@ -125,17 +113,17 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // Yıldızlar
+    // Particles
     const stars = Array.from({ length: 250 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       r: Math.random() * 1.8 + 0.3,
-      alpha: Math.random() * 0.4 + 0.2,
+      alpha: Math.random() * 0.4 + 0.1,
       depth: Math.random() * 1.2 + 0.3,
       twinkle: Math.random() < 0.1
     }));
 
-    let velocityX = -0.2;
+    let velocityX = -0.2; // default sola akış
     let velocityY = 0;
 
     function draw() {
@@ -145,7 +133,7 @@
         let starAlpha = star.alpha;
         if (star.twinkle) {
           starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
-          starAlpha = Math.max(0.1, Math.min(0.8, starAlpha));
+          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
         }
 
         ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
@@ -153,8 +141,8 @@
         ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
         ctx.fill();
 
-        star.x += velocityX * star.depth;
-        star.y += velocityY * star.depth;
+        star.x += velocityX * star.depth * 0.9;
+        star.y += velocityY * star.depth * 0.9;
 
         if (star.x < 0) star.x = canvas.width;
         if (star.x > canvas.width) star.x = 0;
@@ -168,21 +156,32 @@
 
     // Desktop mouse hareketi
     document.addEventListener("mousemove", (e) => {
-      const moveX = (e.clientX / window.innerWidth - 0.5) * 1.5;
-      const moveY = (e.clientY / window.innerHeight - 0.5) * 1.5;
+      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
+      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
       velocityX = moveX;
       velocityY = moveY;
     });
 
-    // Mobil gyroscope
-    function handleOrientation(e) {
-      velocityX = (e.gamma / 45) * 1.2;
-      velocityY = (e.beta / 45) * 1.2;
+    // Mobil gyroscope (izinli)
+    function enableGyro() {
+      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission().then(permissionState => {
+          if (permissionState === "granted") {
+            window.addEventListener("deviceorientation", handleOrientation);
+          }
+        }).catch(console.error);
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation);
+      }
     }
 
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener("deviceorientation", handleOrientation, true);
+    function handleOrientation(e) {
+      velocityX = (e.gamma / 45) * 1.5;
+      velocityY = (e.beta / 45) * 1.5;
     }
+
+    // Kullanıcı dokununca izin iste
+    document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
 </html>
