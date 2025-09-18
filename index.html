@@ -8,132 +8,168 @@
   <style>
     body {
       margin: 0;
-      background-color: #000; /* Tam siyah */
+      background-color: #000;
       font-family: 'Inter', sans-serif;
       color: #fff;
-      position: relative;
       overflow: hidden;
-      height: 100vh;  /* Tüm ekran */
-      width: 100vw;   /* Tüm ekran */
+      height: 100vh;
+      width: 100vw;
+      position: relative;
     }
 
     canvas {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: 0;
-      opacity: 0.25;
     }
 
     .tagline {
       position: absolute;
-      left: 486px;  /* Figma koordinatları */
-      top: 139px;
-      width: 545px;
-      height: 53px;
+      top: 20%; /* her çözünürlükte yukarıdan %20 */
+      left: 50%;
+      transform: translateX(-50%);
       font-size: 42px;
       font-weight: 500;
-      white-space: nowrap; /* Tek satır */
-      letter-spacing: 2px;
-      opacity: 0;
-      animation: fadeIn 2s ease forwards;
-      animation-delay: 0.4s; /* daha hızlı */
+      text-align: center;
       z-index: 2;
-      text-shadow: 0 0 8px rgba(0, 200, 255, 0.6); /* Hafif glow */
+      opacity: 0;
+      animation: fadeIn 1.2s ease-in-out forwards;
+      animation-delay: 0.2s;
     }
 
     .logo-wrapper {
       position: absolute;
-      left: 383px;  /* Figma koordinatları */
-      top: 166px;
+      top: 50%;   /* tam dikey ortada */
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: 827px;
-      height: 465px;
+      max-width: 80%;
       z-index: 2;
       animation: pulse 2s infinite ease-in-out;
     }
 
     .logo {
       width: 100%;
-      height: 100%;
+      height: auto;
       display: block;
-      position: relative;
-      z-index: 2;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.08); }
     }
 
     .footer {
-      position: absolute;
-      bottom: 20px;
-      right: 20px; /* Sağ alt köşe */
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
       font-size: 12px;
-      color: rgba(255,255,255,0.5);
-      font-weight: 400;
-      letter-spacing: 1px;
-      word-spacing: -3px; /* OXO ile Protocol arasını daralttık */
-      z-index: 2;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+      z-index: 3;
     }
 
-    /* Animations */
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.07); }
+    .footer span {
+      font-weight: 800;
+      margin-right: 2px;
     }
 
     @keyframes fadeIn {
-      to { opacity: 1; }
+      to {opacity: 1;}
     }
   </style>
 </head>
 <body>
-  <canvas id="particles"></canvas>
-
+  <canvas id="starfield"></canvas>
   <div class="tagline">Something big is brewing.</div>
-
   <div class="logo-wrapper">
-    <img src="logo.png" alt="OXO Logo" class="logo">
+    <img src="./logo.png" alt="OXO Logo" class="logo">
   </div>
-
-  <div class="footer">© 2025 OXO Protocol</div>
+  <div class="footer"><span>OXO</span>Protocol © 2025</div>
 
   <script>
-    const canvas = document.getElementById("particles");
+    const canvas = document.getElementById("starfield");
     const ctx = canvas.getContext("2d");
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    const particles = Array.from({ length: 180 }, () => ({
+    // Particles
+    const stars = Array.from({ length: 250 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      r: Math.random() * 1.5,
-      dx: (Math.random() - 0.5) * 0.3,
-      dy: (Math.random() - 0.5) * 0.3,
-      color: Math.random() < 0.15 ? "rgba(0,200,255,0.8)" : "#ffffff"
+      r: Math.random() * 1.8 + 0.3,
+      alpha: Math.random() * 0.4 + 0.1,
+      depth: Math.random() * 1.2 + 0.3,
+      twinkle: Math.random() < 0.1
     }));
+
+    let velocityX = -0.2; // default sola akış
+    let velocityY = 0;
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        ctx.fillStyle = p.color;
+
+      stars.forEach(star => {
+        let starAlpha = star.alpha;
+        if (star.twinkle) {
+          starAlpha = star.alpha + Math.sin(Date.now() / 500) * 0.2;
+          starAlpha = Math.max(0.1, Math.min(0.7, starAlpha));
+        }
+
+        ctx.fillStyle = `rgba(255,255,255,${starAlpha})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
         ctx.fill();
 
-        p.x += p.dx;
-        p.y += p.dy;
+        star.x += velocityX * star.depth * 0.9;
+        star.y += velocityY * star.depth * 0.9;
 
-        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        if (star.x < 0) star.x = canvas.width;
+        if (star.x > canvas.width) star.x = 0;
+        if (star.y < 0) star.y = canvas.height;
+        if (star.y > canvas.height) star.y = 0;
       });
+
       requestAnimationFrame(draw);
     }
     draw();
+
+    // Desktop mouse hareketi
+    document.addEventListener("mousemove", (e) => {
+      const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
+      const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
+      velocityX = moveX;
+      velocityY = moveY;
+    });
+
+    // Mobil gyroscope (izinli)
+    function enableGyro() {
+      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission().then(permissionState => {
+          if (permissionState === "granted") {
+            window.addEventListener("deviceorientation", handleOrientation);
+          }
+        }).catch(console.error);
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation);
+      }
+    }
+
+    function handleOrientation(e) {
+      velocityX = (e.gamma / 45) * 1.5;
+      velocityY = (e.beta / 45) * 1.5;
+    }
+
+    // Kullanıcı dokununca izin iste
+    document.body.addEventListener("click", enableGyro, { once: true });
   </script>
 </body>
 </html>
