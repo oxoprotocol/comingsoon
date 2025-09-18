@@ -85,19 +85,20 @@
     /* 📱 Mobil ayarları */
     @media (max-width: 768px) {
       .tagline {
-        font-size: 28px;
-        top: 15%;
+        font-size: 34px;   /* çok küçülmesin */
+        top: 18%;          /* biraz aşağıda */
         left: 50%;
         transform: translateX(-50%);
         text-align: center;
         white-space: normal;
+        line-height: 1.2;
       }
 
       .logo-wrapper {
-        width: 154vw;   /* mobilde %10 büyütme */
+        width: 130vw;      /* %10 büyütme */
         max-width: 95%;
-        top: 60%;
-        left: 50%;      /* tam ortada */
+        top: 50%;          /* tam ortada */
+        left: 50%;         /* tam ortada */
         transform: translate(-50%, -50%);
       }
 
@@ -168,6 +169,7 @@
     }
     draw();
 
+    // Desktop mouse hareketi
     document.addEventListener("mousemove", (e) => {
       const moveX = (e.clientX / window.innerWidth - 0.5) * 2;
       const moveY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -175,6 +177,7 @@
       velocityY = moveY * 0.5;
     });
 
+    // Mobil gyroscope
     function enableGyro() {
       if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
         DeviceOrientationEvent.requestPermission().then(permissionState => {
