@@ -85,15 +85,15 @@
       position: fixed;
       bottom: 15px;
       left: 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px; /* ikonlar arası boşluk */
       z-index: 3;
+      display: flex;
+      gap: 12px; /* X ve Discord arasında boşluk */
+      align-items: center;
     }
 
     .x-icon {
-      width: 22px;
-      height: 22px;
+      width: 26px;
+      height: 26px;
       fill: white;
       transition: opacity 0.3s ease;
     }
@@ -103,8 +103,10 @@
     }
 
     .discord-png {
-      height: 26px; /* X’ten biraz daha büyük görünecek */
+      height: 26px;
       width: auto;
+      display: block;
+      object-fit: contain;
       transition: opacity 0.3s ease;
     }
 
@@ -126,16 +128,13 @@
 
   <!-- Sol altta X ve Discord ikonları -->
   <div class="footer-left">
-    <!-- X -->
     <a href="https://x.com/oxoprotocol" target="_blank" aria-label="OXO on X">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1227" class="x-icon">
         <path d="M714 519L1160 0H1057L667 450L383 0H0L459 696L0 1227H103L470 750L787 1227H1169L714 519Z"/>
       </svg>
     </a>
-
-    <!-- Discord -->
     <a href="https://oxoprotocol.com/discord" target="_blank" aria-label="OXO on Discord">
-      <img src="./discord.png" alt="Discord Logo" class="discord-png">
+      <img src="/discord.png" alt="Discord Logo" class="discord-png">
     </a>
   </div>
 
