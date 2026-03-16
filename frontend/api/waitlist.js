@@ -24,59 +24,48 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Disposable emails not allowed.' });
     }
 
-    const GITHUB_TOKEN  = process.env.GITHUB_TOKEN;
-    const GITHUB_REPO   = process.env.GITHUB_REPO;
-    const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
-    const FILE_PATH     = 'waitlist.json';
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-    if (!GITHUB_TOKEN || !GITHUB_REPO) {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
         return res.status(500).json({ error: 'Server config error.' });
     }
 
-    const apiBase = `https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}`;
     const headers = {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: 'application/vnd.github.v3+json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'OXO-Waitlist',
     };
 
-    let currentEmails = [];
-    let fileSha = null;
-    try {
-        const getRes = await fetch(`${apiBase}?ref=${GITHUB_BRANCH}`, { headers });
-        if (getRes.ok) {
-            const fileData = await getRes.json();
-            fileSha = fileData.sha;
-            const decoded = Buffer.from(fileData.content, 'base64').toString('utf8');
-            currentEmails = JSON.parse(decoded);
-        }
-    } catch {}
-
-    const exists = currentEmails.find(e => e.email === normalized);
-    if (exists) {
-        return res.status(409).json({ error: 'Email already registered.', position: currentEmails.indexOf(exists) + 1 });
+    // Duplicate kontrolü
+    const checkRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/waitlist?email=eq.${encodeURIComponent(normalized)}&select=id`,
+        { headers }
+    );
+    const existing = await checkRes.json();
+    if (existing.length > 0) {
+        const countRes = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=id`, { headers: { ...headers, 'Prefer': 'count=exact' } });
+        const total = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '0');
+        return res.status(409).json({ error: 'Email already registered.', position: total });
     }
 
-    currentEmails.push({ email: normalized, joinedAt: new Date().toISOString() });
-
-    const body = {
-        message: `waitlist: ${normalized}`,
-        content: Buffer.from(JSON.stringify(currentEmails, null, 2)).toString('base64'),
-        branch: GITHUB_BRANCH,
-    };
-    if (fileSha) body.sha = fileSha;
-
-    const putRes = await fetch(apiBase, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(body),
+    // Kaydet
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || '';
+    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+        method: 'POST',
+        headers: { ...headers, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ email: normalized, ip }),
     });
 
-    if (!putRes.ok) {
-        console.error('GitHub write error:', await putRes.json());
+    if (!insertRes.ok) {
+        const err = await insertRes.text();
+        console.error('Supabase insert error:', err);
         return res.status(500).json({ error: 'Failed to save.' });
     }
 
-    return res.status(200).json({ success: true, position: currentEmails.length });
+    // Toplam sayı
+    const countRes = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=id`, { headers: { ...headers, 'Prefer': 'count=exact' } });
+    const total = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '1');
+
+    return res.status(200).json({ success: true, position: total });
 }
