@@ -34,9 +34,13 @@ nav {
 nav.scrolled { background: rgba(5,9,12,0.97); }
 
 .nav-logo {
-  display: flex; align-items: center; gap: 9px;
-  font-size: 13px; font-weight: 700; letter-spacing: 0.05em;
-  color: #fff; text-decoration: none;
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none;
+}
+.nav-logo-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: 0.02em;
+  color: #fff;
 }
 
 .nav-links { display: flex; gap: 44px; list-style: none; align-items: center; }
@@ -103,10 +107,13 @@ nav.scrolled { background: rgba(5,9,12,0.97); }
 #hero {
   position: relative; z-index: 1;
   display: flex; align-items: center;
-  padding: 100px 52px 70px;
-  gap: 40px; min-height: 90vh;
+  padding: 110px 60px 80px;
+  min-height: 92vh; overflow: hidden;
 }
-.hero-left { flex: 1; max-width: 480px; }
+.hero-left {
+  flex: 0 0 420px; max-width: 420px;
+  position: relative; z-index: 2;
+}
 .hero-left > * { opacity: 0; transform: translateY(18px); animation: fadeUp 0.7s forwards; }
 .hero-left > *:nth-child(1) { animation-delay: 0.1s; }
 .hero-left > *:nth-child(2) { animation-delay: 0.22s; }
@@ -116,95 +123,68 @@ nav.scrolled { background: rgba(5,9,12,0.97); }
 
 @keyframes fadeUp { to { opacity: 1; transform: none; } }
 
-.hero-eyebrow {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
-  text-transform: uppercase; color: rgba(78,205,196,0.7);
-  margin-bottom: 18px;
-  display: flex; align-items: center; gap: 10px;
-}
-.hero-eyebrow::before {
-  content: ''; display: block; width: 20px; height: 1px;
-  background: rgba(78,205,196,0.5);
-}
-
 .hero-h1 {
-  font-size: clamp(36px, 4.5vw, 56px);
-  font-weight: 800; line-height: 1.1;
-  letter-spacing: -0.025em; color: #fff;
-  margin-bottom: 18px;
+  font-size: clamp(36px, 4vw, 54px);
+  font-weight: 800; line-height: 1.12;
+  letter-spacing: -0.02em; color: #fff;
+  margin-bottom: 16px;
 }
-.hero-h1 .dim { font-weight: 300; color: rgba(255,255,255,0.7); }
-
 .hero-sub {
-  font-size: 13px; color: rgba(255,255,255,0.4);
-  margin-bottom: 5px; font-weight: 400;
+  font-size: 14px; color: rgba(255,255,255,0.55);
+  margin-bottom: 6px; font-weight: 400;
 }
 .hero-tags {
-  font-size: 12px; color: rgba(255,255,255,0.28);
-  line-height: 1.7; margin-bottom: 2px;
+  font-size: 13px; color: rgba(255,255,255,0.32);
+  line-height: 1.8; margin-bottom: 0;
 }
 
-.hero-ctas { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+.hero-ctas { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
 
 .btn-launch {
   display: inline-flex; align-items: center; gap: 7px;
-  padding: 13px 30px;
+  padding: 13px 32px;
   background: #4ecdc4; color: #05090c;
-  font-family: 'Inter',sans-serif; font-size: 12px; font-weight: 700;
-  border: none; border-radius: 6px; cursor: pointer;
-  text-decoration: none; letter-spacing: 0.05em;
+  font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 700;
+  border: none; border-radius: 50px; cursor: pointer;
+  text-decoration: none; letter-spacing: 0.02em;
   transition: all 0.25s;
-  box-shadow: 0 0 0 0 rgba(78,205,196,0);
 }
 .btn-launch:hover {
   background: #62ddd4;
-  box-shadow: 0 0 32px rgba(78,205,196,0.4), 0 4px 20px rgba(78,205,196,0.25);
+  box-shadow: 0 0 28px rgba(78,205,196,0.4);
   transform: translateY(-2px);
 }
-.btn-launch svg { width: 12px; height: 12px; transition: transform 0.2s; }
-.btn-launch:hover svg { transform: translateX(3px); }
 
 .btn-docs {
   display: inline-flex; align-items: center;
-  padding: 13px 26px;
-  background: transparent; color: rgba(255,255,255,0.75);
-  font-family: 'Inter',sans-serif; font-size: 12px; font-weight: 500;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 6px; cursor: pointer;
+  padding: 13px 28px;
+  background: transparent; color: rgba(255,255,255,0.8);
+  font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 50px; cursor: pointer;
   text-decoration: none; transition: all 0.25s;
 }
 .btn-docs:hover {
-  border-color: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.4);
   color: #fff; background: rgba(255,255,255,0.04);
 }
 
-/* live badge */
-.live-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(78,205,196,0.08); border: 1px solid rgba(78,205,196,0.2);
-  border-radius: 20px; padding: 4px 12px;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: rgba(78,205,196,0.8);
-  margin-bottom: 22px;
-}
-.live-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #4ecdc4;
-  animation: livepulse 1.8s ease-in-out infinite;
-}
-@keyframes livepulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.75); }
-}
-
+/* ── HERO RIGHT — iki canvas üst-sağ / alt-sağ ── */
 .hero-right {
-  flex: 1; display: flex; justify-content: center; align-items: center;
-  gap: 12px; position: relative; max-width: 760px;
+  flex: 1; position: relative;
+  height: 520px;
 }
-#hero-canvas, #hero-canvas-purple {
-  width: 100%; max-width: 360px; aspect-ratio: 1;
-  display: block; opacity: 0;
-  animation: fadeIn 1.2s 0.4s forwards;
+#hero-canvas {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 420px; height: 420px;
+  opacity: 0; animation: fadeIn 1.2s 0.4s forwards;
+}
+#hero-canvas-purple {
+  position: absolute;
+  top: 0; right: 160px;
+  width: 280px; height: 280px;
+  opacity: 0; animation: fadeIn 1.2s 0.7s forwards;
 }
 @keyframes fadeIn { to { opacity: 1; } }
 
@@ -413,9 +393,11 @@ footer {
   nav { padding: 0 24px; }
   .nav-links { display: none; }
   .nav-hamburger { display: flex; }
-  #hero { flex-direction: column; padding: 90px 24px 50px; min-height: unset; gap: 36px; }
-  .hero-right { width: 100%; max-width: 400px; margin: 0 auto; gap: 8px; }
-  #hero-canvas, #hero-canvas-purple { max-width: 180px; }
+  #hero { flex-direction: column; padding: 90px 24px 50px; min-height: unset; }
+  .hero-left { max-width: 100%; }
+  .hero-right { width: 100%; height: 320px; margin-top: 24px; }
+  #hero-canvas { width: 260px; height: 260px; right: 0; bottom: 0; }
+  #hero-canvas-purple { width: 170px; height: 170px; right: 100px; top: 0; }
   .stats-bar { padding: 0 24px 40px; flex-wrap: wrap; }
   .stat-item { flex: calc(50% - 1px); max-width: none; }
   .stat-item:nth-child(3) { border-radius: 0 0 0 10px; border-left: 1px solid rgba(255,255,255,0.06); border-top: none; }
@@ -435,12 +417,13 @@ footer {
 <!-- NAV -->
 <nav id="main-nav">
   <a class="nav-logo" href="/">
-    <img src="images/logo.png" alt="OXO Protocol" style="height:28px;width:auto;display:block;">
+    <img src="images/logo.png" alt="OXO Protocol" style="height:38px;width:auto;display:block;">
+    <span class="nav-logo-text">OXO Protocol</span>
   </a>
   <ul class="nav-links">
     <li><a href="#what">What is OXO?</a></li>
-    <li><a href="whitepaper.html">Whitepaper</a></li>
-    <li><a href="docs.html">Docs</a></li>
+    <li><a href="whitepaper.html">Litepaper</a></li>
+    <li><a href="docs.html">FAQ</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -455,14 +438,11 @@ footer {
 <!-- HERO -->
 <section id="hero">
   <div class="hero-left">
-    <div class="hero-eyebrow">Secure · Scalable · Native Yield</div>
-    <h1 class="hero-h1">L1.5 Network<br><span class="dim">with Native Yield</span></h1>
-    <p class="hero-tags">Bridge Bitcoin · Earn Yield · Scale with ZK</p>
+    <h1 class="hero-h1">L1.5 Network<br>with Native Yield</h1>
+    <p class="hero-sub">Secure , Scalable and Native Yield L1.5 Protocol</p>
+    <p class="hero-tags">Built with zk-rollups , AggLayer integration<br>Modular DA &amp; native yield mechanics</p>
     <div class="hero-ctas">
-      <a href="#cta" class="btn-launch" onclick="setTimeout(()=>document.getElementById('wl-email').focus(),600)">
-        Join Waitlist
-        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
-      </a>
+      <a href="#cta" class="btn-launch" onclick="setTimeout(()=>document.getElementById('wl-email').focus(),600)">Join Waitlist</a>
       <a href="docs.html" class="btn-docs">Read Docs</a>
     </div>
   </div>
@@ -903,7 +883,7 @@ function drawPurple() {
     const dx = a.x-b.x, dy = a.y-b.y, d = Math.sqrt(dx*dx+dy*dy);
     if (d < PMAX) {
       pX.beginPath(); pX.moveTo(a.x,a.y); pX.lineTo(b.x,b.y);
-      pX.strokeStyle = `rgba(160,80,255,${(1-d/PMAX)*.35})`;
+      pX.strokeStyle = `rgba(200,200,220,${(1-d/PMAX)*.28})`;
       pX.lineWidth = a.big||b.big ? 1 : .6; pX.stroke();
     }
   }
@@ -911,14 +891,14 @@ function drawPurple() {
     const pulse = .5+.5*Math.sin(pFrame*.022+n.phase);
     if (n.big) {
       const g = pX.createRadialGradient(n.x,n.y,0,n.x,n.y,20);
-      g.addColorStop(0,'rgba(180,80,255,0.22)'); g.addColorStop(1,'transparent');
+      g.addColorStop(0,'rgba(200,200,220,0.12)'); g.addColorStop(1,'transparent');
       pX.beginPath(); pX.arc(n.x,n.y,20,0,Math.PI*2); pX.fillStyle=g; pX.fill();
       pX.beginPath(); pX.arc(n.x,n.y,n.r+pulse*1.4,0,Math.PI*2);
-      pX.fillStyle=`rgba(190,90,255,${.65+pulse*.3})`;
-      pX.shadowColor='#b050ff'; pX.shadowBlur=14; pX.fill(); pX.shadowBlur=0;
+      pX.fillStyle=`rgba(210,210,225,${.55+pulse*.3})`;
+      pX.shadowColor='#c8c8dc'; pX.shadowBlur=14; pX.fill(); pX.shadowBlur=0;
     } else {
       pX.beginPath(); pX.arc(n.x,n.y,n.r*(.8+pulse*.3),0,Math.PI*2);
-      pX.fillStyle=`rgba(160,70,255,${.2+pulse*.3})`; pX.fill();
+      pX.fillStyle=`rgba(190,190,210,${.18+pulse*.25})`; pX.fill();
     }
   });
   if (purplePulse) {
