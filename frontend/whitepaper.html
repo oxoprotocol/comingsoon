@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OXO Protocol — Whitepaper v1.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05090c;
+    --bg2: #0a1017;
+    --bg3: #0f1923;
+    --border: #1a2535;
+    --teal: #4ecdc4;
+    --teal2: #38b2aa;
+    --orange: #f7931a;
+    --text: #e2e8f0;
+    --muted: #7a8fa6;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 860px; margin: 0 auto; padding: 0 32px; }
+
+  /* ── Cover ── */
+  .cover {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 80px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cover-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(78,205,196,.1); border: 1px solid rgba(78,205,196,.3);
+    color: var(--teal); padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; letter-spacing: .5px;
+    margin-bottom: 32px;
+  }
+  .cover h1 {
+    font-size: clamp(36px, 6vw, 60px);
+    font-weight: 700; line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .cover h1 span { color: var(--teal); }
+  .cover-sub {
+    font-size: 20px; color: var(--muted); font-weight: 300;
+    margin-bottom: 40px; max-width: 600px;
+  }
+  .cover-meta {
+    display: flex; gap: 32px; flex-wrap: wrap;
+    font-size: 13px; color: var(--muted);
+  }
+  .cover-meta span { color: var(--text); font-weight: 500; }
+
+  /* ── Nav ── */
+  .toc {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 32px; margin: 60px 0;
+  }
+  .toc h3 { font-size: 13px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 20px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 8px; }
+  .toc a { color: var(--teal); text-decoration: none; font-size: 14px; }
+  .toc a:hover { color: var(--white); }
+
+  /* ── Sections ── */
+  section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+  .section-number {
+    font-size: 12px; letter-spacing: 1px; color: var(--teal);
+    text-transform: uppercase; font-weight: 600; margin-bottom: 8px;
+  }
+  h2 { font-size: 30px; font-weight: 700; margin-bottom: 20px; }
+  h3 { font-size: 18px; font-weight: 600; margin: 32px 0 12px; color: var(--white); }
+  h4 { font-size: 15px; font-weight: 600; margin: 24px 0 8px; color: var(--teal); }
+  p { margin-bottom: 16px; color: var(--text); }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Callout ── */
+  .callout {
+    background: rgba(78,205,196,.06); border-left: 3px solid var(--teal);
+    padding: 16px 20px; border-radius: 0 8px 8px 0;
+    margin: 24px 0; font-style: italic; color: var(--text);
+  }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; margin: 24px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    background: var(--bg3); color: var(--teal);
+    padding: 10px 16px; text-align: left; font-weight: 600;
+    font-size: 12px; letter-spacing: .5px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* ── Code ── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg3); color: var(--teal);
+    padding: 2px 6px; border-radius: 4px; font-size: 13px;
+  }
+
+  /* ── Address chip ── */
+  .addr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--muted);
+    background: var(--bg3); padding: 3px 8px;
+    border-radius: 4px; border: 1px solid var(--border);
+  }
+
+  /* ── Diagram base ── */
+  .diagram {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 32px;
+    margin: 32px 0; overflow-x: auto;
+  }
+  .diagram svg { display: block; margin: 0 auto; }
+
+  /* ── Stat cards ── */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 24px 0; }
+  .stat {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--teal); }
+  .stat-lbl { font-size: 12px; color: var(--muted); }
+
+  /* ── Module cards ── */
+  .modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 24px 0; }
+  .module {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px;
+  }
+  .module-icon { font-size: 22px; margin-bottom: 10px; }
+  .module-name { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+  .module-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── Phase timeline ── */
+  .timeline { margin: 24px 0; }
+  .phase {
+    display: flex; gap: 20px; margin-bottom: 24px; align-items: flex-start;
+  }
+  .phase-dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--bg2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--teal);
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .phase-dot.active { border-color: var(--teal); background: rgba(78,205,196,.1); }
+  .phase-title { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .phase-sub { font-size: 13px; color: var(--muted); }
+
+  /* ── Footer ── */
+  footer {
+    padding: 40px 0; text-align: center;
+    font-size: 13px; color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--teal); text-decoration: none; }
+
+  /* ── Disclaimer ── */
+  .disclaimer {
+    background: rgba(247,147,26,.05); border: 1px solid rgba(247,147,26,.2);
+    border-radius: 8px; padding: 16px 20px; font-size: 13px;
+    color: var(--muted); margin: 24px 0;
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 0 20px; }
+    .cover { padding: 60px 0; }
+    .cover-meta { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ COVER ════════════════════════════════ -->
+<div class="container">
+  <div class="cover">
+    <div class="cover-badge">
+      <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#4ecdc4"/></svg>
+      Whitepaper v1.1 — 2026
+    </div>
+    <h1>OXO Protocol<br><span>Bitcoin's DeFi Layer</span></h1>
+    <p class="cover-sub">
+      From digital gold to a living, breathing financial ecosystem —<br>
+      OXO brings Bitcoin into everyday use without changing Bitcoin.
+    </p>
+    <div class="cover-meta">
+      Version <span>1.0</span> &nbsp;·&nbsp;
+      Network <span>Sepolia Testnet</span> &nbsp;·&nbsp;
+      Status <span>Live</span> &nbsp;·&nbsp;
+      Website <span>oxoprotocol.com</span>
+    </div>
+  </div>
+
+  <!-- ════ TABLE OF CONTENTS ════ -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#problem">The Bitcoin Problem</a></li>
+      <li><a href="#solution">The OXO Solution</a></li>
+      <li><a href="#architecture">Protocol Architecture</a></li>
+      <li><a href="#modules">Core Modules</a></li>
+      <li><a href="#tokenomics">Tokenomics</a></li>
+      <li><a href="#security">Security Model</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#contracts">Deployed Contracts</a></li>
+    </ol>
+  </div>
+
+  <!-- ════ 1. ABSTRACT ════ -->
+  <section id="abstract">
+    <div class="section-number">01</div>
+    <h2>Abstract</h2>
+    <p>
+      Bitcoin holds over $1 trillion in value yet participates in almost none of the
+      decentralized finance ecosystem. The dominant narrative — "digital gold" — has
+      kept BTC inert while every other major asset has found productive use on-chain.
+    </p>
+    <p>
+      OXO Protocol is a Layer-1.5 infrastructure built on Ethereum that bridges Bitcoin
+      into a complete DeFi and payments ecosystem. Users deposit BTC and receive
+      <strong>oxoBTC</strong>, a 1:1 backed on-chain representation that can be swapped,
+      lent, staked, used across chains, or spent via NFC-enabled apps — all while
+      remaining redeemable for real BTC at any time through the OXO bridge.
+    </p>
+    <div class="callout">
+      "OXO doesn't change Bitcoin. It changes what you can do with it."
+    </div>
+    <p>
+      The protocol is live on Sepolia testnet with all core modules deployed and auditable.
+      Mainnet launch is targeted for Q4 2026 following a community audit contest.
+    </p>
+  </section>
+
+  <!-- ════ 2. THE PROBLEM ════ -->
+  <section id="problem">
+    <div class="section-number">02</div>
+    <h2>The Bitcoin Problem</h2>
+
+    <h3>2.1 — Digital Gold, Frozen in Place</h3>
+    <p>
+      Bitcoin was designed to be peer-to-peer electronic cash. In practice, the vast
+      majority of BTC sits idle in wallets — appreciated in value but generating no yield,
+      participating in no protocol, and spending no fees back into any ecosystem.
+      The Lightning Network addressed micropayments but did not solve DeFi participation.
+    </p>
+
+    <h3>2.2 — Existing Solutions Fall Short</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Protocol</th><th>Model</th><th>Problem</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>WBTC</strong></td><td>Custodial (BitGo)</td><td>KYC required, centralized custody, no native DeFi</td></tr>
+          <tr><td><strong>tBTC</strong></td><td>Threshold signatures</td><td>6-hour mint delay, complex UX, limited integrations</td></tr>
+          <tr><td><strong>cbBTC</strong></td><td>Coinbase custodial</td><td>Requires Coinbase account, US-centric</td></tr>
+          <tr><td><strong>OXO oxoBTC</strong></td><td>Relayer + multisig</td><td>~10 min mint, permissionless, full DeFi stack</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.3 — The Missing Layer</h3>
+    <p>
+      Ethereum has its DeFi layer. Solana has its DeFi layer. Bitcoin — the largest
+      crypto asset by market cap — has no native, fully integrated DeFi and payments
+      layer. OXO is built to be exactly that.
+    </p>
+  </section>
+
+  <!-- ════ 3. THE SOLUTION ════ -->
+  <section id="solution">
+    <div class="section-number">03</div>
+    <h2>The OXO Solution</h2>
+
+    <h3>3.1 — The Ecosystem Loop</h3>
+    <p>
+      Once a user bridges BTC into OXO Protocol, they enter a self-contained financial
+      ecosystem. They can stay entirely within OXO, move to other EVM chains via
+      cross-chain bridges, and always return to BTC through the OXO exit bridge.
+      The protocol is designed so that OXO is always the entry <em>and</em> exit point
+      for Bitcoin liquidity.
+    </p>
+
+    <!-- DIAGRAM 1: Ecosystem Loop -->
+    <div class="diagram">
+      <svg width="760" height="380" viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#4ecdc4"/>
+          </marker>
+          <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#7a8fa6"/>
+          </marker>
+        </defs>
+
+        <!-- BTC (left) -->
+        <rect x="20" y="155" width="110" height="70" rx="10" fill="#1a1f0d" stroke="#f7931a" stroke-width="1.5"/>
+        <text x="75" y="185" text-anchor="middle" fill="#f7931a" font-size="11" font-weight="600" font-family="Inter">₿ BITCOIN</text>
+        <text x="75" y="202" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">User's BTC</text>
+        <text x="75" y="216" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">on-chain</text>
+
+        <!-- Bridge -->
+        <rect x="165" y="148" width="100" height="84" rx="10" fill="#0a1017" stroke="#4ecdc4" stroke-width="1.5"/>
+        <text x="215" y="178" text-anchor="middle" fill="#4ecdc4" font-size="11" font-weight="600" font-family="Inter">OXO</text>
+        <text x="215" y="193" text-anchor="middle" fill="#4ecdc4" font-size="11" font-weight="600" font-family="Inter">BRIDGE</text>
+        <text x="215" y="213" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">~10 min mint</text>
+        <text x="215" y="226" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">1:1 backed</text>
+
+        <!-- Arrows BTC ↔ Bridge -->
+        <line x1="130" y1="182" x2="163" y2="182" stroke="#f7931a" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="163" y1="198" x2="130" y2="198" stroke="#7a8fa6" stroke-width="1.2" marker-end="url(#arr2)"/>
+        <text x="146" y="175" text-anchor="middle" fill="#f7931a" font-size="9" font-family="Inter">deposit</text>
+        <text x="146" y="210" text-anchor="middle" fill="#7a8fa6" font-size="9" font-family="Inter">redeem</text>
+
+        <!-- oxoBTC Hub (center) -->
+        <circle cx="380" cy="190" r="56" fill="#0a1017" stroke="#4ecdc4" stroke-width="2"/>
+        <text x="380" y="184" text-anchor="middle" fill="#4ecdc4" font-size="13" font-weight="700" font-family="Inter">oxoBTC</text>
+        <text x="380" y="200" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">ERC-20</text>
+        <text x="380" y="214" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">1:1 BTC</text>
+
+        <!-- Arrow Bridge → oxoBTC -->
+        <line x1="267" y1="185" x2="322" y2="185" stroke="#4ecdc4" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- DeFi modules (right side) -->
+        <!-- Swap -->
+        <rect x="468" y="30" width="90" height="50" rx="8" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="513" y="52" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600" font-family="Inter">SWAP</text>
+        <text x="513" y="67" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">AMM / DEX</text>
+        <line x1="435" y1="168" x2="468" y2="72" stroke="#1a2535" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+        <!-- Lending -->
+        <rect x="468" y="100" width="90" height="50" rx="8" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="513" y="122" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600" font-family="Inter">LENDING</text>
+        <text x="513" y="137" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">70% LTV</text>
+        <line x1="435" y1="178" x2="466" y2="132" stroke="#1a2535" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+        <!-- Staking -->
+        <rect x="468" y="170" width="90" height="50" rx="8" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="513" y="192" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600" font-family="Inter">STAKING</text>
+        <text x="513" y="207" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">Earn OXO</text>
+        <line x1="436" y1="190" x2="466" y2="190" stroke="#1a2535" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+        <!-- Rollup -->
+        <rect x="468" y="240" width="90" height="50" rx="8" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="513" y="262" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600" font-family="Inter">ZK ROLLUP</text>
+        <text x="513" y="277" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">L2 speed</text>
+        <line x1="435" y1="202" x2="468" y2="258" stroke="#1a2535" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+        <!-- Cross-chain -->
+        <rect x="468" y="310" width="90" height="50" rx="8" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="513" y="330" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600" font-family="Inter">CROSS-CHAIN</text>
+        <text x="513" y="347" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">OP/ARB/SOL</text>
+        <line x1="436" y1="212" x2="468" y2="332" stroke="#1a2535" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+        <!-- Other chains -->
+        <rect x="600" y="310" width="90" height="50" rx="8" fill="#0c0a17" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="645" y="332" text-anchor="middle" fill="#7a8fa6" font-size="11" font-family="Inter">OP · ARB</text>
+        <text x="645" y="347" text-anchor="middle" fill="#7a8fa6" font-size="11" font-family="Inter">ETH · SOL</text>
+        <line x1="558" y1="335" x2="598" y2="335" stroke="#1a2535" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+        <!-- Return arrow cross-chain → bridge -->
+        <path d="M645 360 Q645 375 380 375 Q215 375 215 234" fill="none" stroke="#4ecdc4" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+        <text x="430" y="372" text-anchor="middle" fill="#4ecdc4" font-size="9" font-family="Inter">always exit via OXO</text>
+      </svg>
+    </div>
+
+    <h3>3.2 — Key Design Principles</h3>
+    <p><strong>Non-custodial by design.</strong> Users hold oxoBTC directly. The bridge custodial layer is secured by a 3-of-5 multisig in Phase 1, transitioning to Threshold Signature Scheme (TSS) in Phase 2.</p>
+    <p><strong>OXO as the exit gate.</strong> Cross-chain transfers of oxoBTC are supported, but conversion back to real BTC is always performed through the OXO bridge. This creates durable protocol demand regardless of where users take their oxoBTC.</p>
+    <p><strong>Yield on Bitcoin.</strong> By depositing oxoBTC into the staking contract, users earn OXO emissions and protocol fee revenue — generating yield on an otherwise idle asset.</p>
+  </section>
+
+  <!-- ════ 4. ARCHITECTURE ════ -->
+  <section id="architecture">
+    <div class="section-number">04</div>
+    <h2>Protocol Architecture</h2>
+
+    <!-- DIAGRAM 2: Stack -->
+    <div class="diagram">
+      <svg width="700" height="300" viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+        <defs>
+          <marker id="a3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#4ecdc4"/>
+          </marker>
+        </defs>
+
+        <!-- Layer labels -->
+        <text x="14" y="62" fill="#7a8fa6" font-size="10" font-family="Inter" writing-mode="vertical-rl" transform="rotate(180,14,90)">USER</text>
+        <text x="14" y="162" fill="#7a8fa6" font-size="10" font-family="Inter" writing-mode="vertical-rl" transform="rotate(180,14,190)">PROTOCOL</text>
+        <text x="14" y="265" fill="#7a8fa6" font-size="10" font-family="Inter" writing-mode="vertical-rl" transform="rotate(180,14,265)">SETTLEMENT</text>
+
+        <!-- Layer 0: Bitcoin -->
+        <rect x="30" y="252" width="640" height="36" rx="6" fill="#1a1206" stroke="#f7931a" stroke-width="1"/>
+        <text x="350" y="274" text-anchor="middle" fill="#f7931a" font-size="12" font-weight="600" font-family="Inter">Bitcoin Network (L1)</text>
+
+        <!-- Layer 1: Ethereum -->
+        <rect x="30" y="205" width="640" height="36" rx="6" fill="#0a101a" stroke="#627eea" stroke-width="1"/>
+        <text x="350" y="227" text-anchor="middle" fill="#627eea" font-size="12" font-weight="600" font-family="Inter">Ethereum — Smart Contract Settlement (L1)</text>
+
+        <!-- Layer 1.5: OXO Core -->
+        <rect x="30" y="125" width="640" height="68" rx="6" fill="#071510" stroke="#4ecdc4" stroke-width="1.5"/>
+        <text x="350" y="148" text-anchor="middle" fill="#4ecdc4" font-size="12" font-weight="700" font-family="Inter">OXO Protocol Core (Layer 1.5)</text>
+        <!-- sub boxes -->
+        <rect x="44" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#4ecdc4" stroke-width="1"/>
+        <text x="89" y="172" text-anchor="middle" fill="#4ecdc4" font-size="10" font-family="Inter">Bridge V3</text>
+        <rect x="146" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
+        <text x="191" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">AMM Swap</text>
+        <rect x="248" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
+        <text x="293" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">Lending</text>
+        <rect x="350" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
+        <text x="395" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">Staking</text>
+        <rect x="452" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
+        <text x="497" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">ZK Rollup</text>
+        <rect x="554" y="155" width="102" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
+        <text x="605" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">FlashExit</text>
+
+        <!-- Layer 2: User Apps -->
+        <rect x="30" y="75" width="640" height="38" rx="6" fill="#0a0f1a" stroke="#1a2535" stroke-width="1"/>
+        <text x="350" y="97" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600" font-family="Inter">User Interface — Web App · NFC Payments · Cross-Chain</text>
+
+        <!-- Layer 3: Bitcoin holders -->
+        <rect x="30" y="30" width="640" height="34" rx="6" fill="#0d0d0d" stroke="#1a2535" stroke-width="1"/>
+        <text x="350" y="51" text-anchor="middle" fill="#7a8fa6" font-size="12" font-family="Inter">Bitcoin Holders — 500M+ potential users</text>
+
+        <!-- Arrows -->
+        <line x1="350" y1="64" x2="350" y2="73" stroke="#4ecdc4" stroke-width="1.2" marker-end="url(#a3)"/>
+        <line x1="350" y1="113" x2="350" y2="123" stroke="#4ecdc4" stroke-width="1.2" marker-end="url(#a3)"/>
+        <line x1="350" y1="193" x2="350" y2="203" stroke="#4ecdc4" stroke-width="1.2" marker-end="url(#a3)"/>
+        <line x1="350" y1="241" x2="350" y2="250" stroke="#f7931a" stroke-width="1.2" marker-end="url(#a3)"/>
+      </svg>
+    </div>
+
+    <h3>4.1 — oxoBTC Token</h3>
+    <p>
+      <code>oxoBTC</code> is an ERC-20 token with 8 decimal places (matching Bitcoin's satoshi precision).
+      Every unit of oxoBTC in circulation is backed 1:1 by BTC held in the bridge custody.
+      The token is minted exclusively by <code>BridgeV3</code> upon verified deposit and burned upon redemption.
+    </p>
+
+    <h3>4.2 — BridgeV3</h3>
+    <p>
+      The bridge operates as a relayer-signed mint system. When a user sends BTC to the protocol deposit address, an off-chain relayer detects the confirmed transaction, signs a mint digest using ECDSA, and submits it to the <code>mintAndTransfer()</code> function. Replay attacks are prevented via unique deposit IDs stored on-chain.
+    </p>
+    <p>
+      A <strong>0.1% bridge fee</strong> is charged on every mint and routed to the Protocol Treasury, which distributes it to stakers (70%), POL (20%), reserve (5%), and OXO buyback-burn (5%).
+    </p>
+    <p>
+      <strong>OXO fee discount:</strong> Users staking ≥1,000 OXO pay zero bridge fees.
+    </p>
+
+    <h3>4.3 — ZK Rollup</h3>
+    <p>
+      The OXO ZK Rollup is a Groth16-based validity rollup built with Circom circuits.
+      Phase 1 supports <strong>256 transactions per batch</strong> with 8-account state management.
+      The sequencer aggregates transactions off-chain, generates a zero-knowledge proof,
+      and submits the state root to <code>OXORollup.sol</code> on Ethereum for verification.
+    </p>
+    <p>
+      <strong>Intentional scope:</strong> The Phase 1 circuit is deliberately minimal —
+      a production-proven foundation that is upgradeable. The Circom circuit, trusted setup,
+      and on-chain verifier are all replaceable without migrating user funds.
+      Increasing batch size from 256 to 1,024+ transactions requires only a circuit recompile
+      and a new trusted setup ceremony, not a protocol migration.
+      All 11 contracts are deployed and verifiable on Sepolia Etherscan.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Phase 1 (live)</th><th>Phase 2 (roadmap)</th></tr></thead>
+        <tbody>
+          <tr><td>Tx per batch</td><td>256</td><td>1,024+</td></tr>
+          <tr><td>Account state</td><td>8 accounts</td><td>Unbounded (Merkle tree)</td></tr>
+          <tr><td>Proof system</td><td>Groth16</td><td>PLONK / Halo2</td></tr>
+          <tr><td>Sequencer</td><td>Centralized (low cost)</td><td>Decentralized (DAO)</td></tr>
+          <tr><td>Finality</td><td>~1 Ethereum block</td><td>~1 Ethereum block</td></tr>
+          <tr><td>Circuit upgrade</td><td>Recompile only</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ════ 5. CORE MODULES ════ -->
+  <section id="modules">
+    <div class="section-number">05</div>
+    <h2>Core Modules</h2>
+
+    <div class="modules">
+      <div class="module">
+        <div class="module-icon">🔁</div>
+        <div class="module-name">AMM Swap</div>
+        <div class="module-desc">UniswapV2-fork DEX. oxoBTC/ETH, oxoBTC/USDT, OXO/ETH pairs. 0.3% swap fee, 50bps slippage protection.</div>
+      </div>
+      <div class="module">
+        <div class="module-icon">🏦</div>
+        <div class="module-name">Lending</div>
+        <div class="module-desc">Deposit oxoBTC, borrow ETH. 70% LTV (75% with OXO boost). 5% APR. Chainlink oracle pricing.</div>
+      </div>
+      <div class="module">
+        <div class="module-icon">📈</div>
+        <div class="module-name">Staking</div>
+        <div class="module-desc">Pool 0: stake oxoBTC → earn OXO. Pool 1: stake OXO → earn ETH + oxoBTC fees. 3-day cooldown.</div>
+      </div>
+      <div class="module">
+        <div class="module-icon">⚡</div>
+        <div class="module-name">FlashExit</div>
+        <div class="module-desc">Instant ETH→BTC exit via single swap. Large amounts auto-split into chunks. 0.1% exit fee.</div>
+      </div>
+      <div class="module">
+        <div class="module-icon">🔒</div>
+        <div class="module-name">ZK Rollup</div>
+        <div class="module-desc">Groth16 validity rollup. Batch transactions off-chain, settle proofs on Ethereum. Low-cost L2 txs.</div>
+      </div>
+      <div class="module">
+        <div class="module-icon">🌐</div>
+        <div class="module-name">Cross-Chain</div>
+        <div class="module-desc">oxoBTC transferable to OP, ARB, ETH, SOL via LayerZero OFT. BTC exit always via OXO bridge.</div>
+      </div>
+    </div>
+
+    <!-- DIAGRAM 3: Fee Flow -->
+    <h3>5.1 — Protocol Fee Flow</h3>
+    <div class="diagram">
+      <svg width="680" height="260" viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+        <defs>
+          <marker id="a4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#4ecdc4"/>
+          </marker>
+          <marker id="a5" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#7a8fa6"/>
+          </marker>
+        </defs>
+
+        <!-- Sources -->
+        <rect x="10" y="40" width="120" height="36" rx="6" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="70" y="62" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Inter">Bridge Fee 0.1%</text>
+
+        <rect x="10" y="92" width="120" height="36" rx="6" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="70" y="114" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Inter">Swap Fee 0.3%</text>
+
+        <rect x="10" y="144" width="120" height="36" rx="6" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="70" y="163" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Inter">FlashExit Fee 0.1%</text>
+
+        <rect x="10" y="196" width="120" height="36" rx="6" fill="#0a1017" stroke="#1a2535" stroke-width="1.5"/>
+        <text x="70" y="218" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Inter">Lending Interest 5%</text>
+
+        <!-- Arrows to Treasury -->
+        <line x1="130" y1="58" x2="218" y2="120" stroke="#1a2535" stroke-width="1.2" marker-end="url(#a5)"/>
+        <line x1="130" y1="110" x2="218" y2="126" stroke="#1a2535" stroke-width="1.2" marker-end="url(#a5)"/>
+        <line x1="130" y1="162" x2="218" y2="132" stroke="#1a2535" stroke-width="1.2" marker-end="url(#a5)"/>
+        <line x1="130" y1="214" x2="218" y2="140" stroke="#1a2535" stroke-width="1.2" marker-end="url(#a5)"/>
+
+        <!-- Treasury -->
+        <rect x="220" y="95" width="130" height="70" rx="8" fill="#071510" stroke="#4ecdc4" stroke-width="1.5"/>
+        <text x="285" y="126" text-anchor="middle" fill="#4ecdc4" font-size="13" font-weight="700" font-family="Inter">TREASURY</text>
+        <text x="285" y="144" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">ProtocolTreasury.sol</text>
+
+        <!-- Arrows from Treasury -->
+        <line x1="350" y1="118" x2="410" y2="58" stroke="#4ecdc4" stroke-width="1.5" marker-end="url(#a4)"/>
+        <line x1="350" y1="126" x2="410" y2="108" stroke="#4ecdc4" stroke-width="1.5" marker-end="url(#a4)"/>
+        <line x1="350" y1="134" x2="410" y2="158" stroke="#4ecdc4" stroke-width="1.5" marker-end="url(#a4)"/>
+        <line x1="350" y1="142" x2="410" y2="208" stroke="#4ecdc4" stroke-width="1.5" marker-end="url(#a4)"/>
+
+        <!-- Destinations -->
+        <rect x="412" y="32" width="120" height="42" rx="6" fill="#071510" stroke="#4ecdc4" stroke-width="1"/>
+        <text x="472" y="52" text-anchor="middle" fill="#4ecdc4" font-size="11" font-weight="600" font-family="Inter">Stakers</text>
+        <text x="472" y="68" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">70%</text>
+
+        <rect x="412" y="84" width="120" height="42" rx="6" fill="#0a1017" stroke="#1a2535" stroke-width="1"/>
+        <text x="472" y="104" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Inter">POL Liquidity</text>
+        <text x="472" y="120" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">20%</text>
+
+        <rect x="412" y="136" width="120" height="42" rx="6" fill="#0a1017" stroke="#1a2535" stroke-width="1"/>
+        <text x="472" y="156" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Inter">Reserve</text>
+        <text x="472" y="172" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">5%</text>
+
+        <rect x="412" y="188" width="120" height="42" rx="6" fill="#0d0710" stroke="#7a1a7a" stroke-width="1"/>
+        <text x="472" y="208" text-anchor="middle" fill="#cc88cc" font-size="11" font-family="Inter">OXO Burn</text>
+        <text x="472" y="224" text-anchor="middle" fill="#7a8fa6" font-size="10" font-family="Inter">5%</text>
+
+        <!-- Burn arrow -->
+        <rect x="552" y="195" width="110" height="28" rx="5" fill="#0d0710" stroke="#7a1a7a" stroke-width="1"/>
+        <text x="607" y="213" text-anchor="middle" fill="#cc88cc" font-size="10" font-family="Inter">→ 0xdead 🔥</text>
+        <line x1="532" y1="209" x2="550" y2="209" stroke="#7a1a7a" stroke-width="1" marker-end="url(#a5)"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ════ 6. TOKENOMICS ════ -->
+  <section id="tokenomics">
+    <div class="section-number">06</div>
+    <h2>Tokenomics</h2>
+
+    <h3>6.1 — Token Overview</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Token</th><th>Role</th><th>Supply</th><th>Decimals</th></tr></thead>
+        <tbody>
+          <tr><td><strong>OXO</strong></td><td>Governance + utility token</td><td>50,000,000 (fixed)</td><td>18</td></tr>
+          <tr><td><strong>oxoBTC</strong></td><td>Wrapped Bitcoin (1:1 backed)</td><td>Dynamic (mint/burn)</td><td>8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.2 — OXO Distribution</h3>
+
+    <!-- DIAGRAM 4: Pie chart via SVG -->
+    <div class="diagram">
+      <svg width="600" height="260" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+        <!-- Pie slices (manual arc paths for precision) -->
+        <!-- Total: 360 degrees
+             35% staking = 126°  → 0°  to 126°
+             25% ecosystem = 90° → 126° to 216°
+             20% team = 72°      → 216° to 288°
+             10% community = 36° → 288° to 324°
+             10% liquidity = 36° → 324° to 360° -->
+
+        <g transform="translate(160,130)">
+          <!-- 35% Staking Rewards: 0 to 126deg -->
+          <path d="M0,0 L0,-100 A100,100 0 0,1 80.9,-58.8 Z" fill="#4ecdc4" opacity="0.9"/>
+          <!-- 25% Ecosystem: 126 to 216 -->
+          <path d="M0,0 L80.9,-58.8 A100,100 0 0,1 -80.9,-58.8 Z" fill="#38b2aa" opacity="0.8"/>
+          <!-- 20% Team: 216 to 288 -->
+          <path d="M0,0 L-80.9,-58.8 A100,100 0 0,1 -30.9,95.1 Z" fill="#2d8a83" opacity="0.8"/>
+          <!-- 10% Community: 288 to 324 -->
+          <path d="M0,0 L-30.9,95.1 A100,100 0 0,1 30.9,95.1 Z" fill="#f7931a" opacity="0.8"/>
+          <!-- 10% Liquidity: 324 to 360 -->
+          <path d="M0,0 L30.9,95.1 A100,100 0 0,1 0,-100 Z" fill="#e2784a" opacity="0.8"/>
+          <!-- Center -->
+          <circle cx="0" cy="0" r="40" fill="#05090c"/>
+          <text x="0" y="5" text-anchor="middle" fill="#4ecdc4" font-size="10" font-weight="700" font-family="Inter">50M OXO</text>
+        </g>
+
+        <!-- Legend -->
+        <g transform="translate(300,40)">
+          <rect x="0" y="0" width="12" height="12" rx="2" fill="#4ecdc4"/>
+          <text x="18" y="11" fill="#e2e8f0" font-size="12" font-family="Inter">35% — Staking Rewards (17.5M) — 4yr emission</text>
+
+          <rect x="0" y="30" width="12" height="12" rx="2" fill="#38b2aa"/>
+          <text x="18" y="41" fill="#e2e8f0" font-size="12" font-family="Inter">25% — Ecosystem &amp; Treasury (12.5M) — DAO</text>
+
+          <rect x="0" y="60" width="12" height="12" rx="2" fill="#2d8a83"/>
+          <text x="18" y="71" fill="#e2e8f0" font-size="12" font-family="Inter">20% — Core Team (10M) — 1yr cliff + 3yr vest</text>
+
+          <rect x="0" y="90" width="12" height="12" rx="2" fill="#f7931a"/>
+          <text x="18" y="101" fill="#e2e8f0" font-size="12" font-family="Inter">10% — Early Community (5M) — 6mo unlock</text>
+
+          <rect x="0" y="120" width="12" height="12" rx="2" fill="#e2784a"/>
+          <text x="18" y="131" fill="#e2e8f0" font-size="12" font-family="Inter">10% — Liquidity &amp; MM (5M) — at launch</text>
+        </g>
+      </svg>
+    </div>
+
+    <h3>6.3 — OXO Utility</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Action</th><th>Benefit</th><th>Threshold</th></tr></thead>
+        <tbody>
+          <tr><td>Stake OXO (Pool 1)</td><td>Earn ETH + oxoBTC protocol fees</td><td>Any amount</td></tr>
+          <tr><td>Stake ≥100 OXO</td><td>Lending LTV: 70% → 75%</td><td>100 OXO</td></tr>
+          <tr><td>Stake ≥1,000 OXO</td><td>Zero bridge fee</td><td>1,000 OXO</td></tr>
+          <tr><td>OXO governance (roadmap)</td><td>Vote on protocol parameters</td><td>Any amount</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.4 — Emission Schedule</h3>
+    <p>
+      Staking rewards are emitted at <strong>0.1 OXO/second</strong> (8,640 OXO/day) from the
+      Staking contract's OXO reward pool. The emission rate is adjustable by the admin and
+      will transition to DAO governance. At current rate, the 17.5M reward allocation
+      lasts approximately <strong>5.5 years</strong>.
+    </p>
+
+    <h3>6.5 — Deflationary Mechanism</h3>
+    <p>
+      5% of all protocol fee revenue collected by the Treasury is used for OXO buyback
+      and burn. The purchased OXO is sent to the dead address
+      (<code>0x000...dEaD</code>), permanently removing it from circulation.
+      This creates a deflationary counterforce to staking emissions.
+      Total burned OXO is tracked on-chain via the <code>totalOxoBurned</code> variable.
+    </p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-val">0.1%</div><div class="stat-lbl">Bridge fee</div></div>
+      <div class="stat"><div class="stat-val">0.3%</div><div class="stat-lbl">Swap fee</div></div>
+      <div class="stat"><div class="stat-val">5% APR</div><div class="stat-lbl">Lending interest</div></div>
+      <div class="stat"><div class="stat-val">5%</div><div class="stat-lbl">OXO buyback share</div></div>
+      <div class="stat"><div class="stat-val">8,640</div><div class="stat-lbl">OXO/day emission</div></div>
+    </div>
+  </section>
+
+  <!-- ════ 7. SECURITY ════ -->
+  <section id="security">
+    <div class="section-number">07</div>
+    <h2>Security Model</h2>
+
+    <h3>7.1 — Bridge Custody</h3>
+    <p>
+      <strong>Phase 1 (current):</strong> 3-of-5 multisig relayer. Five independent
+      key holders must co-sign any mint operation. No single point of failure.
+    </p>
+    <p>
+      <strong>Phase 2 (roadmap):</strong> Transition to Threshold Signature Scheme (TSS)
+      — a cryptographic protocol where the private key is never assembled in one place.
+      This eliminates custodial risk while maintaining operational speed.
+    </p>
+
+    <h3>7.2 — Smart Contract Security</h3>
+    <p>All core contracts use OpenZeppelin v5 audited libraries. Specific protections include:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Replay attacks (bridge)</td><td>On-chain deposit ID mapping (<code>usedDigests</code>)</td></tr>
+          <tr><td>Reentrancy</td><td><code>ReentrancyGuard</code> on all fund-moving functions</td></tr>
+          <tr><td>Oracle manipulation</td><td>Chainlink feeds with 1-hour staleness check</td></tr>
+          <tr><td>Unauthorized mint</td><td>Role-based access (<code>MINTER_ROLE</code> + ECDSA signature)</td></tr>
+          <tr><td>Undercollateralized borrow</td><td>Health factor check on every borrow and withdraw</td></tr>
+          <tr><td>Admin key risk</td><td>Multisig admin (roadmap: DAO timelock)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>7.3 — Liquidity Bootstrapping Plan</h3>
+    <p>
+      A decentralized exchange only functions with sufficient liquidity. OXO Protocol
+      addresses the cold-start problem through a phased, protocol-owned liquidity (POL)
+      strategy rather than relying solely on external LPs.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pool</th><th>Phase</th><th>Source</th><th>Target Depth</th></tr></thead>
+        <tbody>
+          <tr><td>oxoBTC / ETH</td><td>Launch</td><td>Treasury POL + team allocation</td><td>$500K</td></tr>
+          <tr><td>oxoBTC / USDT</td><td>Week 2</td><td>Treasury POL + LP incentives</td><td>$500K</td></tr>
+          <tr><td>OXO / ETH</td><td>Launch</td><td>Liquidity allocation (10% supply)</td><td>$200K</td></tr>
+          <tr><td>OXO / oxoBTC</td><td>Month 2</td><td>Staking rewards flywheel</td><td>$100K</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Protocol-owned liquidity is non-withdrawable by design — LP tokens from
+      <code>addPOL()</code> are held permanently in the Treasury contract.
+      This provides a price floor and guarantees that the DEX remains functional
+      regardless of external LP behavior. Additional liquidity incentives (LP staking)
+      are planned for the mainnet launch campaign.
+    </p>
+
+    <h3>7.4 — Audit Plan</h3>
+    <p>
+      Pre-mainnet, OXO Protocol will run a competitive audit contest on Code4rena with a
+      minimum $15,000 reward pool. Community auditors have historically found critical issues
+      in comparable protocols. All findings will be publicly disclosed and resolved before launch.
+    </p>
+  </section>
+
+  <!-- ════ 8. ROADMAP ════ -->
+  <section id="roadmap">
+    <div class="section-number">08</div>
+    <h2>Roadmap</h2>
+
+    <div class="timeline">
+      <div class="phase">
+        <div class="phase-dot active">✓</div>
+        <div>
+          <div class="phase-title">Phase 1 — Foundation (Complete)</div>
+          <div class="phase-sub">Bridge V3 · AMM Swap · Lending · Staking · Treasury · ZK Rollup · FlashExit · Sepolia testnet deployment</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot active">→</div>
+        <div>
+          <div class="phase-title">Phase 2 — Growth (Q2–Q3 2026)</div>
+          <div class="phase-sub">Waitlist &amp; community launch · LayerZero cross-chain (OP, ARB, SOL) · Code4rena audit contest · USDT/oxoBTC liquidity bootstrapping</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot">3</div>
+        <div>
+          <div class="phase-title">Phase 3 — Mainnet (Q4 2026)</div>
+          <div class="phase-sub">Ethereum mainnet deployment · TSS bridge upgrade · OXO governance activation · Protocol-owned liquidity campaign</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot">4</div>
+        <div>
+          <div class="phase-title">Phase 4 — Ecosystem (2027)</div>
+          <div class="phase-sub">NFC payments via mobile app · OXO card partnership · DAO treasury governance · Additional chain deployments · Bitcoin mass-adoption campaigns</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 9. CONTRACTS ════ -->
+  <section id="contracts">
+    <div class="section-number">09</div>
+    <h2>Deployed Contracts (Sepolia Testnet)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Contract</th><th>Address</th></tr></thead>
+        <tbody>
+          <tr><td>oxoBTC Token</td><td><span class="addr">0xA6fB891D117ce6C03880168bADE140067ED44D78</span></td></tr>
+          <tr><td>OXO Token</td><td><span class="addr">0xca0cd5448fabdfdc33f0795c871901c5e2bb60a8</span></td></tr>
+          <tr><td>BridgeV3</td><td><span class="addr">0xF89105BD4e016Dcc88bca896d43a4aD3C64c6083</span></td></tr>
+          <tr><td>OXO Swap Factory</td><td><span class="addr">0xe969090d30f76e8b7969db2113d7572b5944e842</span></td></tr>
+          <tr><td>OXO Swap Router</td><td><span class="addr">0xb898537873ab341557963db261563092c784e725</span></td></tr>
+          <tr><td>OXO Lending</td><td><span class="addr">0xd8f802BBeD0DB111f917C318caC196452da8DBb5</span></td></tr>
+          <tr><td>OXO Staking</td><td><span class="addr">0x54e8f0348EB1E531f72d94E89FF877bA6B9b460A</span></td></tr>
+          <tr><td>Protocol Treasury</td><td><span class="addr">0x9aB88742B75Cc82732df2648406cC52C9901985D</span></td></tr>
+          <tr><td>Flash Exit</td><td><span class="addr">0x7aD326031a056e87d78178F8e08Fb998Cb8131F1</span></td></tr>
+          <tr><td>OXO Rollup</td><td><span class="addr">0xb76f2de1fC31A374986B7622a4d89f6CBB3b89c9</span></td></tr>
+          <tr><td>ZK Verifier</td><td><span class="addr">0x9111fecE6167b1c12f84627D90A7E40aF07319FF</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> This whitepaper is for informational purposes only.
+      OXO Protocol is currently deployed on Sepolia testnet. Mainnet contracts may differ
+      following the audit process. This document does not constitute financial or investment advice.
+      OXO tokens are utility tokens; past performance is not indicative of future results.
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      OXO Protocol &nbsp;·&nbsp;
+      <a href="https://www.oxoprotocol.com/" target="_blank">oxoprotocol.com</a> &nbsp;·&nbsp;
+      <a href="https://x.com/oxoprotocol" target="_blank">@oxoprotocol</a> &nbsp;·&nbsp;
+      <a href="index.html">Launch App</a>
+    </p>
+    <p style="margin-top:8px; color:#3a4f66; font-size:12px;">© 2026 OXO Protocol. All rights reserved.</p>
+  </footer>
+
+</div><!-- /container -->
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/landing.html" }
+  ],
+  "redirects": [
+    { "source": "/discord", "destination": "https://discord.gg/8zVUcnGV", "permanent": true }
+  ]
+}

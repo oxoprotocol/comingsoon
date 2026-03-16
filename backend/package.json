@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "@supabase/supabase-js": "^2.99.2",
+    "axios": "^1.12.2",
+    "bip32": "^4.0.0",
+    "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^6.1.5",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "ecpair": "^2.1.0",
+    "ethers": "^6.15.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "lowdb": "^7.0.1",
+    "pg": "^8.20.0",
+    "pg-pool": "^3.13.0",
+    "pm2": "^6.0.14",
+    "tiny-secp256k1": "^2.2.4",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0"
+  }
+}

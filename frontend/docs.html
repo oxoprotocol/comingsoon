@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OXO Protocol — Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: #05090c;
+  color: #e0e6ea;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 60px;
+  background: rgba(5,9,12,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.05em;
+  color: #fff; text-decoration: none;
+}
+.nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+.nav-links a {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.4);
+  text-decoration: none; transition: color 0.25s;
+}
+.nav-links a:hover, .nav-links a.active { color: #4ecdc4; }
+.btn-launch {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 7px;
+  background: #4ecdc4; color: #05090c;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-decoration: none; text-transform: uppercase;
+  transition: opacity 0.2s;
+}
+.btn-launch:hover { opacity: 0.85; }
+
+/* ── LAYOUT ── */
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 24px 80px;
+  gap: 60px;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+  padding-top: 12px;
+}
+.sidebar-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  margin-bottom: 16px;
+}
+.sidebar-nav { list-style: none; }
+.sidebar-nav li { margin-bottom: 2px; }
+.sidebar-nav a {
+  display: block; padding: 6px 12px; border-radius: 6px;
+  font-size: 13px; color: rgba(255,255,255,0.45);
+  text-decoration: none; transition: all 0.2s;
+  border-left: 2px solid transparent;
+}
+.sidebar-nav a:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.04); }
+.sidebar-nav a.active { color: #4ecdc4; border-left-color: #4ecdc4; background: rgba(78,205,196,0.06); }
+.sidebar-nav .section-header {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.2);
+  padding: 14px 12px 4px; cursor: default;
+}
+
+/* ── CONTENT ── */
+.content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+section.doc-section {
+  padding-bottom: 72px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 72px;
+}
+section.doc-section:last-child { border-bottom: none; }
+
+h1.doc-title {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800; letter-spacing: -0.03em;
+  color: #fff; margin-bottom: 16px;
+}
+h2.doc-h2 {
+  font-size: 22px; font-weight: 700; color: #fff;
+  margin-top: 48px; margin-bottom: 16px;
+  padding-top: 48px; scroll-margin-top: 80px;
+}
+h3.doc-h3 {
+  font-size: 15px; font-weight: 600; color: #4ecdc4;
+  margin-top: 28px; margin-bottom: 10px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+p { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+p a { color: #4ecdc4; text-decoration: none; }
+p a:hover { text-decoration: underline; }
+
+ul.doc-list {
+  list-style: none; margin-bottom: 20px;
+}
+ul.doc-list li {
+  font-size: 15px; color: rgba(255,255,255,0.6);
+  padding: 5px 0 5px 20px; position: relative;
+}
+ul.doc-list li::before {
+  content: '→'; position: absolute; left: 0;
+  color: #4ecdc4; font-size: 12px; top: 7px;
+}
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+  background: rgba(78,205,196,0.12); color: #4ecdc4;
+  border: 1px solid rgba(78,205,196,0.25); margin-bottom: 20px;
+}
+
+.callout {
+  background: rgba(78,205,196,0.07);
+  border: 1px solid rgba(78,205,196,0.2);
+  border-radius: 10px; padding: 16px 20px;
+  margin: 20px 0; font-size: 14px;
+  color: rgba(255,255,255,0.65);
+}
+.callout strong { color: #4ecdc4; }
+
+.warning {
+  background: rgba(255,180,50,0.07);
+  border: 1px solid rgba(255,180,50,0.2);
+  border-radius: 10px; padding: 16px 20px;
+  margin: 20px 0; font-size: 14px;
+  color: rgba(255,255,255,0.65);
+}
+.warning strong { color: #ffb432; }
+
+table {
+  width: 100%; border-collapse: collapse;
+  margin: 20px 0;
+}
+th {
+  text-align: left; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.3); padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+td {
+  font-size: 14px; color: rgba(255,255,255,0.6);
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
+td code, p code {
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px; padding: 2px 7px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px; color: #a8e6e2;
+}
+
+.addr {
+  font-family: 'Courier New', monospace;
+  font-size: 12px; color: #4ecdc4;
+  background: rgba(78,205,196,0.08);
+  border-radius: 4px; padding: 2px 8px;
+  word-break: break-all;
+}
+
+.param-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px; margin: 20px 0;
+}
+.param-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 16px;
+}
+.param-card .param-name {
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.3);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+}
+.param-card .param-value {
+  font-size: 18px; font-weight: 700; color: #fff;
+}
+.param-card .param-desc {
+  font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .wrapper { flex-direction: column; padding: 80px 20px 60px; gap: 40px; }
+  .sidebar { width: 100%; position: static; }
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a class="nav-logo" href="https://www.oxoprotocol.com/" target="_blank" rel="noopener">
+    <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+      <path d="M7 14c0-4.8 3.1-8 7-8s7 3.2 7 8" stroke="#4ecdc4" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="14" cy="6" r="2.5" fill="#4ecdc4"/>
+      <path d="M9 20L14 25 19 20" stroke="#4ecdc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    OXO Protocol
+  </a>
+  <ul class="nav-links">
+    <li><a href="landing.html">Home</a></li>
+    <li><a href="#overview" class="active">Docs</a></li>
+    <li><a href="index.html" class="btn-launch">Launch App</a></li>
+  </ul>
+</nav>
+
+<div class="wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Documentation</div>
+    <ul class="sidebar-nav">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li class="section-header">Modules</li>
+      <li><a href="#bridge">Bridge</a></li>
+      <li><a href="#swap">Swap & Pools</a></li>
+      <li><a href="#staking">Staking</a></li>
+      <li><a href="#lending">Lending</a></li>
+      <li><a href="#flashexit">Flash Exit</a></li>
+      <li><a href="#rollup">ZK Rollup</a></li>
+      <li class="section-header">Reference</li>
+      <li><a href="#contracts">Contracts</a></li>
+      <li><a href="#api">Backend API</a></li>
+      <li><a href="#security">Security</a></li>
+    </ul>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- OVERVIEW -->
+    <section class="doc-section" id="overview">
+      <div class="badge">Sepolia Testnet</div>
+      <h1 class="doc-title">OXO Protocol</h1>
+      <p>OXO is a Layer-1.5 protocol that brings Bitcoin into the EVM ecosystem without centralized custodians. Users bridge BTC to receive <code>oxoBTC</code> — a fully collateralized wrapped token — which can be swapped, staked, used as lending collateral, or exited instantly back to BTC via Flash Exit. ZK rollups provide scalable L2 transfers at minimal cost.</p>
+
+      <h3 class="doc-h3">Core Primitives</h3>
+      <ul class="doc-list">
+        <li><strong>oxoBTC</strong> — 1:1 BTC-backed ERC-20 (8 decimals), minted by the Bridge relayer upon confirmed BTC deposit</li>
+        <li><strong>OXO</strong> — governance & rewards token (50M supply, 18 decimals)</li>
+        <li><strong>Bridge</strong> — ECDSA-signed mint/burn system for BTC ↔ ETH transfers</li>
+        <li><strong>Swap</strong> — UniswapV2 fork (Factory + Router) with on-chain slippage protection</li>
+        <li><strong>Staking</strong> — dual-pool yield for oxoBTC stakers (earn OXO) and OXO stakers (earn ETH + oxoBTC)</li>
+        <li><strong>Lending</strong> — collateralized borrowing: deposit oxoBTC, borrow ETH (70% LTV)</li>
+        <li><strong>Flash Exit</strong> — single-tx or chunked ETH→oxoBTC→BTC exit path</li>
+        <li><strong>ZK Rollup</strong> — Groth16-verified L2 state root for low-cost transfers</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Testnet Notice:</strong> OXO Protocol is currently live on Sepolia Testnet. All contracts are verified and all tests pass. Mainnet launch will follow a full audit cycle.
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="doc-section" id="architecture">
+      <h2 class="doc-h2" id="architecture">Architecture</h2>
+      <p>OXO runs as a coordinated stack across three layers:</p>
+      <ul class="doc-list">
+        <li><strong>Bitcoin Layer</strong> — user deposits BTC to a protocol address; mempool.space WebSocket monitors confirmations</li>
+        <li><strong>L1 (Sepolia)</strong> — smart contracts handle minting, swapping, staking, lending, and ZK proof verification</li>
+        <li><strong>L2 (Rollup)</strong> — off-chain sequencer batches transfers and submits state roots to OXORollup.sol</li>
+      </ul>
+
+      <h3 class="doc-h3">Relayer</h3>
+      <p>A Node.js backend (<code>backend/server.js</code>) acts as the permissioned relayer. It watches BTC deposits via mempool.space WebSocket and Blockstream API, then calls <code>mintAndTransfer()</code> on the Bridge with an ECDSA signature. The relayer also listens for <code>RedeemRequested</code> events to initiate BTC sends on the Bitcoin network.</p>
+
+      <h3 class="doc-h3">Fee Flow</h3>
+      <p>A 0.1% bridge fee is routed to <code>ProtocolTreasury.sol</code>, which distributes incoming oxoBTC fees as: 70% to stakers (Pool 1), 20% to Protocol-Owned Liquidity, and 10% to a reserve.</p>
+    </section>
+
+    <!-- BRIDGE -->
+    <section class="doc-section" id="bridge">
+      <h2 class="doc-h2" id="bridge">Bridge</h2>
+      <p>The bridge enables trustless-verified BTC ↔ ETH transfers using ECDSA cryptography. No oracles or multisig wallets are required for mint authorization — the relayer's signature is verified on-chain.</p>
+
+      <h3 class="doc-h3">BTC → oxoBTC (Deposit)</h3>
+      <ul class="doc-list">
+        <li>Register your ETH address via <code>POST /login</code> with your BTC address</li>
+        <li>Send BTC to the protocol's deposit address (shown as QR in the app)</li>
+        <li>The relayer detects the deposit after 1 confirmation</li>
+        <li>Relayer calls <code>mintAndTransfer(to, amount, depositId, signature)</code></li>
+        <li>oxoBTC is minted to your wallet; digest is marked used (replay protection)</li>
+      </ul>
+
+      <h3 class="doc-h3">oxoBTC → BTC (Redeem)</h3>
+      <ul class="doc-list">
+        <li>Approve the Bridge contract to spend your oxoBTC</li>
+        <li>Call <code>withdraw(btcAddress, amount)</code> — oxoBTC is burned immediately</li>
+        <li>A <code>RedeemRequested</code> event is emitted; relayer picks it up</li>
+        <li>Relayer sends BTC on the Bitcoin network and calls <code>markRedeemCompleted()</code></li>
+      </ul>
+
+      <div class="callout">
+        <strong>ECDSA digest:</strong> <code>keccak256(abi.encode(chainId, bridgeAddress, to, amount, depositId))</code> — signed with EIP-191 personal_sign prefix.
+      </div>
+    </section>
+
+    <!-- SWAP -->
+    <section class="doc-section" id="swap">
+      <h2 class="doc-h2" id="swap">Swap & Pools</h2>
+      <p>OXO uses a UniswapV2 fork (Factory + Router) deployed on Sepolia. Two primary pools are seeded at launch: <code>oxoBTC/WETH</code> and <code>OXO/WETH</code>.</p>
+
+      <h3 class="doc-h3">Swap</h3>
+      <ul class="doc-list">
+        <li>Select input/output tokens, enter amount</li>
+        <li>Price impact and minimum output shown pre-confirm (50 bps slippage default)</li>
+        <li>Calls <code>swapExactTokensForTokens()</code> or <code>swapExactETHForTokens()</code></li>
+      </ul>
+
+      <h3 class="doc-h3">Add Liquidity</h3>
+      <ul class="doc-list">
+        <li>Deposit oxoBTC + ETH in the current pool ratio</li>
+        <li>LP token preview shown before confirming (300 bps slippage for adds)</li>
+        <li>Call <code>addLiquidity()</code> or <code>addLiquidityETH()</code> on Router</li>
+      </ul>
+
+      <h3 class="doc-h3">Remove Liquidity</h3>
+      <ul class="doc-list">
+        <li>Enter LP token amount or percentage</li>
+        <li>Expected oxoBTC + ETH output shown</li>
+        <li>Call <code>removeLiquidity()</code> on Router</li>
+      </ul>
+    </section>
+
+    <!-- STAKING -->
+    <section class="doc-section" id="staking">
+      <h2 class="doc-h2" id="staking">Staking</h2>
+      <p>OXOStaking has two independent pools with a 3-day cooldown on withdrawals.</p>
+
+      <div class="param-grid">
+        <div class="param-card">
+          <div class="param-name">Pool 0 — Stake</div>
+          <div class="param-value">oxoBTC</div>
+          <div class="param-desc">Earn OXO emissions</div>
+        </div>
+        <div class="param-card">
+          <div class="param-name">Pool 1 — Stake</div>
+          <div class="param-value">OXO</div>
+          <div class="param-desc">Earn ETH + oxoBTC fees</div>
+        </div>
+        <div class="param-card">
+          <div class="param-name">Emission Rate</div>
+          <div class="param-value">0.1 OXO/s</div>
+          <div class="param-desc">8,640 OXO/day</div>
+        </div>
+        <div class="param-card">
+          <div class="param-name">Cooldown</div>
+          <div class="param-value">3 days</div>
+          <div class="param-desc">After unstake request</div>
+        </div>
+      </div>
+
+      <h3 class="doc-h3">Compound</h3>
+      <p>Pool 0 rewards (OXO) can be auto-compounded into Pool 1 via the <code>compound()</code> function — no manual harvest + re-stake required.</p>
+
+      <h3 class="doc-h3">Oracle</h3>
+      <p>A Chainlink BTC/USD price feed validates minimum stake amounts. The admin can configure <code>minStakeUsd</code> via <code>setMinStakeUsd()</code> (default: 0).</p>
+    </section>
+
+    <!-- LENDING -->
+    <section class="doc-section" id="lending">
+      <h2 class="doc-h2" id="lending">Lending</h2>
+      <p>OXOLending lets you borrow ETH against oxoBTC collateral without selling your BTC exposure.</p>
+
+      <div class="param-grid">
+        <div class="param-card">
+          <div class="param-name">LTV</div>
+          <div class="param-value">70%</div>
+          <div class="param-desc">Max borrow ratio</div>
+        </div>
+        <div class="param-card">
+          <div class="param-name">Liq. Threshold</div>
+          <div class="param-value">80%</div>
+          <div class="param-desc">Liquidation trigger</div>
+        </div>
+        <div class="param-card">
+          <div class="param-name">Liquidator Bonus</div>
+          <div class="param-value">10%</div>
+          <div class="param-desc">Incentive for liquidators</div>
+        </div>
+        <div class="param-card">
+          <div class="param-name">Interest</div>
+          <div class="param-value">5% APR</div>
+          <div class="param-desc">Simple per-block accrual</div>
+        </div>
+      </div>
+
+      <h3 class="doc-h3">Workflow</h3>
+      <ul class="doc-list">
+        <li><strong>Deposit</strong> — approve + call <code>depositCollateral(amount)</code></li>
+        <li><strong>Borrow</strong> — call <code>borrow(ethAmount)</code> — ETH sent to your wallet</li>
+        <li><strong>Repay</strong> — send ETH + call <code>repay()</code> — interest is included</li>
+        <li><strong>Withdraw</strong> — call <code>withdrawCollateral(amount)</code> — only if LTV stays safe</li>
+        <li><strong>Liquidate</strong> — any user can liquidate undercollateralized positions by repaying debt and receiving collateral + bonus</li>
+      </ul>
+
+      <h3 class="doc-h3">Price Oracle</h3>
+      <p>Both BTC/USD and ETH/USD Chainlink feeds are used to calculate collateral value and borrow limits. Sepolia feeds: BTC/USD <span class="addr">0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43</span>, ETH/USD <span class="addr">0x694AA1769357215DE4FAC081bf1f309aDC325306</span>.</p>
+    </section>
+
+    <!-- FLASH EXIT -->
+    <section class="doc-section" id="flashexit">
+      <h2 class="doc-h2" id="flashexit">Flash Exit</h2>
+      <p>Flash Exit provides a single-transaction path from ETH to BTC. It wraps a swap (ETH→oxoBTC via the Router) and a bridge redeem in one call.</p>
+
+      <h3 class="doc-h3">Instant Exit</h3>
+      <p>For smaller amounts — swaps all ETH to oxoBTC, then immediately calls <code>withdraw()</code> on the Bridge. The entire sequence happens atomically in one tx.</p>
+
+      <h3 class="doc-h3">Chunked Exit</h3>
+      <p>For large amounts where a single swap would cause excessive slippage — <code>exitChunked()</code> uses binary search to find the optimal chunk size and executes swaps at 30-second intervals.</p>
+
+      <h3 class="doc-h3">Get Quote</h3>
+      <p>Call <code>getExitQuote(ethAmount)</code> to see: number of chunks, estimated oxoBTC output, and slippage bps — before committing.</p>
+
+      <div class="param-grid">
+        <div class="param-card">
+          <div class="param-name">Exit Fee</div>
+          <div class="param-value">0.1%</div>
+          <div class="param-desc">Protocol fee on exit</div>
+        </div>
+        <div class="param-card">
+          <div class="param-name">Min Output</div>
+          <div class="param-value">546 sat</div>
+          <div class="param-desc">Bitcoin dust limit</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZK ROLLUP -->
+    <section class="doc-section" id="rollup">
+      <h2 class="doc-h2" id="rollup">ZK Rollup</h2>
+      <p>OXO's L2 uses a Groth16-based ZK rollup for high-throughput, low-cost oxoBTC transfers between registered accounts.</p>
+
+      <h3 class="doc-h3">Circuit</h3>
+      <ul class="doc-list">
+        <li>4 transactions per batch, 8 accounts in the Merkle tree</li>
+        <li>State root: <code>Poseidon(balances[0..7])</code> computed via <code>circomlibjs</code></li>
+        <li>Proof system: Groth16 (snarkjs + circom v2.2.3)</li>
+      </ul>
+
+      <h3 class="doc-h3">Workflow</h3>
+      <ul class="doc-list">
+        <li><strong>L1 Deposit</strong> — send oxoBTC to OXORollup.sol; sequencer credits L2 balance</li>
+        <li><strong>L2 Transfer</strong> — submit transfer to sequencer; batched into next proof</li>
+        <li><strong>L2 Withdraw</strong> — request withdrawal; sequencer includes in batch; oxoBTC released on L1 after proof verification</li>
+      </ul>
+
+      <div class="warning">
+        <strong>Note:</strong> The rollup sequencer currently runs locally (<code>localhost:3002</code>). A public sequencer endpoint will be available with the mainnet launch.
+      </div>
+    </section>
+
+    <!-- CONTRACTS -->
+    <section class="doc-section" id="contracts">
+      <h2 class="doc-h2" id="contracts">Contract Addresses (Sepolia)</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Contract</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>OXOBTC (oxoBTC token)</td><td><span class="addr">0xA6fB891D117ce6C03880168bADE140067ED44D78</span></td></tr>
+          <tr><td>BridgeV3</td><td><span class="addr">0x1bff71d8Eb29666DE2238A52E296320d2E98645D</span></td></tr>
+          <tr><td>OXO Token</td><td><span class="addr">0xca0cd5448fabdfdc33f0795c871901c5e2bb60a8</span></td></tr>
+          <tr><td>UniswapV2 Factory</td><td><span class="addr">0xe969090d30f76e8b7969db2113d7572b5944e842</span></td></tr>
+          <tr><td>UniswapV2 Router</td><td><span class="addr">0xb898537873ab341557963db261563092c784e725</span></td></tr>
+          <tr><td>WETH (Sepolia)</td><td><span class="addr">0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14</span></td></tr>
+          <tr><td>OXOStaking</td><td><span class="addr">0x54e8f0348EB1E531f72d94E89FF877bA6B9b460A</span></td></tr>
+          <tr><td>ProtocolTreasury</td><td><span class="addr">0xdCC5Eef80df9cF48F4504D476BB4701B17e7E361</span></td></tr>
+          <tr><td>OXOLending</td><td><span class="addr">0x964BCA31B3649638ba489e4EDdE84a1e77f60e1c</span></td></tr>
+          <tr><td>FlashExit</td><td><span class="addr">0x7aD326031a056e87d78178F8e08Fb998Cb8131F1</span></td></tr>
+          <tr><td>ZKVerifier (Groth16)</td><td><span class="addr">0x9111fecE6167b1c12f84627D90A7E40aF07319FF</span></td></tr>
+          <tr><td>OXORollup</td><td><span class="addr">0xb76f2de1fC31A374986B7622a4d89f6CBB3b89c9</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- API -->
+    <section class="doc-section" id="api">
+      <h2 class="doc-h2" id="api">Backend API</h2>
+      <p>The relayer backend runs on port <code>3001</code> and exposes the following endpoints:</p>
+
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/</code></td><td>Health check</td></tr>
+          <tr><td>POST</td><td><code>/login</code></td><td>Register ETH + BTC address pair</td></tr>
+          <tr><td>GET</td><td><code>/deposit-status/:ethAddress</code></td><td>Poll BTC deposit confirmation status (last 2h)</td></tr>
+          <tr><td>GET</td><td><code>/stats</code></td><td>oxoBTC supply, TVL, staked, BTC price</td></tr>
+          <tr><td>POST</td><td><code>/webhook</code></td><td>BlockCypher BTC transaction webhook (HMAC-signed)</td></tr>
+          <tr><td>POST</td><td><code>/retryFailed</code></td><td>Admin: retry failed mint transactions</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="doc-h3">Rate Limits</h3>
+      <ul class="doc-list">
+        <li><code>/login</code>, <code>/stats</code> — 20 requests / 15 minutes</li>
+        <li><code>/deposit-status</code> — 120 requests / minute</li>
+        <li><code>/webhook</code> — 60 requests / minute</li>
+        <li><code>/retryFailed</code> — 10 requests / hour (admin key required)</li>
+      </ul>
+    </section>
+
+    <!-- SECURITY -->
+    <section class="doc-section" id="security">
+      <h2 class="doc-h2" id="security">Security</h2>
+
+      <h3 class="doc-h3">Replay Protection</h3>
+      <p>Every bridge deposit digest is stored in <code>usedDigests</code> mapping. Re-submitting the same deposit ID reverts with <code>BRIDGE: TXID_ALREADY_USED</code>.</p>
+
+      <h3 class="doc-h3">Role-Based Access</h3>
+      <ul class="doc-list">
+        <li><code>DEFAULT_ADMIN_ROLE</code> — deployer; manages all roles and parameters</li>
+        <li><code>SIGNER_ROLE</code> — backend relayer; can mint oxoBTC and complete redeems</li>
+        <li><code>MINTER_ROLE</code> (oxoBTC) — Bridge contract only</li>
+      </ul>
+
+      <h3 class="doc-h3">Pausable</h3>
+      <p>Bridge, Lending, and Staking contracts inherit OpenZeppelin Pausable. Admin can pause all user-facing operations in an emergency.</p>
+
+      <h3 class="doc-h3">Audits</h3>
+      <div class="warning">
+        <strong>Testnet only.</strong> OXO Protocol has not yet undergone a formal security audit. Do not use with real funds. A third-party audit is planned before mainnet deployment.
+      </div>
+
+      <h3 class="doc-h3">Dependencies</h3>
+      <ul class="doc-list">
+        <li>OpenZeppelin Contracts v5.4.0 (AccessControl, Pausable, SafeERC20)</li>
+        <li>Chainlink Data Feeds (BTC/USD, ETH/USD on Sepolia)</li>
+        <li>circom v2.2.3 + snarkjs (ZK proofs)</li>
+        <li>Solidity 0.8.24</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* Active sidebar link on scroll */
+const sections = document.querySelectorAll('section.doc-section');
+const navLinks = document.querySelectorAll('.sidebar-nav a[href^="#"]');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

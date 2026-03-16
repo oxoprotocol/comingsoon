@@ -1,0 +1,63 @@
+{
+  "name": "oxo-bridge-demo",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "A Layer-1.5 protocol to transform Bitcoin from digital gold into a DeFi and GameFi powerhouse with ZK rollups",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@bitcoinerlab/secp256k1": "^1.2.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@scure/btc-signer": "^2.0.1",
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "bip32": "^5.0.0-rc.0",
+    "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^6.1.7",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "ecpair": "^3.0.0",
+    "ethers": "^6.15.0",
+    "express": "^5.1.0",
+    "node-telegram-bot-api": "^0.67.0",
+    "snarkjs": "^0.7.6"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
+    "@nomicfoundation/hardhat-ethers": "^3.1.0",
+    "@nomicfoundation/hardhat-ignition": "^0.15.13",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.14",
+    "@nomicfoundation/hardhat-network-helpers": "^1.1.0",
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/hardhat-verify": "^2.1.0",
+    "@nomicfoundation/ignition-core": "^0.15.13",
+    "@nomiclabs/hardhat-etherscan": "^3.1.8",
+    "@typechain/ethers-v6": "^0.5.0",
+    "@typechain/hardhat": "^9.0.0",
+    "@types/chai": "^4.3.20",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.18.3",
+    "chai": "^4.2.0",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^2.26.3",
+    "hardhat-deploy": "^1.0.4",
+    "hardhat-gas-reporter": "^2.3.0",
+    "mocha": "^11.7.2",
+    "solidity-coverage": "^0.8.1",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.0",
+    "typescript": "~5.8.0"
+  },
+  "directories": {
+    "doc": "docs"
+  }
+}

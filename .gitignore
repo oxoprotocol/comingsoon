@@ -1,0 +1,17 @@
+node_modules/
+.env
+backend/.env
+backend/node_modules/
+backend/*.json
+!backend/package.json
+!backend/package-lock.json
+cache/
+artifacts/
+deployments/
+*.zip
+# Hassas dosyalar
+KEYS/
+.claude/
+*.log
+telegram_inbox.json
+telegram_outbox.json
