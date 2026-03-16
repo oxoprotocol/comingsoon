@@ -44,8 +44,9 @@ export default async function handler(req, res) {
     );
     const existing = await checkRes.json();
     if (existing.length > 0) {
-        const countRes = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=id`, { headers: { ...headers, 'Prefer': 'count=exact' } });
-        const total = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '0');
+        const countRes = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=count`, { headers });
+        const countData = await countRes.json();
+        const total = parseInt(countData[0]?.count || 0);
         return res.status(409).json({ error: 'Email already registered.', position: total });
     }
 
@@ -63,9 +64,10 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to save.' });
     }
 
-    // Toplam sayı
-    const countRes = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=id`, { headers: { ...headers, 'Prefer': 'count=exact' } });
-    const total = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '1');
+    // Toplam sayı (insert sonrası)
+    const countRes = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=count`, { headers });
+    const countData = await countRes.json();
+    const total = parseInt(countData[0]?.count || 1);
 
     return res.status(200).json({ success: true, position: total });
 }
