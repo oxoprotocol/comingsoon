@@ -199,10 +199,10 @@ nav.scrolled { background: rgba(5,9,12,0.97); }
 
 .hero-right {
   flex: 1; display: flex; justify-content: center; align-items: center;
-  position: relative; max-width: 520px;
+  gap: 12px; position: relative; max-width: 760px;
 }
-#hero-canvas {
-  width: 100%; max-width: 500px; aspect-ratio: 1;
+#hero-canvas, #hero-canvas-purple {
+  width: 100%; max-width: 360px; aspect-ratio: 1;
   display: block; opacity: 0;
   animation: fadeIn 1.2s 0.4s forwards;
 }
@@ -414,7 +414,8 @@ footer {
   .nav-links { display: none; }
   .nav-hamburger { display: flex; }
   #hero { flex-direction: column; padding: 90px 24px 50px; min-height: unset; gap: 36px; }
-  .hero-right { width: 100%; max-width: 340px; margin: 0 auto; }
+  .hero-right { width: 100%; max-width: 400px; margin: 0 auto; gap: 8px; }
+  #hero-canvas, #hero-canvas-purple { max-width: 180px; }
   .stats-bar { padding: 0 24px 40px; flex-wrap: wrap; }
   .stat-item { flex: calc(50% - 1px); max-width: none; }
   .stat-item:nth-child(3) { border-radius: 0 0 0 10px; border-left: 1px solid rgba(255,255,255,0.06); border-top: none; }
@@ -433,8 +434,8 @@ footer {
 
 <!-- NAV -->
 <nav id="main-nav">
-  <a class="nav-logo" href="landing.html">
-    <img src="images/oxo-logo.png" alt="OXO Protocol" style="height:28px;width:auto;filter:brightness(0) invert(1);display:block;">
+  <a class="nav-logo" href="/">
+    <img src="images/logo.png" alt="OXO Protocol" style="height:28px;width:auto;display:block;">
   </a>
   <ul class="nav-links">
     <li><a href="#what">What is OXO?</a></li>
@@ -467,6 +468,7 @@ footer {
   </div>
   <div class="hero-right">
     <canvas id="hero-canvas"></canvas>
+    <canvas id="hero-canvas-purple"></canvas>
   </div>
 </section>
 
@@ -477,7 +479,7 @@ footer {
     <p class="section-overline">Overview</p>
     <div class="what-title-row">
       <span class="wt-dim">What is</span>
-      <img src="images/oxo-logo.png" alt="OXO Protocol" style="height:32px;width:auto;filter:brightness(0) invert(1);vertical-align:middle;">
+      <img src="images/logo.png" alt="OXO Protocol" style="height:32px;width:auto;filter:brightness(0) invert(1);vertical-align:middle;">
       <span class="wt-brand">OXO Protocol?</span>
     </div>
   </div>
@@ -622,7 +624,7 @@ footer {
 <!-- FOOTER -->
 <footer>
   <a class="f-logo" href="https://www.oxoprotocol.com/" target="_blank" rel="noopener">
-    <img src="images/oxo-logo.png" alt="OXO Protocol" style="height:22px;width:auto;filter:brightness(0) invert(1);opacity:0.6;transition:opacity 0.2s;">
+    <img src="images/logo.png" alt="OXO Protocol" style="height:22px;width:auto;filter:brightness(0) invert(1);opacity:0.6;transition:opacity 0.2s;">
     OXO Protocol
   </a>
   <div class="f-links">
@@ -859,6 +861,87 @@ function drawHero() {
   requestAnimationFrame(drawHero);
 }
 drawHero();
+
+/* PURPLE HERO CANVAS */
+const pC = document.getElementById('hero-canvas-purple');
+const pX = pC.getContext('2d');
+function pResize() { const s = Math.min(pC.parentElement.offsetWidth/2, 360); pC.width = s; pC.height = s; }
+pResize();
+window.addEventListener('resize', pResize, { passive: true });
+
+const PN = 40, pNodes = [];
+for (let i = 0; i < PN; i++) {
+  const isBig = i < 5;
+  const angle = (i / PN) * Math.PI * 2 + (Math.random() - .5) * .8;
+  const radius = isBig ? (15 + Math.random() * 60) : (50 + Math.random() * 140);
+  pNodes.push({ bx: 180+Math.cos(angle)*radius, by: 180+Math.sin(angle)*radius,
+    vx:(Math.random()-.5)*.12, vy:(Math.random()-.5)*.12,
+    r: isBig ? 3 : (Math.random()*1.4+.4), big: isBig,
+    phase: Math.random()*Math.PI*2, x:0, y:0 });
+}
+
+let pFrame = 0, purplePulse = null;
+function drawPurple() {
+  const W = pC.width, H = pC.height;
+  pX.clearRect(0, 0, W, H); pFrame++;
+  pNodes.forEach(n => {
+    n.x = n.bx; n.y = n.by; n.bx += n.vx; n.by += n.vy;
+    if (n.bx < 10 || n.bx > W-10) n.vx *= -1;
+    if (n.by < 10 || n.by > H-10) n.vy *= -1;
+  });
+  if (!purplePulse && pFrame % 110 === 0) {
+    const cands = [];
+    for (let i = 0; i < PN; i++) for (let j = i+1; j < PN; j++) {
+      const dx = pNodes[i].x-pNodes[j].x, dy = pNodes[i].y-pNodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 160 && d > 30) cands.push([i,j]);
+    }
+    if (cands.length) { const [ai,bi] = cands[Math.floor(Math.random()*Math.min(cands.length,10))]; purplePulse={a:pNodes[ai],b:pNodes[bi],t:0,spd:.005}; }
+  }
+  const PMAX = 155;
+  for (let i = 0; i < PN; i++) for (let j = i+1; j < PN; j++) {
+    const a = pNodes[i], b = pNodes[j];
+    const dx = a.x-b.x, dy = a.y-b.y, d = Math.sqrt(dx*dx+dy*dy);
+    if (d < PMAX) {
+      pX.beginPath(); pX.moveTo(a.x,a.y); pX.lineTo(b.x,b.y);
+      pX.strokeStyle = `rgba(160,80,255,${(1-d/PMAX)*.35})`;
+      pX.lineWidth = a.big||b.big ? 1 : .6; pX.stroke();
+    }
+  }
+  pNodes.forEach(n => {
+    const pulse = .5+.5*Math.sin(pFrame*.022+n.phase);
+    if (n.big) {
+      const g = pX.createRadialGradient(n.x,n.y,0,n.x,n.y,20);
+      g.addColorStop(0,'rgba(180,80,255,0.22)'); g.addColorStop(1,'transparent');
+      pX.beginPath(); pX.arc(n.x,n.y,20,0,Math.PI*2); pX.fillStyle=g; pX.fill();
+      pX.beginPath(); pX.arc(n.x,n.y,n.r+pulse*1.4,0,Math.PI*2);
+      pX.fillStyle=`rgba(190,90,255,${.65+pulse*.3})`;
+      pX.shadowColor='#b050ff'; pX.shadowBlur=14; pX.fill(); pX.shadowBlur=0;
+    } else {
+      pX.beginPath(); pX.arc(n.x,n.y,n.r*(.8+pulse*.3),0,Math.PI*2);
+      pX.fillStyle=`rgba(160,70,255,${.2+pulse*.3})`; pX.fill();
+    }
+  });
+  if (purplePulse) {
+    purplePulse.t += purplePulse.spd;
+    if (purplePulse.t >= 1) { purplePulse = null; }
+    else {
+      const p = purplePulse;
+      const px2 = p.a.x+(p.b.x-p.a.x)*p.t, py2 = p.a.y+(p.b.y-p.a.y)*p.t;
+      const t0 = Math.max(0,p.t-.18);
+      const tx2 = p.a.x+(p.b.x-p.a.x)*t0, ty2 = p.a.y+(p.b.y-p.a.y)*t0;
+      const life = Math.sin(p.t*Math.PI);
+      const tg = pX.createLinearGradient(tx2,ty2,px2,py2);
+      tg.addColorStop(0,'rgba(180,80,255,0)'); tg.addColorStop(1,`rgba(180,80,255,${.45*life})`);
+      pX.beginPath(); pX.moveTo(tx2,ty2); pX.lineTo(px2,py2);
+      pX.strokeStyle=tg; pX.lineWidth=1.4; pX.stroke();
+      pX.beginPath(); pX.arc(px2,py2,2.2,0,Math.PI*2);
+      pX.fillStyle=`rgba(200,100,255,${.9*life})`;
+      pX.shadowColor='#c060ff'; pX.shadowBlur=10; pX.fill(); pX.shadowBlur=0;
+    }
+  }
+  requestAnimationFrame(drawPurple);
+}
+drawPurple();
 
 /* CTA CANVAS */
 const ctaC = document.getElementById('cta-canvas');
