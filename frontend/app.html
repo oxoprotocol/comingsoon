@@ -1,0 +1,3146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OXO Protocol • Bridge & Swap</title>
+    <link rel="icon" type="image/png" href="./logo.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --oxo-bg: #00060b; --oxo-card: #0c1422; --oxo-edge: #162437;
+            --oxo-text: #e9f6ff; --oxo-dim: #9fb7c6; --oxo-accent: #39d9ef;
+            --oxo-accent-2: #b9f2ff; --success: #22c55e; --error: #ef4444;
+            --info: #3b82f6; --warn: #f59e0b;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0; font-family: 'Inter', system-ui, sans-serif;
+            color: var(--oxo-text);
+            background: var(--oxo-bg);
+            overflow-x: hidden;
+        }
+        #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        main { position: relative; }
+        .wrap { max-width: 520px; margin: 28px auto; padding: 0 20px 64px; display: flex; flex-direction: column; gap: 24px;}
+        header {
+            position: sticky; top: 0; z-index: 5; backdrop-filter: saturate(130%) blur(8px);
+            background: linear-gradient(180deg, rgba(10, 20, 32, .7), rgba(10, 20, 32, .35));
+            border-bottom: 1px solid rgba(57, 217, 239, .12);
+        }
+        .nav { max-width: 520px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand img { height: 28px; filter: drop-shadow(0 0 14px rgba(57, 217, 239, .28)); }
+        .brand .ttl { font-weight: 700; letter-spacing: .2px; }
+        .badge { font-size: .75rem; padding: 6px 10px; border: 1px solid var(--oxo-edge); background: var(--oxo-card); color: var(--oxo-dim); border-radius: 999px; display: flex; align-items: center; gap: 6px;}
+        .badge.sepolia { border-color: rgba(57, 217, 239, .35); background: linear-gradient(180deg, rgba(57, 217, 239, .18), rgba(57, 217, 239, .06)); color: var(--oxo-accent-2);}
+        .card {
+            background: linear-gradient(180deg, rgba(21, 34, 53, .7), rgba(14, 22, 36, .7));
+            border: 1px solid rgba(87, 164, 196, .22); border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .35), inset 0 0 0 1px rgba(57, 217, 239, .05);
+        }
+        .card-padded { padding: 24px; }
+        .card-header { padding: 16px 24px; border-bottom: 1px solid var(--oxo-edge); font-weight: 600; font-size: 1.1rem; }
+        .muted { color: var(--oxo-dim); font-size: .95rem; line-height: 1.5; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .row { display: flex; align-items: center; gap: 10px; }
+        .kv { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--oxo-edge); }
+        .kv:first-child { padding-top: 0; } .kv:last-child { border-bottom: none; padding-bottom: 0; }
+        .kv .key { color: var(--oxo-dim); font-size: .9rem; }
+        .copy-btn { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--oxo-edge); background: transparent; color: var(--oxo-dim); cursor: pointer; transition: all .15s ease; }
+        .copy-btn:hover { background: var(--oxo-edge); color: var(--oxo-accent-2); }
+        .btn {
+            width: 100%; appearance: none; border: 0; cursor: pointer; background: linear-gradient(180deg, var(--oxo-accent), #83eaf8);
+            color: #002129; font-weight: 700; border-radius: 10px; padding: 14px 18px;
+            box-shadow: 0 10px 30px rgba(57, 217, 239, .25); transition: all .15s ease; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); filter: saturate(110%); box-shadow: 0 14px 40px rgba(57, 217, 239, .35); }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn.secondary { background: transparent; color: var(--oxo-accent-2); border: 1px solid rgba(57, 217, 239, .35); box-shadow: none; }
+        .input-group { margin-bottom: 16px; position: relative; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; color: var(--oxo-dim); }
+        input {
+            width: 100%; background: var(--oxo-bg); color: var(--oxo-text);
+            border: 1px solid var(--oxo-edge); border-radius: 10px; padding: 12px;
+            outline: none; font-size: 1rem; box-shadow: inset 0 0 0 1px rgba(57, 217, 239, .08);
+            transition: border-color .2s ease;
+        }
+        input:focus { border-color: var(--oxo-accent); }
+        input[type="number"] { -moz-appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .max-btn { position: absolute; right: 10px; top: 38px; background: var(--oxo-edge); color: var(--oxo-accent); border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: 600;}
+        .help { font-size: .85rem; color: var(--oxo-dim); margin-top: 8px; }
+        .status { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-weight: 500; border: 1px solid transparent; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; line-height: 1.4; transition: all .3s ease;}
+        .status.info { color: #7dd3fc; background: rgba(59, 130, 246, .12); border-color: rgba(59, 130, 246, .35); }
+        .status.ok { color: #86efac; background: rgba(34, 197, 94, .12); border-color: rgba(34, 197, 94, .35); }
+        .status.err { color: #fca5a5; background: rgba(239, 68, 68, .12); border-color: rgba(239, 68, 68, .35); }
+        .status .tx-link { color: var(--oxo-accent-2); text-decoration: none; word-break: break-all; }
+        .status .tx-link:hover { text-decoration: underline; }
+        .tabs { display: flex; background: var(--oxo-card); border-radius: 12px; padding: 6px; margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--oxo-dim); transition: all .2s ease; }
+        .tab.active { background: var(--oxo-edge); color: var(--oxo-text); }
+        .tab-content { display: none; } .tab-content.active { display: block; animation: fadeIn .5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .spinner { width: 16px; height: 16px; border: 2px solid #002129; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #wallet-selector { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; }
+        #wallet-selector.visible { display: flex; }
+        .wallet-modal { background: var(--oxo-card); border: 1px solid var(--oxo-edge); border-radius: 16px; padding: 24px; width: 90%; max-width: 360px; }
+        .wallet-modal h3 { margin: 0 0 16px; text-align: center; }
+        #wallet-list { display: flex; flex-direction: column; gap: 10px; }
+        .wallet-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--oxo-edge); border-radius: 8px; cursor: pointer; transition: background-color .2s ease; }
+        .wallet-option:hover { background-color: var(--oxo-edge); }
+        .wallet-option img { width: 28px; height: 28px; border-radius: 50%; }
+        .tx-history-list { max-height: 200px; overflow-y: auto; padding-right: 10px; }
+        .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--oxo-edge); font-size: 0.9rem; }
+        .tx-item:last-child { border-bottom: none; }
+        .tx-status { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .tx-status.pending { color: var(--warn); }
+        .tx-status.success { color: var(--success); }
+        .tx-status.failed { color: var(--error); }
+        .tx-links a { color: var(--oxo-accent); margin-left: 8px; }
+
+        /* --- SWAP STİLLERİ --- */
+        .swap-box { background: var(--oxo-bg); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--oxo-edge); }
+        .swap-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+        .swap-input-row { display: flex; justify-content: space-between; align-items: center; }
+        .swap-input-row input { background: transparent; border: none; font-size: 1.5rem; font-weight: 600; padding: 0; width: 60%; }
+        .token-selector { background: var(--oxo-edge); padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .token-selector:hover { background: #1f2f47; }
+        .token-selector img { width: 24px; height: 24px; border-radius: 50%; }
+        .swap-arrow { text-align: center; margin: -20px 0 -8px; position: relative; z-index: 2; }
+        .swap-arrow button { background: var(--oxo-edge); border: 2px solid var(--oxo-card); border-radius: 8px; padding: 6px; cursor: pointer; color: var(--oxo-accent); display: inline-flex; transition: transform .2s ease; }
+        .swap-arrow button:hover { transform: rotate(180deg); }
+        .swap-rate { font-size: 0.85rem; color: var(--oxo-dim); margin-top: 16px; text-align: center; height: 1.2em; }
+
+        /* --- DEPOSIT TRACKER STİLLERİ --- */
+        .qr-wrap { display: flex; flex-direction: column; align-items: center; padding: 24px 20px 18px; background: linear-gradient(180deg, rgba(21,34,53,.5), rgba(14,22,36,.5)); border: 1px solid rgba(57,217,239,.18); border-radius: 14px; margin-bottom: 18px; }
+        .qr-img-box { background: #fff; border-radius: 10px; padding: 10px; margin-bottom: 14px; box-shadow: 0 0 40px rgba(57,217,239,.2), 0 8px 32px rgba(0,0,0,.4); }
+        .qr-img-box img { display: block; width: 164px; height: 164px; border-radius: 3px; }
+        .qr-label { font-size: .72rem; color: var(--oxo-dim); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 8px; }
+        .qr-addr-row { display: flex; align-items: center; gap: 8px; background: var(--oxo-bg); border: 1px solid var(--oxo-edge); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; max-width: 100%; }
+        .qr-addr-text { font-family: ui-monospace, monospace; font-size: .75rem; color: var(--oxo-dim); word-break: break-all; flex: 1; }
+        .tracker-wrap { width: 100%; padding-top: 4px; }
+        .tracker-title { font-size: .75rem; text-transform: uppercase; letter-spacing: .6px; color: var(--oxo-dim); margin-bottom: 14px; text-align: center; }
+        .tracker-steps { display: flex; align-items: center; margin-bottom: 12px; padding: 0 4px; }
+        .tracker-step { display: flex; flex-direction: column; align-items: center; position: relative; }
+        .tracker-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--oxo-edge); background: var(--oxo-card); display: flex; align-items: center; justify-content: center; z-index: 1; transition: all .35s ease; flex-shrink: 0; }
+        .tracker-dot svg { opacity: .4; transition: opacity .35s; }
+        .tracker-dot.active { border-color: var(--oxo-accent); background: rgba(57,217,239,.12); animation: tdot 2s ease-in-out infinite; }
+        .tracker-dot.active svg { opacity: 1; }
+        .tracker-dot.done { border-color: var(--success); background: rgba(34,197,94,.12); }
+        .tracker-dot.done svg { opacity: 1; }
+        .tracker-dot-label { font-size: .65rem; color: var(--oxo-dim); margin-top: 5px; white-space: nowrap; transition: color .35s; }
+        .tracker-dot.active + .tracker-dot-label, .tracker-dot.done + .tracker-dot-label { color: var(--oxo-text); }
+        .tracker-seg { flex: 1; height: 2px; background: var(--oxo-edge); margin: 0 2px; margin-bottom: 22px; transition: background .5s ease; }
+        .tracker-seg.done { background: var(--success); }
+        .tracker-seg.active { background: linear-gradient(90deg, var(--success), var(--oxo-accent)); }
+        .tracker-msg { text-align: center; font-size: .875rem; padding: 10px 0 4px; min-height: 2.2em; color: var(--oxo-dim); line-height: 1.5; transition: color .3s; }
+        .tracker-msg.active { color: var(--oxo-accent-2); }
+        .tracker-msg.complete { color: #86efac; }
+        @keyframes tdot { 0%,100% { box-shadow: 0 0 0 0 rgba(57,217,239,.4); } 50% { box-shadow: 0 0 0 6px rgba(57,217,239,0); } }
+
+        /* --- POOL STİLLERİ --- */
+        .pool-info { background: var(--oxo-bg); border-radius: 10px; padding: 2px 16px; margin-bottom: 16px; border: 1px solid var(--oxo-edge); }
+        .pool-share-bar-wrap { margin: 0 0 14px; }
+        .pool-share-bar { height: 6px; background: var(--oxo-edge); border-radius: 999px; overflow: hidden; }
+        .pool-share-bar-fill { height: 100%; background: linear-gradient(90deg, #b9f2ff, var(--oxo-accent)); border-radius: 999px; transition: width .4s ease; }
+
+        /* --- STAKE STİLLERİ --- */
+        .stake-pool-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .stake-pool-title { font-weight:700; font-size:1rem; display:flex; align-items:center; gap:8px; }
+        .stake-apy { font-size:.75rem; padding:3px 8px; border-radius:999px; background:rgba(34,197,94,.13); border:1px solid rgba(34,197,94,.3); color:#86efac; font-weight:700; }
+        .stake-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+        .stake-stat { background:var(--oxo-bg); border:1px solid var(--oxo-edge); border-radius:10px; padding:12px; }
+        .stake-stat .label { font-size:.75rem; color:var(--oxo-dim); margin-bottom:4px; }
+        .stake-stat .value { font-weight:600; font-size:.95rem; font-family:ui-monospace,monospace; }
+        .stake-stat .value.highlight { color:var(--oxo-accent); }
+        .stake-stat .value.green { color:#86efac; }
+        .stake-actions { display:flex; flex-direction:column; gap:10px; }
+        .stake-btn-row { display:flex; gap:8px; }
+        .stake-btn-row .btn { font-size:.85rem; padding:10px 12px; }
+        .cooldown-bar-wrap { margin-bottom:14px; }
+        .cooldown-label { display:flex; justify-content:space-between; font-size:.8rem; color:var(--oxo-dim); margin-bottom:6px; }
+        .cooldown-bar { height:5px; background:var(--oxo-edge); border-radius:999px; overflow:hidden; }
+        .cooldown-bar-fill { height:100%; background:linear-gradient(90deg,var(--oxo-accent),#83eaf8); border-radius:999px; transition:width .5s ease; }
+        .divider { border:none; border-top:1px solid var(--oxo-edge); margin:20px 0; }
+
+
+        /* --- STATS KARTI STİLLERİ --- */
+        .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:16px; }
+        .stat-box { background:var(--oxo-bg); border:1px solid var(--oxo-edge); border-radius:10px; padding:12px; text-align:center; }
+        .stat-box .s-label { font-size:.7rem; color:var(--oxo-dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+        .stat-box .s-value { font-weight:700; font-size:1rem; font-family:ui-monospace,monospace; }
+        .stat-box .s-sub { font-size:.72rem; color:var(--oxo-dim); margin-top:2px; }
+        .stat-box.highlight .s-value { color:var(--oxo-accent); }
+        .stat-box.green .s-value { color:#86efac; }
+        .apy-badge { display:inline-block; font-size:.78rem; padding:2px 9px; border-radius:999px; background:rgba(34,197,94,.13); border:1px solid rgba(34,197,94,.3); color:#86efac; font-weight:700; }
+
+        /* --- FLASH EXIT STİLLERİ --- */
+        .flash-exit-mode { display:flex; gap:8px; margin-bottom:16px; }
+        .flash-exit-mode button { flex:1; padding:9px 12px; border-radius:8px; border:1px solid var(--oxo-edge); background:transparent; color:var(--oxo-dim); cursor:pointer; font-weight:600; font-size:.85rem; transition:all .2s; }
+        .flash-exit-mode button.active { background:var(--oxo-edge); color:var(--oxo-text); border-color:var(--oxo-accent); }
+        .quote-box { background:var(--oxo-bg); border:1px solid var(--oxo-edge); border-radius:10px; padding:14px 16px; margin-bottom:16px; display:none; }
+        .quote-box.visible { display:block; }
+        .quote-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:.9rem; }
+        .quote-row .q-label { color:var(--oxo-dim); }
+        .quote-row .q-value { font-weight:600; font-family:ui-monospace,monospace; }
+        .quote-row .q-value.warn { color:var(--warn); }
+        .quote-row .q-value.ok { color:var(--success); }
+        .order-item { background:var(--oxo-bg); border:1px solid var(--oxo-edge); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+        .order-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .order-id { font-size:.75rem; color:var(--oxo-dim); }
+        .order-badge { font-size:.72rem; padding:2px 8px; border-radius:999px; font-weight:700; }
+        .order-badge.active { background:rgba(57,217,239,.13); border:1px solid rgba(57,217,239,.3); color:var(--oxo-accent); }
+        .order-badge.completed { background:rgba(34,197,94,.13); border:1px solid rgba(34,197,94,.3); color:#86efac; }
+        .order-badge.cancelled { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); color:#fca5a5; }
+        .order-progress { height:4px; background:var(--oxo-edge); border-radius:999px; overflow:hidden; margin:6px 0 8px; }
+        .order-progress-fill { height:100%; background:linear-gradient(90deg,var(--oxo-accent),#83eaf8); border-radius:999px; transition:width .4s; }
+        .order-actions { display:flex; gap:8px; }
+        .order-actions button { flex:1; padding:6px 10px; border-radius:7px; border:1px solid var(--oxo-edge); background:transparent; color:var(--oxo-dim); cursor:pointer; font-size:.8rem; font-weight:600; transition:all .2s; }
+        .order-actions button:hover:not(:disabled) { background:var(--oxo-edge); color:var(--oxo-text); }
+        .order-actions button:disabled { opacity:.4; cursor:not-allowed; }
+
+        /* --- ROLLUP STİLLERİ --- */
+        .l2-badge { display: inline-flex; align-items: center; font-size: .65rem; padding: 1px 6px; border-radius: 999px; background: rgba(57,217,239,.13); border: 1px solid rgba(57,217,239,.3); color: var(--oxo-accent); font-weight: 700; letter-spacing: .4px; margin-left: 5px; vertical-align: middle; }
+        .rollup-info { background: var(--oxo-bg); border-radius: 10px; padding: 2px 16px; margin-bottom: 16px; border: 1px solid var(--oxo-edge); }
+        .batch-bar-wrap { margin: 4px 0 12px; }
+        .batch-bar { height: 6px; background: var(--oxo-edge); border-radius: 999px; overflow: hidden; }
+        .batch-bar-fill { height: 100%; background: linear-gradient(90deg, var(--oxo-accent), #83eaf8); border-radius: 999px; transition: width .4s ease; }
+    </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+    <header>
+        <nav class="nav">
+            <div class="brand">
+                <a href="landing.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;opacity:.55;font-size:.8rem;font-weight:500;letter-spacing:.04em;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='.55'">
+                    <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6H2M6 2L2 6l4 4"/></svg>
+                    Home
+                </a>
+                <span style="color:rgba(255,255,255,.15);margin:0 4px">|</span>
+                <a href="docs.html" style="display:flex;align-items:center;gap:6px;text-decoration:none;color:inherit;opacity:.55;font-size:.8rem;font-weight:500;letter-spacing:.04em;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='.55'">
+                    Docs
+                </a>
+                <span style="color:rgba(255,255,255,.15);margin:0 4px">|</span>
+                <img src="./logo.png" alt="OXO" /><div class="ttl">OXO Protocol</div>
+            </div>
+            <div class="row" style="gap:10px">
+                <span class="badge" id="netBadge">Not Connected</span>
+                <button class="btn secondary" id="connectBtn">Connect Wallet</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="wrap">
+
+            <div id="stats-card" class="card" style="display:none">
+                <div style="padding:12px 16px 0;display:flex;justify-content:space-between;align-items:center">
+                    <span style="font-weight:600;font-size:.9rem">Protocol Stats</span>
+                    <span id="statsBtcPrice" style="font-size:.8rem;color:#9fb7c6">BTC —</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box highlight">
+                        <div class="s-label">Total TVL</div>
+                        <div class="s-value" id="statTvl">—</div>
+                        <div class="s-sub">staking + DEX</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="s-label">oxoBTC Supply</div>
+                        <div class="s-value" id="statSupply">—</div>
+                        <div class="s-sub">= BTC Reserves</div>
+                    </div>
+                    <div class="stat-box green">
+                        <div class="s-label">Stability Reserve</div>
+                        <div class="s-value" id="statReserve">—</div>
+                        <div class="s-sub">Emergency fund</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="s-label">oxoBTC Staked</div>
+                        <div class="s-value" id="statStaked0">—</div>
+                        <div class="s-sub" id="statStaked0Sub"></div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="s-label">OXO Staked</div>
+                        <div class="s-value" id="statStaked1">—</div>
+                        <div class="s-sub">Pool 1</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="s-label">DEX Liquidity</div>
+                        <div class="s-value" id="statDexTvl">—</div>
+                        <div class="s-sub" id="statDexSub"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-padded">
+                <div id="wallet-info" style="display: none;">
+                    <div class="kv"><span class="key">Wallet</span><span class="mono" id="addr"></span></div>
+                    <div class="kv"><span class="key">oxoBTC Balance</span><span class="mono" id="bal">0</span></div>
+                    <div class="kv" id="pendingBalRow" style="display:none"><span class="key" style="color:var(--oxo-accent)">⏳ Pending oxoBTC</span><span class="mono" id="pendingBal" style="color:var(--oxo-accent)">0</span></div>
+                </div>
+                <div id="connStatus" class="status info">Please connect your wallet to begin.</div>
+                
+                <div id="app-container" style="display: none;">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="swap">Swap</div>
+                        <div class="tab" data-tab="bridge">Bridge</div>
+                        <div class="tab" data-tab="pool">Pool</div>
+                        <div class="tab" data-tab="stake">Stake</div>
+                        <div class="tab" data-tab="lend">Lend</div>
+                        <div class="tab" data-tab="rollup">Rollup <span class="l2-badge">L2</span></div>
+                    </div>
+
+                    <div class="tab-content" id="pool-content">
+                        <div class="pool-info" id="poolInfo">
+                            <div class="kv"><span class="key">ETH Reserve</span><span class="mono" id="poolEthReserve">—</span></div>
+                            <div class="kv"><span class="key">oxoBTC Reserve</span><span class="mono" id="poolBtcReserve">—</span></div>
+                            <div class="kv"><span class="key">Your LP Tokens</span><span class="mono" id="poolLpBal">—</span></div>
+                            <div class="kv" style="border-bottom:none"><span class="key">Your Pool Share</span><span id="poolShare">—</span></div>
+                        </div>
+
+                        <div class="tabs">
+                            <div class="tab active" data-ptab="p-add">Add Liquidity</div>
+                            <div class="tab" data-ptab="p-remove">Remove Liquidity</div>
+                        </div>
+
+                        <div class="tab-content active" id="p-add-content">
+                            <div class="input-group">
+                                <label for="pool-eth-amount">ETH Amount</label>
+                                <input type="number" id="pool-eth-amount" placeholder="0.0" min="0" step="any" />
+                                <button class="max-btn" id="poolEthMaxBtn">MAX</button>
+                            </div>
+                            <div class="input-group">
+                                <label for="pool-btc-amount">oxoBTC Amount</label>
+                                <input type="number" id="pool-btc-amount" placeholder="0.0" min="0" step="any" />
+                                <button class="max-btn" id="poolBtcMaxBtn">MAX</button>
+                            </div>
+                            <p class="help" id="poolAddShare" style="margin-bottom:12px"></p>
+                            <button class="btn" id="poolAddBtn">Connect Wallet</button>
+                            <div id="poolAddStatus" class="status" style="display:none"></div>
+                        </div>
+
+                        <div class="tab-content" id="p-remove-content">
+                            <div class="input-group">
+                                <label for="pool-lp-amount">LP Token Amount</label>
+                                <input type="number" id="pool-lp-amount" placeholder="0.0" min="0" step="any" />
+                                <button class="max-btn" id="poolLpMaxBtn">MAX</button>
+                            </div>
+                            <div class="pool-info" id="poolRemovePreview" style="display:none; margin-top:-4px">
+                                <div class="kv"><span class="key">You receive ETH</span><span class="mono" id="previewEth">—</span></div>
+                                <div class="kv" style="border-bottom:none"><span class="key">You receive oxoBTC</span><span class="mono" id="previewBtc">—</span></div>
+                            </div>
+                            <button class="btn" id="poolRemoveBtn">Connect Wallet</button>
+                            <div id="poolRemoveStatus" class="status" style="display:none"></div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="bridge-content">
+                        <div class="tabs">
+                            <div class="tab active" data-tab="deposit">Deposit (BTC → ETH)</div>
+                            <div class="tab" data-tab="redeem">Redeem (ETH → BTC)</div>
+                            <div class="tab" data-tab="flashexit">Flash Exit</div>
+                        </div>
+
+                        <div class="tab-content active" id="deposit-content">
+                            <input type="text" id="deposit-btc-addr" readonly style="display:none">
+                            <div class="qr-wrap">
+                                <div class="qr-label">Your Bitcoin Deposit Address</div>
+                                <div class="qr-img-box">
+                                    <img id="depositQRImg" src="" width="164" height="164" alt="QR Code" />
+                                </div>
+                                <div class="qr-addr-row">
+                                    <span class="qr-addr-text" id="qrAddrText">Connecting…</span>
+                                    <button class="copy-btn" id="copyBtc" title="Copy address">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="tracker-wrap">
+                                    <div class="tracker-title">Transaction Status</div>
+                                    <div class="tracker-steps">
+                                        <div class="tracker-step">
+                                            <div class="tracker-dot" id="ts0">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            </div>
+                                            <div class="tracker-dot-label">Waiting</div>
+                                        </div>
+                                        <div class="tracker-seg" id="tl0"></div>
+                                        <div class="tracker-step">
+                                            <div class="tracker-dot" id="ts1">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </div>
+                                            <div class="tracker-dot-label">Detected</div>
+                                        </div>
+                                        <div class="tracker-seg" id="tl1"></div>
+                                        <div class="tracker-step">
+                                            <div class="tracker-dot" id="ts2">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                            </div>
+                                            <div class="tracker-dot-label">Processing</div>
+                                        </div>
+                                        <div class="tracker-seg" id="tl2"></div>
+                                        <div class="tracker-step">
+                                            <div class="tracker-dot" id="ts3">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                            </div>
+                                            <div class="tracker-dot-label">Minted</div>
+                                        </div>
+                                    </div>
+                                    <div class="tracker-msg" id="trackerMsg">Connect your wallet to get started.</div>
+                                    <a id="trackerExplorerLink" href="#" target="_blank" rel="noopener" style="display:none; text-align:center; font-size:.8rem; color:var(--oxo-accent); margin-top:6px; text-decoration:none; display:block; height:1.2em;"></a>
+                                </div>
+                            </div>
+                            <button class="btn secondary" id="refreshBalanceBtn">Refresh Status</button>
+                        </div>
+                        
+                        <div class="tab-content" id="redeem-content">
+                            <div class="input-group">
+                                <label for="redeem-amount">Amount (oxoBTC)</label>
+                                <input type="number" id="redeem-amount" placeholder="e.g. 0.0005" min="0" step="any" />
+                                <button class="max-btn" id="maxBtn">MAX</button>
+                            </div>
+                            <div class="input-group">
+                                <label for="redeem-btc-addr">Destination Bitcoin Address (Testnet)</label>
+                                <input type="text" id="redeem-btc-addr" placeholder="Enter your tBTC address" />
+                            </div>
+                            <button class="btn" id="redeemBtn">Enter an amount</button>
+                            <p class="help">Estimated arrival: ~5-15 minutes.</p>
+                            <div id="redeemStatus" class="status" style="display:none"></div>
+                        </div>
+
+                        <div class="tab-content" id="flashexit-content">
+                            <p class="muted" style="margin-bottom:14px">Send ETH directly to Bitcoin — no oxoBTC needed. Large amounts are split into chunks to minimize slippage.</p>
+
+                            <!-- Mode selector -->
+                            <div class="flash-exit-mode">
+                                <button id="feInstantBtn" class="active">Instant Exit</button>
+                                <button id="feChunkedBtn">Chunked Exit</button>
+                                <button id="feOrdersBtn">My Orders</button>
+                            </div>
+
+                            <!-- Instant Exit Panel -->
+                            <div id="fe-instant-panel">
+                                <div class="input-group">
+                                    <label for="fe-eth-amount">ETH Amount</label>
+                                    <input type="number" id="fe-eth-amount" placeholder="0.0" min="0" step="any" />
+                                    <button class="max-btn" id="feEthMaxBtn">MAX</button>
+                                </div>
+                                <div class="input-group">
+                                    <label for="fe-btc-addr">Bitcoin Address (Testnet)</label>
+                                    <input type="text" id="fe-btc-addr" placeholder="tb1q..." />
+                                </div>
+                                <div class="quote-box" id="feInstantQuote">
+                                    <div class="quote-row"><span class="q-label">Estimated oxoBTC</span><span class="q-value" id="feQEst">—</span></div>
+                                    <div class="quote-row"><span class="q-label">Price Impact</span><span class="q-value" id="feQSlip">—</span></div>
+                                    <div class="quote-row"><span class="q-label">Protocol Fee (0.1%)</span><span class="q-value" id="feQFee">—</span></div>
+                                    <div id="feDustWarn" class="status err" style="display:none;margin-top:8px;font-size:.82rem">⚠ Output below 546 sats (Bitcoin dust limit) — increase ETH amount</div>
+                                </div>
+                                <button class="btn" id="feInstantExitBtn">Connect Wallet</button>
+                                <div id="feInstantStatus" class="status" style="display:none"></div>
+                            </div>
+
+                            <!-- Chunked Exit Panel -->
+                            <div id="fe-chunked-panel" style="display:none">
+                                <div class="input-group">
+                                    <label for="fe-chunk-eth">ETH Amount</label>
+                                    <input type="number" id="fe-chunk-eth" placeholder="0.0" min="0" step="any" />
+                                    <button class="max-btn" id="feChunkEthMaxBtn">MAX</button>
+                                </div>
+                                <div class="input-group">
+                                    <label for="fe-chunk-slip">Max Slippage per Chunk</label>
+                                    <input type="number" id="fe-chunk-slip" value="50" min="10" max="1000" step="10" />
+                                </div>
+                                <div class="input-group">
+                                    <label for="fe-chunk-btc-addr">Bitcoin Address (Testnet)</label>
+                                    <input type="text" id="fe-chunk-btc-addr" placeholder="tb1q..." />
+                                </div>
+                                <div class="quote-box" id="feChunkedQuote">
+                                    <div class="quote-row"><span class="q-label">Chunks</span><span class="q-value" id="feQChunks">—</span></div>
+                                    <div class="quote-row"><span class="q-label">Slippage (full amount)</span><span class="q-value" id="feQChunkSlip">—</span></div>
+                                    <div class="quote-row"><span class="q-label">Est. per Chunk</span><span class="q-value" id="feQChunkEst">—</span></div>
+                                    <div class="quote-row"><span class="q-label">Chunk Interval</span><span class="q-value" id="feQInterval">—</span></div>
+                                </div>
+                                <button class="btn" id="feChunkedExitBtn">Connect Wallet</button>
+                                <div id="feChunkedStatus" class="status" style="display:none"></div>
+                            </div>
+
+                            <!-- My Orders Panel -->
+                            <div id="fe-orders-panel" style="display:none">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                                    <span style="font-weight:600">Active Orders</span>
+                                    <button class="btn secondary" id="feRefreshOrdersBtn" style="width:auto;padding:6px 14px;font-size:.85rem">Refresh</button>
+                                </div>
+                                <div id="feOrdersList">
+                                    <p class="muted" style="text-align:center;padding:20px 0">No orders found.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content active" id="swap-content">
+                        <div class="swap-box">
+                            <div class="swap-header">
+                                <label>From</label>
+                                <span class="muted" id="fromBalance">Balance: 0</span>
+                            </div>
+                            <div class="swap-input-row">
+                                <input type="number" id="fromAmount" placeholder="0.0">
+                                <div class="token-selector" id="fromToken">
+                                    <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png" alt="ETH">
+                                    <span>ETH</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="swap-arrow">
+                            <button id="swapDirBtn" title="Flip direction">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                            </button>
+                        </div>
+
+                        <div class="swap-box">
+                            <div class="swap-header">
+                                <label>To</label>
+                                <span class="muted" id="toBalance">Balance: 0</span>
+                            </div>
+                            <div class="swap-input-row">
+                                <input type="number" id="toAmount" placeholder="0.0" readonly>
+                                <div class="token-selector" id="toToken">
+                                    <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" alt="BTC">
+                                    <span>oxoBTC</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="swap-rate" id="swapRate"></div>
+                        <button class="btn" id="swapBtn">Connect Wallet</button>
+                        <div id="swapStatus" class="status" style="display:none"></div>
+                    </div>
+
+                    <div class="tab-content" id="stake-content">
+                        <!-- ═══ POOL 0: oxoBTC → OXO ═══ -->
+                        <div class="stake-pool-header">
+                            <div class="stake-pool-title">🔒 oxoBTC Pool <span class="apy-badge" id="stakeApy0">— APY</span></div>
+                            <span class="muted" style="font-size:.8rem">Min: <span id="stakeMinLabel">—</span></span>
+                        </div>
+                        <div class="stake-stats">
+                            <div class="stake-stat"><div class="label">Your Stake</div><div class="value" id="s0Staked">0.000</div></div>
+                            <div class="stake-stat"><div class="label">Pending OXO</div><div class="value highlight" id="s0Pending">0.00</div></div>
+                        </div>
+                        <div id="s0Cooldown" style="display:none" class="cooldown-bar-wrap">
+                            <div class="cooldown-label"><span>Cooldown</span><span id="s0CooldownTime">—</span></div>
+                            <div class="cooldown-bar"><div class="cooldown-bar-fill" id="s0CooldownFill" style="width:0%"></div></div>
+                        </div>
+                        <div class="input-group"><label>oxoBTC Amount</label><input type="number" id="s0Amount" placeholder="0.000" step="0.0001" /><button class="max-btn" id="s0MaxBtn">MAX</button></div>
+                        <div class="stake-actions">
+                            <div class="stake-btn-row">
+                                <button class="btn" id="s0StakeBtn">Stake</button>
+                                <button class="btn secondary" id="s0UnstakeBtn">Unstake</button>
+                            </div>
+                            <div class="stake-btn-row">
+                                <button class="btn secondary" id="s0WithdrawBtn" style="display:none">Withdraw</button>
+                                <button class="btn secondary" id="s0ClaimBtn">Claim OXO</button>
+                                <button class="btn secondary" id="s0CompoundBtn">Compound →P1</button>
+                            </div>
+                        </div>
+                        <div id="stakeStatus0" class="status" style="display:none;margin-top:12px"></div>
+
+                        <hr class="divider">
+
+                        <!-- ═══ POOL 1: OXO → ETH + oxoBTC ═══ -->
+                        <div class="stake-pool-header">
+                            <div class="stake-pool-title">💎 OXO Pool</div>
+                            <span class="muted" style="font-size:.8rem">Earn ETH + oxoBTC fees</span>
+                        </div>
+                        <div class="stake-stats">
+                            <div class="stake-stat"><div class="label">Your Stake</div><div class="value" id="s1Staked">0.00</div></div>
+                            <div class="stake-stat"><div class="label">Pending ETH</div><div class="value green" id="s1PendingEth">0.000</div></div>
+                            <div class="stake-stat"><div class="label">OXO Balance</div><div class="value" id="s1OxoBal">0.00</div></div>
+                            <div class="stake-stat"><div class="label">Pending oxoBTC</div><div class="value highlight" id="s1PendingBtc">0.000</div></div>
+                        </div>
+                        <div id="s1Cooldown" style="display:none" class="cooldown-bar-wrap">
+                            <div class="cooldown-label"><span>Cooldown</span><span id="s1CooldownTime">—</span></div>
+                            <div class="cooldown-bar"><div class="cooldown-bar-fill" id="s1CooldownFill" style="width:0%"></div></div>
+                        </div>
+                        <div class="input-group"><label>OXO Amount</label><input type="number" id="s1Amount" placeholder="0.00" step="1" /><button class="max-btn" id="s1MaxBtn">MAX</button></div>
+                        <div class="stake-actions">
+                            <div class="stake-btn-row">
+                                <button class="btn" id="s1StakeBtn">Stake OXO</button>
+                                <button class="btn secondary" id="s1UnstakeBtn">Unstake</button>
+                            </div>
+                            <div class="stake-btn-row">
+                                <button class="btn secondary" id="s1WithdrawBtn" style="display:none">Withdraw</button>
+                                <button class="btn secondary" id="s1ClaimBtn">Claim Rewards</button>
+                            </div>
+                        </div>
+                        <div id="stakeStatus1" class="status" style="display:none;margin-top:12px"></div>
+                    </div>
+
+                    <!-- ══════════ LEND ══════════ -->
+                    <div class="tab-content" id="lend-content">
+                        <div class="card-padded">
+
+                            <!-- Pozisyon Özeti -->
+                            <div class="pool-info" id="lendInfo" style="margin-bottom:16px">
+                                <div class="kv"><span class="key">Collateral</span><span class="mono" id="lendCollateral">—</span></div>
+                                <div class="kv"><span class="key">Borrowed</span><span class="mono" id="lendDebt">—</span></div>
+                                <div class="kv"><span class="key">Max Borrow</span><span class="mono" id="lendMaxBorrow">—</span></div>
+                                <div class="kv"><span class="key">Health Factor</span><span class="mono" id="lendHealth">—</span></div>
+                                <div class="kv"><span class="key">APR</span><span class="mono">5%</span></div>
+                            </div>
+
+                            <!-- Tabs: Deposit / Borrow / Repay / Withdraw -->
+                            <div class="tabs" style="margin-bottom:16px">
+                                <div class="tab active" data-ltab="l-deposit">Deposit</div>
+                                <div class="tab" data-ltab="l-borrow">Borrow</div>
+                                <div class="tab" data-ltab="l-repay">Repay</div>
+                                <div class="tab" data-ltab="l-withdraw">Withdraw</div>
+                            </div>
+
+                            <!-- Deposit Collateral -->
+                            <div class="tab-content active" id="l-deposit-content">
+                                <p class="muted">Deposit oxoBTC as collateral. Borrow up to 70% of its ETH value.</p>
+                                <div class="input-group">
+                                    <label class="input-label">oxoBTC Amount</label>
+                                    <div class="input-row">
+                                        <input type="number" id="lendDepositAmt" placeholder="0.00000000" min="0" step="0.00000001" />
+                                        <button class="max-btn" id="lendDepositMax">MAX</button>
+                                    </div>
+                                    <p class="help" id="lendDepositHelp"></p>
+                                </div>
+                                <button class="btn" id="lendDepositBtn">Connect Wallet</button>
+                                <div id="lendDepositStatus" class="status" style="display:none"></div>
+                            </div>
+
+                            <!-- Borrow ETH -->
+                            <div class="tab-content" id="l-borrow-content">
+                                <p class="muted">Borrow ETH against your oxoBTC. LTV 70% — keep your Bitcoin, get liquidity.</p>
+                                <div class="input-group">
+                                    <label class="input-label">ETH Amount</label>
+                                    <div class="input-row">
+                                        <input type="number" id="lendBorrowAmt" placeholder="0.0000" min="0" step="0.0001" />
+                                        <button class="max-btn" id="lendBorrowMax">MAX</button>
+                                    </div>
+                                    <p class="help" id="lendBorrowHelp"></p>
+                                </div>
+                                <button class="btn" id="lendBorrowBtn">Connect Wallet</button>
+                                <div id="lendBorrowStatus" class="status" style="display:none"></div>
+                            </div>
+
+                            <!-- Repay -->
+                            <div class="tab-content" id="l-repay-content">
+                                <p class="muted">Repay your ETH debt. Send slightly more to cover accrued interest — excess is refunded.</p>
+                                <div class="input-group">
+                                    <label class="input-label">ETH to Repay</label>
+                                    <div class="input-row">
+                                        <input type="number" id="lendRepayAmt" placeholder="0.0000" min="0" step="0.0001" />
+                                        <button class="max-btn" id="lendRepayMax">FULL</button>
+                                    </div>
+                                    <p class="help" id="lendRepayHelp"></p>
+                                </div>
+                                <button class="btn" id="lendRepayBtn">Connect Wallet</button>
+                                <div id="lendRepayStatus" class="status" style="display:none"></div>
+                            </div>
+
+                            <!-- Withdraw Collateral -->
+                            <div class="tab-content" id="l-withdraw-content">
+                                <p class="muted">Withdraw oxoBTC collateral. Repay debt first or ensure health factor stays above 1.</p>
+                                <div class="input-group">
+                                    <label class="input-label">oxoBTC Amount</label>
+                                    <div class="input-row">
+                                        <input type="number" id="lendWithdrawAmt" placeholder="0.00000000" min="0" step="0.00000001" />
+                                        <button class="max-btn" id="lendWithdrawMax">MAX</button>
+                                    </div>
+                                    <p class="help" id="lendWithdrawHelp"></p>
+                                </div>
+                                <button class="btn secondary" id="lendWithdrawBtn">Connect Wallet</button>
+                                <div id="lendWithdrawStatus" class="status" style="display:none"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="rollup-content">
+                        <div class="tabs">
+                            <div class="tab active" data-rtab="r-deposit">Deposit</div>
+                            <div class="tab" data-rtab="r-transfer">Transfer</div>
+                            <div class="tab" data-rtab="r-withdraw">Withdraw</div>
+                            <div class="tab" data-rtab="r-status">Status</div>
+                        </div>
+
+                        <div class="tab-content active" id="r-deposit-content">
+                            <p class="muted">Deposit oxoBTC to Layer 2 rollup for fast, low-cost transfers.</p>
+                            <div class="input-group">
+                                <label for="rollup-deposit-amount">Amount (oxoBTC)</label>
+                                <input type="number" id="rollup-deposit-amount" placeholder="e.g. 0.001" min="0" step="any" />
+                                <button class="max-btn" id="rollupDepositMaxBtn">MAX</button>
+                            </div>
+                            <button class="btn" id="rollupDepositBtn">Connect Wallet</button>
+                            <div id="rollupDepositStatus" class="status" style="display:none"></div>
+                        </div>
+
+                        <div class="tab-content" id="r-transfer-content">
+                            <p class="muted">Transfer oxoBTC to another address on Layer 2. Batches of 4 are proven with a ZK proof.</p>
+                            <div class="input-group">
+                                <label for="rollup-to-addr">Recipient Address</label>
+                                <input type="text" id="rollup-to-addr" placeholder="0x..." />
+                            </div>
+                            <div class="input-group">
+                                <label for="rollup-transfer-amount">Amount (oxoBTC)</label>
+                                <input type="number" id="rollup-transfer-amount" placeholder="e.g. 0.0001" min="0" step="any" />
+                            </div>
+                            <button class="btn" id="rollupTransferBtn">Connect Wallet</button>
+                            <div id="rollupTransferStatus" class="status" style="display:none"></div>
+                        </div>
+
+                        <div class="tab-content" id="r-withdraw-content">
+                            <p class="muted">Withdraw oxoBTC from Layer 2 back to your wallet. The sequencer processes the transaction on-chain.</p>
+                            <div class="input-group">
+                                <label for="rollup-withdraw-amount">Amount (oxoBTC)</label>
+                                <input type="number" id="rollup-withdraw-amount" placeholder="e.g. 0.001" min="0" step="any" />
+                                <button class="max-btn" id="rollupWithdrawMaxBtn">MAX</button>
+                            </div>
+                            <p class="help" id="rollupWithdrawL2Bal" style="margin-top:-4px"></p>
+                            <button class="btn" id="rollupWithdrawBtn">Connect Wallet</button>
+                            <div id="rollupWithdrawStatus" class="status" style="display:none"></div>
+                        </div>
+
+                        <div class="tab-content" id="r-status-content">
+                            <div class="rollup-info">
+                                <div class="kv"><span class="key">Your L2 Balance</span><span class="mono" id="rollupL2Bal">—</span></div>
+                                <div class="kv"><span class="key">Pending Batch</span><span id="rollupPendingTx">—</span></div>
+                                <div class="kv"><span class="key">Batch ID</span><span class="mono" id="rollupBatchId">—</span></div>
+                                <div class="kv"><span class="key">State Root</span><span class="mono" id="rollupStateRoot" style="font-size:.8rem;word-break:break-all">—</span></div>
+                            </div>
+                            <div class="batch-bar-wrap" id="rollupBatchProgress" style="display:none">
+                                <div class="batch-bar"><div class="batch-bar-fill" id="batchProgressFill" style="width:0%"></div></div>
+                                <p class="help" style="text-align:center;margin-top:6px" id="batchProgressText"></p>
+                            </div>
+                            <button class="btn secondary" id="rollupRefreshBtn">Refresh State</button>
+                            <div id="rollupStatusMsg" class="status" style="display:none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="history-card" class="card" style="display: none;">
+                <div class="card-header">Transaction History</div>
+                <div id="tx-history-list" class="card-padded">
+                    <p class="muted" id="empty-history">No transactions yet.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="wallet-selector">
+        <div class="wallet-modal">
+            <h3>Select a Wallet</h3>
+            <div id="wallet-list"></div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.min.js";
+
+        const CONFIG = {
+    TOKEN_ADDRESS: "0xA6fB891D117ce6C03880168bADE140067ED44D78",
+    BRIDGE_ADDRESS: "0xF89105BD4e016Dcc88bca896d43a4aD3C64c6083",
+    OXO_SWAP_FACTORY_ADDRESS: "0xe969090d30f76e8b7969db2113d7572b5944e842",
+    OXO_SWAP_ROUTER_ADDRESS: "0xb898537873ab341557963db261563092c784e725",
+    OXO_TOKEN_ADDRESS: "0xca0cd5448fabdfdc33f0795c871901c5e2bb60a8",
+    WETH_ADDRESS: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
+    ROLLUP_ADDRESS: "0xb76f2de1fC31A374986B7622a4d89f6CBB3b89c9",
+    ROLLUP_URL: "http://localhost:3002",
+    BACKEND_URL: "http://localhost:3001",
+    TOKEN_DECIMALS: 8,
+    SLIPPAGE_BPS: 50n,
+    CHAIN_ID: "0xaa36a7",
+    STAKING_ADDRESS: "0x54e8f0348EB1E531f72d94E89FF877bA6B9b460A",
+    LENDING_ADDRESS: "0x80692E84b4b264ad5607b8F0C716d11Ee1Dc55Aa",
+    TREASURY_ADDRESS: "0xdCC5Eef80df9cF48F4504D476BB4701B17e7E361",
+    FLASH_EXIT_ADDRESS: "0x7aD326031a056e87d78178F8e08Fb998Cb8131F1",
+    ETHERSCAN_URL: "https://sepolia.etherscan.io",
+};
+
+        const TOKEN_ABI = [
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function allowance(address owner, address spender) view returns (uint256)",
+            "function balanceOf(address account) view returns (uint256)"
+        ];
+        const BRIDGE_ABI = [
+            "function withdraw(string calldata _btcAddress, uint256 _amount) external"
+        ];
+        const LENDING_ABI = [
+            "function depositCollateral(uint256 amount) external",
+            "function withdrawCollateral(uint256 amount) external",
+            "function borrow(uint256 ethAmount) external",
+            "function repay() external payable",
+            "function positions(address) view returns (uint256 collateral, uint256 debt, uint256 debtUpdatedAt)",
+            "function currentDebt(address user) view returns (uint256)",
+            "function maxBorrow(address user) view returns (uint256)",
+            "function healthFactor(address user) view returns (uint256)",
+            "function baseRateBps() view returns (uint256)"
+        ];
+        const FLASH_EXIT_ABI = [
+            "function getExitQuote(uint256 ethAmount, uint256 maxSlippageBps) external view returns (uint256 chunks, uint256 estimatedOxoBtc, uint256 slippageBps)",
+            "function exitInstant(string calldata btcAddress, uint256 minOxoBtcOut) external payable",
+            "function exitChunked(string calldata btcAddress, uint256 maxSlippageBps) external payable returns (uint256 orderId)",
+            "function executeNextChunk(uint256 orderId) external",
+            "function cancelOrder(uint256 orderId) external",
+            "function getOrder(uint256 orderId) external view returns (address user, string memory btcAddress, uint256 totalEth, uint256 remainingEth, uint256 acquiredOxoBtc, uint256 chunkEth, uint256 maxSlippageBps, uint256 lastChunkTime, uint256 chunksLeft, bool completed, bool cancelled)",
+            "function getUserOrders(address user) external view returns (uint256[] memory)",
+            "function exitFeeBps() view returns (uint256)",
+            "function chunkInterval() view returns (uint256)",
+            "function maxChunks() view returns (uint256)"
+        ];
+        const ROLLUP_ABI = [
+            "function deposit(uint256 amount) external",
+            "function registerAccount(address user) external"
+        ];
+        const ROUTER_ABI = [
+            "function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts)",
+            "function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)",
+            "function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
+            "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
+            "function addLiquidityETH(address token, uint amountTokenDesired, uint amountTokenMin, uint amountETHMin, address to, uint deadline) external payable returns (uint amountToken, uint amountETH, uint liquidity)",
+            "function removeLiquidityETH(address token, uint liquidity, uint amountTokenMin, uint amountETHMin, address to, uint deadline) external returns (uint amountToken, uint amountETH)"
+        ];
+        const FACTORY_ABI = [
+            "function getPair(address tokenA, address tokenB) external view returns (address pair)"
+        ];
+        const PAIR_ABI = [
+            "function balanceOf(address) view returns (uint256)",
+            "function totalSupply() view returns (uint256)",
+            "function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)",
+            "function token0() view returns (address)",
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function allowance(address owner, address spender) view returns (uint256)"
+        ];
+
+        const STAKING_ABI = [
+            "function stakeOxoBTC(uint256 amount) external",
+            "function requestUnstakeOxoBTC(uint256 amount) external",
+            "function withdrawOxoBTC() external",
+            "function claimPool0() external",
+            "function compound() external",
+            "function stakeOXO(uint256 amount) external",
+            "function requestUnstakeOXO(uint256 amount) external",
+            "function withdrawOXO() external",
+            "function claimPool1() external",
+            "function pendingOxo(address account) view returns (uint256)",
+            "function pendingFees(address account) view returns (uint256 ethAmt, uint256 oxoBtcAmt)",
+            "function minOxoBtcStake() view returns (uint256)",
+            "function getBtcPrice() view returns (uint256)",
+            "function usersPool0(address) view returns (uint256 staked, uint256 rewardDebt, uint256 pendingOxo, uint256 cooldownAmount, uint256 cooldownEnd)",
+            "function usersPool1(address) view returns (uint256 staked, uint256 ethDebt, uint256 oxoBtcDebt, uint256 pendingEth, uint256 pendingOxoBtc, uint256 cooldownAmount, uint256 cooldownEnd)",
+            "function pool0() view returns (uint256 totalStaked, uint256 oxoPerSecond, uint256 accOxoPerShare, uint256 lastRewardTime)"
+        ];
+
+        const TOKENS = {
+            "ETH":    { symbol: "ETH",    address: "ETH",                decimals: 18, logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png" },
+            "oxoBTC": { symbol: "oxoBTC", address: CONFIG.TOKEN_ADDRESS, decimals: 8,  logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" }
+        };
+
+        const App = {
+            state: {
+                provider: null,
+                signer: null,
+                account: null,
+                oxoBTCBalance: 0n,
+                ethBalance: 0n,
+                btcAddress: null,
+                wallets: [],
+                history: [],
+                swapFrom: "ETH",
+                swapTo: "oxoBTC",
+                debounceTimer: null,
+                depositPollTimer: null,
+                rollupBalance: 0n,
+                rollupPending: 0,
+                rollupBatchId: 0,
+                lpBalance: 0n,
+                lpTotalSupply: 0n,
+                ethReserve: 0n,
+                btcReserve: 0n,
+                pairAddress: null,
+                poolDebounce: null,
+                stakeRefreshTimer: null,
+                oxoBalance: 0n,
+            },
+            ui: {
+                connectBtn: document.getElementById('connectBtn'),
+                netBadge: document.getElementById('netBadge'),
+                addr: document.getElementById('addr'),
+                bal: document.getElementById('bal'),
+                connStatus: document.getElementById('connStatus'),
+                walletInfo: document.getElementById('wallet-info'),
+                appContainer: document.getElementById('app-container'),
+
+                tabs: document.querySelectorAll('.card > #app-container > .tabs .tab'),
+                tabContents: document.querySelectorAll('#app-container > .tab-content'),
+
+                bridgeTabs: document.querySelectorAll('#bridge-content .tabs .tab'),
+                bridgeTabContents: document.querySelectorAll('#bridge-content .tab-content'),
+
+                depositBtcAddr: document.getElementById('deposit-btc-addr'),
+                copyBtc: document.getElementById('copyBtc'),
+                refreshBalanceBtn: document.getElementById('refreshBalanceBtn'),
+                depositQRImg: document.getElementById('depositQRImg'),
+                qrAddrText: document.getElementById('qrAddrText'),
+                trackerMsg: document.getElementById('trackerMsg'),
+                trackerExplorerLink: document.getElementById('trackerExplorerLink'),
+                ts: [0,1,2,3].map(i => document.getElementById(`ts${i}`)),
+                tl: [0,1,2].map(i => document.getElementById(`tl${i}`)),
+                redeemAmount: document.getElementById('redeem-amount'),
+                redeemBtcAddr: document.getElementById('redeem-btc-addr'),
+                redeemBtn: document.getElementById('redeemBtn'),
+                redeemStatus: document.getElementById('redeemStatus'),
+                maxBtn: document.getElementById('maxBtn'),
+                walletSelector: document.getElementById('wallet-selector'),
+                walletList: document.getElementById('wallet-list'),
+                historyCard: document.getElementById('history-card'),
+                txHistoryList: document.getElementById('tx-history-list'),
+                emptyHistory: document.getElementById('empty-history'),
+
+                swapContent: document.getElementById('swap-content'),
+                fromAmount: document.getElementById('fromAmount'),
+                toAmount: document.getElementById('toAmount'),
+                fromToken: document.getElementById('fromToken'),
+                toToken: document.getElementById('toToken'),
+                swapDirBtn: document.getElementById('swapDirBtn'),
+                swapRate: document.getElementById('swapRate'),
+                swapBtn: document.getElementById('swapBtn'),
+                swapStatus: document.getElementById('swapStatus'),
+                fromBalance: document.getElementById('fromBalance'),
+                toBalance: document.getElementById('toBalance'),
+
+                rollupTabs: document.querySelectorAll('#rollup-content > .tabs .tab'),
+                rollupTabContents: document.querySelectorAll('#rollup-content > .tab-content'),
+                rollupDepositAmount: document.getElementById('rollup-deposit-amount'),
+                rollupDepositMaxBtn: document.getElementById('rollupDepositMaxBtn'),
+                rollupDepositBtn: document.getElementById('rollupDepositBtn'),
+                rollupDepositStatus: document.getElementById('rollupDepositStatus'),
+                rollupToAddr: document.getElementById('rollup-to-addr'),
+                rollupTransferAmount: document.getElementById('rollup-transfer-amount'),
+                rollupTransferBtn: document.getElementById('rollupTransferBtn'),
+                rollupTransferStatus: document.getElementById('rollupTransferStatus'),
+                rollupL2Bal: document.getElementById('rollupL2Bal'),
+                rollupPendingTx: document.getElementById('rollupPendingTx'),
+                rollupStateRoot: document.getElementById('rollupStateRoot'),
+                rollupBatchId: document.getElementById('rollupBatchId'),
+                rollupBatchProgress: document.getElementById('rollupBatchProgress'),
+                batchProgressFill: document.getElementById('batchProgressFill'),
+                batchProgressText: document.getElementById('batchProgressText'),
+                poolTabs: document.querySelectorAll('#pool-content > .tabs .tab'),
+                poolTabContents: document.querySelectorAll('#pool-content > .tab-content'),
+                poolEthReserve: document.getElementById('poolEthReserve'),
+                poolBtcReserve: document.getElementById('poolBtcReserve'),
+                poolLpBal: document.getElementById('poolLpBal'),
+                poolShare: document.getElementById('poolShare'),
+                poolEthAmount: document.getElementById('pool-eth-amount'),
+                poolEthMaxBtn: document.getElementById('poolEthMaxBtn'),
+                poolBtcAmount: document.getElementById('pool-btc-amount'),
+                poolBtcMaxBtn: document.getElementById('poolBtcMaxBtn'),
+                poolAddShare: document.getElementById('poolAddShare'),
+                poolAddBtn: document.getElementById('poolAddBtn'),
+                poolAddStatus: document.getElementById('poolAddStatus'),
+                poolLpAmount: document.getElementById('pool-lp-amount'),
+                poolLpMaxBtn: document.getElementById('poolLpMaxBtn'),
+                poolRemovePreview: document.getElementById('poolRemovePreview'),
+                previewEth: document.getElementById('previewEth'),
+                previewBtc: document.getElementById('previewBtc'),
+                poolRemoveBtn: document.getElementById('poolRemoveBtn'),
+                poolRemoveStatus: document.getElementById('poolRemoveStatus'),
+                rollupWithdrawAmount: document.getElementById('rollup-withdraw-amount'),
+                rollupWithdrawMaxBtn: document.getElementById('rollupWithdrawMaxBtn'),
+                rollupWithdrawBtn: document.getElementById('rollupWithdrawBtn'),
+                rollupWithdrawStatus: document.getElementById('rollupWithdrawStatus'),
+                rollupWithdrawL2Bal: document.getElementById('rollupWithdrawL2Bal'),
+                rollupRefreshBtn: document.getElementById('rollupRefreshBtn'),
+                rollupStatusMsg: document.getElementById('rollupStatusMsg'),
+            },
+        };
+
+        const ICONS = {
+            SUCCESS: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+            INFO: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
+            ERROR: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+        };
+
+        const shortenAddress = (addr) => addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : "";
+
+        const showStatus = (el, type, msg) => {
+            el.style.display = 'flex';
+            el.className = `status ${type}`;
+            let icon = ICONS.INFO;
+            if (type === 'ok') icon = ICONS.SUCCESS;
+            if (type === 'err') icon = ICONS.ERROR;
+            if (type === 'warn') icon = ICONS.ERROR;
+            el.innerHTML = `${icon} <div>${msg}</div>`;
+        };
+
+        const copyToClipboard = async (text, btn) => {
+            if (!text || !navigator.clipboard) return;
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = 'Copied!';
+                btn.style.color = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.style.color = '';
+                }, 1500);
+            } catch (err) {
+                console.error('Copy failed', err);
+            }
+        };
+
+        const setLoading = (btn, isLoading, text = 'Processing...') => {
+            if (isLoading) {
+                btn.dataset.originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<div class="spinner"></div> ${text}`;
+            } else {
+                btn.disabled = false;
+                if (btn.dataset.originalText) {
+                    btn.innerHTML = btn.dataset.originalText;
+                }
+            }
+        };
+
+        const getHistory = () => {
+            if (!App.state.account) return [];
+            try {
+                return JSON.parse(localStorage.getItem(`oxo_history_${App.state.account}`) || '[]');
+            } catch {
+                return [];
+            }
+        };
+        const saveHistory = (history) => {
+            if (!App.state.account) return;
+            localStorage.setItem(`oxo_history_${App.state.account}`, JSON.stringify(history));
+        };
+        const addTxToHistory = (tx) => {
+            let history = getHistory();
+            history.unshift(tx);
+            if (history.length > 10) history = history.slice(0, 10);
+            saveHistory(history);
+            renderHistory();
+        };
+        const updateTxInHistory = (hash, updates) => {
+            let history = getHistory();
+            const txIndex = history.findIndex(tx => tx.hash === hash);
+            if (txIndex > -1) {
+                history[txIndex] = { ...history[txIndex], ...updates };
+                saveHistory(history);
+                renderHistory();
+            }
+        };
+        const renderHistory = () => {
+            const history = getHistory();
+            if (history.length === 0) {
+                App.ui.historyCard.style.display = 'none';
+                return;
+            }
+            App.ui.historyCard.style.display = 'block';
+            App.ui.emptyHistory.style.display = 'none';
+            App.ui.txHistoryList.innerHTML = history.map(tx => `
+                <div class="tx-item">
+                    <div>
+                        <div class="tx-status ${tx.status}">
+                            <span style="text-transform: capitalize;">${tx.type}</span>
+                            (${tx.status})
+                        </div>
+                        <div class="muted" style="font-size: 0.8rem;">${new Date(tx.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="mono">${tx.amount} ${tx.tokenSymbol}</div>
+                        <div class="tx-links">
+                            <a href="${CONFIG.ETHERSCAN_URL}/tx/${tx.hash}" target="_blank" rel="noopener">ETH</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        function renderSwapBalances() {
+            if (!App.ui.fromBalance || !App.ui.toBalance) return;
+
+            if (!App.state.account) {
+                App.ui.fromBalance.textContent = 'Balance: 0';
+                App.ui.toBalance.textContent = 'Balance: 0';
+                return;
+            }
+
+            const fromToken = TOKENS[App.state.swapFrom];
+            const toToken   = TOKENS[App.state.swapTo];
+
+            const fmt = (bn, decimals) => {
+                try {
+                    const s = ethers.formatUnits(bn, decimals);
+                    const n = Number(s);
+                    return isNaN(n) ? s : n.toFixed(6);
+                } catch {
+                    return '0';
+                }
+            };
+
+            let fromBal = '0';
+            if (fromToken.address === 'ETH') {
+                fromBal = fmt(App.state.ethBalance, 18);
+            } else {
+                fromBal = fmt(App.state.oxoBTCBalance, fromToken.decimals);
+            }
+
+            let toBal = '0';
+            if (toToken.address === 'ETH') {
+                toBal = fmt(App.state.ethBalance, 18);
+            } else {
+                toBal = fmt(App.state.oxoBTCBalance, toToken.decimals);
+            }
+
+            App.ui.fromBalance.textContent = `Balance: ${fromBal} ${fromToken.symbol}`;
+            App.ui.toBalance.textContent   = `Balance: ${toBal} ${toToken.symbol}`;
+        }
+
+        const updateUI = () => {
+            if (App.state.account) {
+                App.ui.connStatus.style.display = 'none';
+                App.ui.walletInfo.style.display = 'block';
+                App.ui.appContainer.style.display = 'block';
+
+                App.ui.addr.textContent = shortenAddress(App.state.account);
+                App.ui.connectBtn.textContent = shortenAddress(App.state.account);
+                App.ui.connectBtn.disabled = true;
+
+                App.ui.netBadge.classList.add('sepolia');
+                App.ui.netBadge.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--success)" stroke="var(--success)" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg> Sepolia
+                `;
+
+                App.ui.bal.textContent = ethers.formatUnits(App.state.oxoBTCBalance, CONFIG.TOKEN_DECIMALS);
+                if (App.state.btcAddress) updateQR(App.state.btcAddress);
+
+                updateSwapButtonState();
+                updateRedeemButtonState();
+                updatePoolAddBtn();
+                updatePoolRemoveBtn();
+                updateRollupDepositBtn();
+                updateRollupTransferBtn();
+                updateRollupWithdrawBtn();
+                updateLendButtons();
+                renderHistory();
+                // Flash Exit butonlarını sıfırla
+                const feIBtn = document.getElementById('feInstantExitBtn');
+                const feCBtn = document.getElementById('feChunkedExitBtn');
+                if (feIBtn && feIBtn.dataset.originalText) feIBtn.textContent = feIBtn.dataset.originalText;
+                if (feCBtn && feCBtn.dataset.originalText) feCBtn.textContent = feCBtn.dataset.originalText;
+            } else {
+                App.ui.connStatus.style.display = 'flex';
+                App.ui.walletInfo.style.display = 'none';
+                App.ui.appContainer.style.display = 'none';
+                App.ui.historyCard.style.display = 'none';
+
+                App.ui.connectBtn.textContent = 'Connect Wallet';
+                App.ui.connectBtn.disabled = false;
+
+                App.ui.netBadge.classList.remove('sepolia');
+                App.ui.netBadge.innerHTML = 'Not Connected';
+
+                App.ui.swapBtn.textContent = 'Connect Wallet';
+                App.ui.swapBtn.disabled = true;
+            }
+
+            renderSwapBalances();
+        };
+
+        const ensureSepolia = async (provider) => {
+            const ethProvider = provider || App.state.provider;
+            if (!ethProvider) return false;
+            try {
+                const chainId = await ethProvider.send('eth_chainId', []);
+                if (chainId === CONFIG.CHAIN_ID) return true;
+
+                // Önce switch dene
+                try {
+                    await ethProvider.send('wallet_switchEthereumChain', [{ chainId: CONFIG.CHAIN_ID }]);
+                    return true;
+                } catch (switchErr) {
+                    // Network yoksa Sepolia ekle
+                    if (switchErr.code === 4902) {
+                        await ethProvider.send('wallet_addEthereumChain', [{
+                            chainId: CONFIG.CHAIN_ID,
+                            chainName: 'Sepolia Testnet',
+                            nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
+                            rpcUrls: ['https://rpc.sepolia.org'],
+                            blockExplorerUrls: ['https://sepolia.etherscan.io'],
+                        }]);
+                        return true;
+                    }
+                    throw switchErr;
+                }
+            } catch {
+                showStatus(App.ui.connStatus, 'err', 'Please switch to Sepolia Testnet in your wallet.');
+                return false;
+            }
+        };
+
+        const fetchAccountData = async () => {
+            if (!App.state.account || !App.state.provider) return;
+
+            try {
+                App.state.ethBalance = await App.state.provider.getBalance(App.state.account);
+                const tokenContract = new ethers.Contract(CONFIG.TOKEN_ADDRESS, TOKEN_ABI, App.state.provider);
+                App.state.oxoBTCBalance = await tokenContract.balanceOf(App.state.account);
+            } catch (error) {
+                console.error("Failed to fetch balance:", error);
+                App.state.oxoBTCBalance = 0n;
+                App.state.ethBalance = 0n;
+            }
+
+            try {
+                const res = await fetch(`${CONFIG.BACKEND_URL}/login`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ metamaskAddress: App.state.account })
+                });
+                if (!res.ok) throw new Error('Backend not reachable');
+                const data = await res.json();
+                App.state.btcAddress = data.btcAddress;
+            } catch (error) {
+                console.error("Failed to fetch BTC address:", error);
+                App.state.btcAddress = "Could not fetch address.";
+            }
+
+
+            updateUI();
+        };
+
+        const connectWallet = async (providerDetail) => {
+            try {
+                App.ui.walletSelector.classList.remove('visible');
+                const provider = new ethers.BrowserProvider(providerDetail.provider);
+                if (!await ensureSepolia(provider)) return;
+
+                const signer = await provider.getSigner();
+                const account = await signer.getAddress(); // ethers v6
+
+                App.state.provider = provider;
+                App.state.signer = signer;
+                App.state.account = account;
+
+                await fetchAccountData();
+                setupEventListeners(providerDetail.provider);
+            } catch (error) {
+                console.error("Connection failed:", error);
+                showStatus(App.ui.connStatus, 'err', 'Failed to connect wallet.');
+            }
+        };
+
+        const disconnect = () => {
+            App.state.provider = null;
+            App.state.signer = null;
+            App.state.account = null;
+            App.state.ethBalance = 0n;
+            App.state.oxoBTCBalance = 0n;
+            updateUI();
+        };
+
+        const discoverWallets = () => {
+            App.ui.walletList.innerHTML = '';
+            App.state.wallets = [];
+            window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+            // Fallback: EIP-6963 desteklemeyen eski cüzdanlar için window.ethereum
+            setTimeout(() => {
+                if (App.ui.walletList.children.length === 0 && window.ethereum) {
+                    const walletOption = document.createElement('div');
+                    walletOption.className = 'wallet-option';
+                    walletOption.innerHTML = `
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" />
+                        <span>${window.ethereum.isMetaMask ? 'MetaMask' : 'Injected Wallet'}</span>
+                    `;
+                    walletOption.onclick = async () => {
+                        App.ui.walletSelector.classList.remove('visible');
+                        try {
+                            const provider = new ethers.BrowserProvider(window.ethereum);
+                            if (!await ensureSepolia(provider)) return;
+                            const signer = await provider.getSigner();
+                            const account = await signer.getAddress();
+                            App.state.provider = provider;
+                            App.state.signer = signer;
+                            App.state.account = account;
+                            setupEventListeners(window.ethereum);
+                            await fetchAccountData();
+                        } catch(e) {
+                            console.error("Connection failed:", e);
+                            showStatus(App.ui.connStatus, 'err', 'Failed to connect wallet.');
+                        }
+                    };
+                    App.ui.walletList.appendChild(walletOption);
+                } else if (App.ui.walletList.children.length === 0) {
+                    App.ui.walletList.innerHTML = '<p style="text-align:center;color:var(--oxo-dim);font-size:.9rem">No wallet detected.<br>Install MetaMask and refresh.</p>';
+                }
+            }, 500);
+        };
+
+        window.addEventListener('eip6963:announceProvider', (event) => {
+            const providerDetail = event.detail;
+            if (!App.state.wallets.some(w => w.info.uuid === providerDetail.info.uuid)) {
+                App.state.wallets.push(providerDetail);
+
+                const walletOption = document.createElement('div');
+                walletOption.className = 'wallet-option';
+                walletOption.innerHTML = `
+                    <img src="${providerDetail.info.icon}" alt="${providerDetail.info.name}" />
+                    <span>${providerDetail.info.name}</span>
+                `;
+                walletOption.onclick = () => connectWallet(providerDetail);
+                App.ui.walletList.appendChild(walletOption);
+            }
+        });
+
+        const setupEventListeners = (walletProvider) => {
+            if (!walletProvider || !walletProvider.on) return;
+
+            walletProvider.on('accountsChanged', (accounts) => {
+                if (accounts.length > 0) {
+                    App.state.account = accounts[0];
+                    fetchAccountData();
+                } else {
+                    disconnect();
+                }
+            });
+
+            walletProvider.on('chainChanged', (chainId) => {
+                if (chainId !== CONFIG.CHAIN_ID) {
+                    showStatus(App.ui.connStatus, 'warn', 'Wrong network. Please switch to Sepolia.');
+                    disconnect();
+                } else {
+                    window.location.reload();
+                }
+            });
+        };
+
+        const handleRedeem = async () => {
+            if (!App.state.signer) return;
+            const amountStr = App.ui.redeemAmount.value.trim();
+            const btcAddr = App.ui.redeemBtcAddr.value.trim();
+            if (!amountStr || !btcAddr) {
+                return showStatus(App.ui.redeemStatus, 'err', 'Please fill in all fields.');
+            }
+
+            let amount;
+            try {
+                amount = ethers.parseUnits(amountStr, CONFIG.TOKEN_DECIMALS);
+                if (amount <= 0n) throw new Error();
+            } catch {
+                return showStatus(App.ui.redeemStatus, 'err', 'Invalid amount format.');
+            }
+
+            setLoading(App.ui.redeemBtn, true, 'Processing...');
+            let approveTx, redeemTx;
+
+            try {
+                const tokenContract = new ethers.Contract(CONFIG.TOKEN_ADDRESS, TOKEN_ABI, App.state.signer);
+                const allowance = await tokenContract.allowance(App.state.account, CONFIG.BRIDGE_ADDRESS);
+
+                if (allowance < amount) {
+                    setLoading(App.ui.redeemBtn, true, 'Approving...');
+                    showStatus(App.ui.redeemStatus, 'info', 'Approval required. Please confirm.');
+                    approveTx = await tokenContract.approve(CONFIG.BRIDGE_ADDRESS, ethers.MaxUint256);
+                    await approveTx.wait();
+                    showStatus(App.ui.redeemStatus, 'ok', 'Approval successful! Now confirm redeem...');
+                }
+
+                setLoading(App.ui.redeemBtn, true, 'Redeeming...');
+                const bridgeContract = new ethers.Contract(CONFIG.BRIDGE_ADDRESS, BRIDGE_ABI, App.state.signer);
+                redeemTx = await bridgeContract.withdraw(btcAddr, amount);
+
+                addTxToHistory({
+                    hash: redeemTx.hash,
+                    status: 'pending',
+                    amount: amountStr,
+                    tokenSymbol: 'oxoBTC',
+                    type: 'Redeem',
+                    timestamp: Date.now()
+                });
+
+                showStatus(
+                    App.ui.redeemStatus,
+                    'info',
+                    `Transaction sent! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${redeemTx.hash}" target="_blank">View Tx</a>`
+                );
+
+                await redeemTx.wait();
+                updateTxInHistory(redeemTx.hash, { status: 'success' });
+                await fetchAccountData();
+
+                showStatus(
+                    App.ui.redeemStatus,
+                    'ok',
+                    `Redeem confirmed! Your BTC will be sent shortly. <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${redeemTx.hash}" target="_blank">View Tx</a>`
+                );
+            } catch (error) {
+                const hash = redeemTx?.hash || approveTx?.hash;
+                if (hash) updateTxInHistory(hash, { status: 'failed' });
+                const reason = error.reason || error.shortMessage || "Transaction failed. Please try again.";
+                showStatus(App.ui.redeemStatus, 'err', `Error: ${reason}`);
+                console.error("Redeem error:", error);
+            } finally {
+                setLoading(App.ui.redeemBtn, false);
+                updateRedeemButtonState();
+            }
+        };
+
+        const updateRedeemButtonState = async () => {
+            if (!App.state.signer) return;
+            const amountStr = App.ui.redeemAmount.value.trim();
+            if (!amountStr || Number(amountStr) <= 0) {
+                App.ui.redeemBtn.textContent = 'Enter an amount';
+                App.ui.redeemBtn.disabled = true;
+                return;
+            }
+            App.ui.redeemBtn.disabled = false;
+
+            let amount;
+            try {
+                amount = ethers.parseUnits(amountStr, CONFIG.TOKEN_DECIMALS);
+            } catch {
+                App.ui.redeemBtn.textContent = 'Invalid Amount';
+                App.ui.redeemBtn.disabled = true;
+                return;
+            }
+
+            if (amount > App.state.oxoBTCBalance) {
+                App.ui.redeemBtn.textContent = 'Insufficient oxoBTC Balance';
+                App.ui.redeemBtn.disabled = true;
+                return;
+            }
+
+            const tokenContract = new ethers.Contract(CONFIG.TOKEN_ADDRESS, TOKEN_ABI, App.state.provider);
+            const allowance = await tokenContract.allowance(App.state.account, CONFIG.BRIDGE_ADDRESS);
+            if (allowance < amount) {
+                App.ui.redeemBtn.textContent = 'Approve oxoBTC';
+            } else {
+                App.ui.redeemBtn.textContent = 'Redeem';
+            }
+            App.ui.redeemBtn.dataset.originalText = App.ui.redeemBtn.textContent;
+        };
+
+        async function handleAmountIn() {
+            const amountInStr = App.ui.fromAmount.value;
+            if (!amountInStr || isNaN(Number(amountInStr)) || Number(amountInStr) <= 0 || !App.state.provider) {
+                App.ui.toAmount.value = "";
+                App.ui.swapRate.textContent = "";
+                updateSwapButtonState();
+                return;
+            }
+
+            const fromToken = TOKENS[App.state.swapFrom];
+            const toToken   = TOKENS[App.state.swapTo];
+
+            try {
+                const amountIn = ethers.parseUnits(amountInStr, fromToken.decimals);
+                if (amountIn === 0n) return;
+
+                const router = new ethers.Contract(CONFIG.OXO_SWAP_ROUTER_ADDRESS, ROUTER_ABI, App.state.provider);
+                const path = [
+                    fromToken.address === "ETH" ? CONFIG.WETH_ADDRESS : fromToken.address,
+                    toToken.address === "ETH" ? CONFIG.WETH_ADDRESS : toToken.address
+                ];
+
+                const amountsOut = await router.getAmountsOut(amountIn, path);
+                const amountOut = amountsOut[amountsOut.length - 1];
+                App.ui.toAmount.value = ethers.formatUnits(amountOut, toToken.decimals);
+
+                const rate = Number(ethers.formatUnits(amountOut, toToken.decimals)) / Number(amountInStr);
+                App.ui.swapRate.textContent = `1 ${fromToken.symbol} ≈ ${rate.toFixed(8)} ${toToken.symbol}`;
+                updateSwapButtonState();
+            } catch (error) {
+                console.warn("Rate fetch error (likely insufficient liquidity):", error.message);
+                App.ui.toAmount.value = "";
+                App.ui.swapRate.textContent = "Insufficient liquidity";
+                updateSwapButtonState();
+            }
+        }
+
+        function flipSwapDirection() {
+            const oldFrom = App.state.swapFrom;
+            App.state.swapFrom = App.state.swapTo;
+            App.state.swapTo = oldFrom;
+
+            const fromUI = App.ui.fromToken.innerHTML;
+            App.ui.fromToken.innerHTML = App.ui.toToken.innerHTML;
+            App.ui.toToken.innerHTML = fromUI;
+
+            const fromAmount = App.ui.fromAmount.value;
+            App.ui.fromAmount.value = App.ui.toAmount.value;
+            App.ui.toAmount.value = fromAmount;
+
+            App.ui.fromAmount.readOnly = false;
+            App.ui.toAmount.readOnly = true;
+
+            handleAmountIn();
+            renderSwapBalances();
+        }
+
+        async function updateSwapButtonState() {
+            if (!App.state.signer) {
+                App.ui.swapBtn.textContent = "Connect Wallet";
+                App.ui.swapBtn.disabled = true;
+                return;
+            }
+
+            const amountInStr = App.ui.fromAmount.value;
+            if (!amountInStr || Number(amountInStr) <= 0) {
+                App.ui.swapBtn.textContent = "Enter an amount";
+                App.ui.swapBtn.disabled = true;
+                return;
+            }
+
+            const fromToken = TOKENS[App.state.swapFrom];
+            let amountIn;
+            try {
+                amountIn = ethers.parseUnits(amountInStr, fromToken.decimals);
+            } catch {
+                App.ui.swapBtn.textContent = "Invalid Amount";
+                App.ui.swapBtn.disabled = true;
+                return;
+            }
+
+            if (fromToken.address === "ETH") {
+                if (amountIn > App.state.ethBalance) {
+                    App.ui.swapBtn.textContent = "Insufficient ETH Balance";
+                    App.ui.swapBtn.disabled = true;
+                    return;
+                }
+            } else {
+                if (amountIn > App.state.oxoBTCBalance) {
+                    App.ui.swapBtn.textContent = `Insufficient ${fromToken.symbol} Balance`;
+                    App.ui.swapBtn.disabled = true;
+                    return;
+                }
+            }
+
+            App.ui.swapBtn.disabled = false;
+            if (fromToken.address === "ETH") {
+                App.ui.swapBtn.textContent = "Swap";
+            } else {
+                const tokenContract = new ethers.Contract(fromToken.address, TOKEN_ABI, App.state.provider);
+                const allowance = await tokenContract.allowance(App.state.account, CONFIG.OXO_SWAP_ROUTER_ADDRESS);
+                if (allowance < amountIn) {
+                    App.ui.swapBtn.textContent = `Approve ${fromToken.symbol}`;
+                } else {
+                    App.ui.swapBtn.textContent = "Swap";
+                }
+            }
+            App.ui.swapBtn.dataset.originalText = App.ui.swapBtn.textContent;
+        }
+
+        async function handleSwap() {
+            if (!App.state.signer) return;
+
+            const amountInStr = App.ui.fromAmount.value;
+            const fromToken = TOKENS[App.state.swapFrom];
+            const toToken   = TOKENS[App.state.swapTo];
+            const amountIn = ethers.parseUnits(amountInStr, fromToken.decimals);
+
+            setLoading(App.ui.swapBtn, true, 'Processing...');
+            showStatus(App.ui.swapStatus, 'info', 'Preparing transaction...');
+            let tx;
+
+            try {
+                const router = new ethers.Contract(CONFIG.OXO_SWAP_ROUTER_ADDRESS, ROUTER_ABI, App.state.signer);
+                const path = [
+                    fromToken.address === "ETH" ? CONFIG.WETH_ADDRESS : fromToken.address,
+                    toToken.address === "ETH" ? CONFIG.WETH_ADDRESS : toToken.address
+                ];
+                const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+
+                // Slippage koruması: gösterilen çıktı üzerinden minimum miktar hesapla
+                const toAmountStr = App.ui.toAmount.value;
+                let amountOutMin = 0n;
+                if (toAmountStr && Number(toAmountStr) > 0) {
+                    try {
+                        const amountOut = ethers.parseUnits(toAmountStr, toToken.decimals);
+                        amountOutMin = amountOut * (10000n - CONFIG.SLIPPAGE_BPS) / 10000n;
+                    } catch { amountOutMin = 0n; }
+                }
+
+                if (fromToken.address === "ETH") {
+                    showStatus(App.ui.swapStatus, 'info', 'Confirm swap in your wallet...');
+                    tx = await router.swapExactETHForTokens(
+                        amountOutMin, path, App.state.account, deadline, { value: amountIn }
+                    );
+                } else {
+                    const tokenContract = new ethers.Contract(fromToken.address, TOKEN_ABI, App.state.signer);
+                    const allowance = await tokenContract.allowance(App.state.account, CONFIG.OXO_SWAP_ROUTER_ADDRESS);
+                    if (allowance < amountIn) {
+                        setLoading(App.ui.swapBtn, true, 'Approving...');
+                        showStatus(App.ui.swapStatus, 'info', 'Approval required. Please confirm.');
+                        const approveTx = await tokenContract.approve(CONFIG.OXO_SWAP_ROUTER_ADDRESS, ethers.MaxUint256);
+                        await approveTx.wait();
+                        showStatus(App.ui.swapStatus, 'ok', 'Approval successful! Now confirm swap...');
+                    }
+
+                    setLoading(App.ui.swapBtn, true, 'Swapping...');
+                    showStatus(App.ui.swapStatus, 'info', 'Confirm swap in your wallet...');
+
+                    if (toToken.address === "ETH") {
+                        tx = await router.swapExactTokensForETH(
+                            amountIn, amountOutMin, path, App.state.account, deadline
+                        );
+                    } else {
+                        tx = await router.swapExactTokensForTokens(
+                            amountIn, amountOutMin, path, App.state.account, deadline
+                        );
+                    }
+                }
+
+                addTxToHistory({
+                    hash: tx.hash,
+                    status: 'pending',
+                    amount: amountInStr,
+                    tokenSymbol: fromToken.symbol,
+                    type: 'Swap',
+                    timestamp: Date.now()
+                });
+
+                showStatus(App.ui.swapStatus, 'info', `Tx submitted — waiting for confirmation... <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${tx.hash}" target="_blank">Track on Etherscan</a>`);
+                setLoading(App.ui.swapBtn, true, 'Confirming...');
+                await tx.wait();
+                updateTxInHistory(tx.hash, { status: 'success' });
+                await fetchAccountData();
+                App.ui.fromAmount.value = "";
+                App.ui.toAmount.value = "";
+                App.ui.swapRate.textContent = "";
+
+                showStatus(
+                    App.ui.swapStatus,
+                    'ok',
+                    `Swap successful! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${tx.hash}" target="_blank">View Tx</a>`
+                );
+            } catch (error) {
+                const reason = error.reason || error.shortMessage || "Transaction failed. Please try again.";
+                showStatus(App.ui.swapStatus, 'err', `Error: ${reason}`);
+                console.error("Swap error:", error);
+            } finally {
+                setLoading(App.ui.swapBtn, false);
+                await updateSwapButtonState();
+            }
+        }
+
+        const updateQR = (address) => {
+            if (!address || address.startsWith('Could')) return;
+            const url = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(address)}&size=164x164&margin=2`;
+            App.ui.depositQRImg.src = url;
+            App.ui.qrAddrText.textContent = address;
+            App.ui.depositBtcAddr.value = address;
+        };
+
+        const TRACKER_STEPS = { waiting: 0, mempool: 1, processing: 2, complete: 3 };
+        const TRACKER_MSGS = {
+            waiting:    'Waiting for your Bitcoin transaction…',
+            mempool:    'Transaction detected! Waiting for blockchain confirmation…',
+            processing: 'Confirmed on Bitcoin — bridge is minting oxoBTC…',
+            complete:   'oxoBTC successfully minted to your wallet!'
+        };
+
+        const pendingBalRow = document.getElementById('pendingBalRow');
+        const pendingBalEl  = document.getElementById('pendingBal');
+
+        const updateTracker = (status, currentTx) => {
+            const step = TRACKER_STEPS[status] ?? 0;
+            App.ui.ts.forEach((dot, i) => {
+                dot.classList.remove('active', 'done');
+                if (i < step) dot.classList.add('done');
+                else if (i === step) dot.classList.add('active');
+            });
+            App.ui.tl.forEach((line, i) => {
+                line.classList.remove('active', 'done');
+                if (i < step) line.classList.add('done');
+                else if (i === step - 1) line.classList.add('active');
+            });
+
+            // Pending miktar — mempool veya processing'de göster
+            const pendingAmt = currentTx?.amount;
+            if ((status === 'mempool' || status === 'processing') && pendingAmt) {
+                const oxoAmt = (pendingAmt / 1e8).toFixed(8);
+                pendingBalEl.textContent = `${oxoAmt} oxoBTC`;
+                pendingBalRow.style.display = 'flex';
+                const msg = status === 'mempool'
+                    ? `Transaction detected! ~${oxoAmt} oxoBTC pending — waiting for confirmation…`
+                    : `Confirmed on Bitcoin — minting ${oxoAmt} oxoBTC…`;
+                App.ui.trackerMsg.textContent = msg;
+            } else {
+                pendingBalRow.style.display = 'none';
+                App.ui.trackerMsg.textContent = TRACKER_MSGS[status] || TRACKER_MSGS.waiting;
+            }
+
+            App.ui.trackerMsg.className = `tracker-msg ${status === 'complete' ? 'complete' : status !== 'waiting' ? 'active' : ''}`;
+            if (currentTx?.txid) {
+                App.ui.trackerExplorerLink.href = `https://mempool.space/testnet/tx/${currentTx.txid}`;
+                App.ui.trackerExplorerLink.textContent = `View TX: ${currentTx.txid.slice(0,10)}…`;
+                App.ui.trackerExplorerLink.style.display = 'block';
+            } else {
+                App.ui.trackerExplorerLink.style.display = 'none';
+            }
+        };
+
+        const pollDepositStatus = async () => {
+            if (!App.state.account) return;
+            try {
+                const res = await fetch(`${CONFIG.BACKEND_URL}/deposit-status/${App.state.account}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.status === 'no_address') return;
+                updateTracker(data.status, data.currentTx);
+                if (data.status === 'complete') await fetchAccountData();
+            } catch { /* backend offline */ }
+        };
+
+        const startDepositPolling = () => {
+            if (App.state.depositPollTimer) return;
+            pollDepositStatus();
+            App.state.depositPollTimer = setInterval(pollDepositStatus, 15000);
+        };
+
+        const stopDepositPolling = () => {
+            clearInterval(App.state.depositPollTimer);
+            App.state.depositPollTimer = null;
+        };
+
+        const fmt6 = (bn, dec) => { try { const n = Number(ethers.formatUnits(bn, dec)); return isNaN(n) ? '0' : n.toFixed(6); } catch { return '0'; } };
+
+        const fetchPoolData = async () => {
+            if (!App.state.provider) return;
+            try {
+                const factory = new ethers.Contract(CONFIG.OXO_SWAP_FACTORY_ADDRESS, FACTORY_ABI, App.state.provider);
+                const pairAddr = await factory.getPair(CONFIG.WETH_ADDRESS, CONFIG.TOKEN_ADDRESS);
+                if (!pairAddr || pairAddr === ethers.ZeroAddress) {
+                    App.ui.poolEthReserve.textContent = 'No pool yet';
+                    App.ui.poolBtcReserve.textContent = '—';
+                    App.ui.poolLpBal.textContent = '—';
+                    App.ui.poolShare.textContent = '—';
+                    return;
+                }
+                App.state.pairAddress = pairAddr;
+                const pair = new ethers.Contract(pairAddr, PAIR_ABI, App.state.provider);
+                const [reserves, token0, totalSupply] = await Promise.all([
+                    pair.getReserves(),
+                    pair.token0(),
+                    pair.totalSupply()
+                ]);
+                const isToken0Weth = token0.toLowerCase() === CONFIG.WETH_ADDRESS.toLowerCase();
+                App.state.ethReserve = isToken0Weth ? reserves[0] : reserves[1];
+                App.state.btcReserve = isToken0Weth ? reserves[1] : reserves[0];
+                App.state.lpTotalSupply = totalSupply;
+
+                App.ui.poolEthReserve.textContent = fmt6(App.state.ethReserve, 18) + ' ETH';
+                App.ui.poolBtcReserve.textContent = fmt6(App.state.btcReserve, 8) + ' oxoBTC';
+
+                if (App.state.account) {
+                    const lpBal = await pair.balanceOf(App.state.account);
+                    App.state.lpBalance = lpBal;
+                    App.ui.poolLpBal.textContent = fmt6(lpBal, 18);
+                    if (totalSupply > 0n) {
+                        const sharePct = Number(lpBal * 10000n / totalSupply) / 100;
+                        App.ui.poolShare.textContent = sharePct.toFixed(2) + '%';
+                    } else {
+                        App.ui.poolShare.textContent = '0%';
+                    }
+                }
+            } catch (e) {
+                console.warn('Pool fetch error:', e.message);
+            }
+        };
+
+        const calcAddOtherSide = (changedSide) => {
+            if (App.state.ethReserve === 0n || App.state.btcReserve === 0n) {
+                // Pool boş, kullanıcı her iki tarafı serbest girer
+                App.ui.poolAddShare.textContent = 'New pool — you set the initial price.';
+                updatePoolAddBtn();
+                return;
+            }
+            try {
+                if (changedSide === 'eth') {
+                    const ethVal = App.ui.poolEthAmount.value;
+                    if (!ethVal || Number(ethVal) <= 0) { App.ui.poolBtcAmount.value = ''; updatePoolAddBtn(); return; }
+                    const ethIn = ethers.parseUnits(ethVal, 18);
+                    const btcNeeded = ethIn * App.state.btcReserve / App.state.ethReserve;
+                    App.ui.poolBtcAmount.value = ethers.formatUnits(btcNeeded, 8);
+                } else {
+                    const btcVal = App.ui.poolBtcAmount.value;
+                    if (!btcVal || Number(btcVal) <= 0) { App.ui.poolEthAmount.value = ''; updatePoolAddBtn(); return; }
+                    const btcIn = ethers.parseUnits(btcVal, 8);
+                    const ethNeeded = btcIn * App.state.ethReserve / App.state.btcReserve;
+                    App.ui.poolEthAmount.value = ethers.formatUnits(ethNeeded, 18);
+                }
+                // Pool share preview
+                const ethVal = App.ui.poolEthAmount.value;
+                if (ethVal && Number(ethVal) > 0 && App.state.lpTotalSupply > 0n) {
+                    const ethIn = ethers.parseUnits(ethVal, 18);
+                    const newLp = ethIn * App.state.lpTotalSupply / App.state.ethReserve;
+                    const sharePct = Number(newLp * 10000n / (App.state.lpTotalSupply + newLp)) / 100;
+                    App.ui.poolAddShare.textContent = `You will own ~${sharePct.toFixed(4)}% of the pool`;
+                } else {
+                    App.ui.poolAddShare.textContent = '';
+                }
+            } catch { App.ui.poolAddShare.textContent = ''; }
+            updatePoolAddBtn();
+        };
+
+        const updatePoolAddBtn = () => {
+            if (!App.state.signer) { App.ui.poolAddBtn.textContent = 'Connect Wallet'; App.ui.poolAddBtn.disabled = true; return; }
+            const ethVal = App.ui.poolEthAmount.value;
+            const btcVal = App.ui.poolBtcAmount.value;
+            if (!ethVal || !btcVal || Number(ethVal) <= 0 || Number(btcVal) <= 0) {
+                App.ui.poolAddBtn.textContent = 'Enter amounts'; App.ui.poolAddBtn.disabled = true; return;
+            }
+            let ethIn, btcIn;
+            try {
+                ethIn = ethers.parseUnits(ethVal, 18);
+                btcIn = ethers.parseUnits(btcVal, 8);
+            } catch { App.ui.poolAddBtn.textContent = 'Invalid amount'; App.ui.poolAddBtn.disabled = true; return; }
+            if (ethIn > App.state.ethBalance) { App.ui.poolAddBtn.textContent = 'Insufficient ETH'; App.ui.poolAddBtn.disabled = true; return; }
+            if (btcIn > App.state.oxoBTCBalance) { App.ui.poolAddBtn.textContent = 'Insufficient oxoBTC'; App.ui.poolAddBtn.disabled = true; return; }
+            App.ui.poolAddBtn.disabled = false;
+            App.ui.poolAddBtn.textContent = 'Add Liquidity';
+            App.ui.poolAddBtn.dataset.originalText = 'Add Liquidity';
+        };
+
+        const handleAddLiquidity = async () => {
+            if (!App.state.signer) return;
+            const ethVal = App.ui.poolEthAmount.value.trim();
+            const btcVal = App.ui.poolBtcAmount.value.trim();
+            let ethIn, btcIn;
+            try {
+                ethIn = ethers.parseUnits(ethVal, 18);
+                btcIn = ethers.parseUnits(btcVal, 8);
+                if (ethIn <= 0n || btcIn <= 0n) throw new Error();
+            } catch { return showStatus(App.ui.poolAddStatus, 'err', 'Invalid amounts.'); }
+
+            setLoading(App.ui.poolAddBtn, true, 'Processing...');
+            let approveTx;
+            try {
+                const tokenContract = new ethers.Contract(CONFIG.TOKEN_ADDRESS, TOKEN_ABI, App.state.signer);
+                const allowance = await tokenContract.allowance(App.state.account, CONFIG.OXO_SWAP_ROUTER_ADDRESS);
+                if (allowance < btcIn) {
+                    setLoading(App.ui.poolAddBtn, true, 'Approving...');
+                    showStatus(App.ui.poolAddStatus, 'info', 'Approving oxoBTC — confirm in wallet...');
+                    approveTx = await tokenContract.approve(CONFIG.OXO_SWAP_ROUTER_ADDRESS, ethers.MaxUint256);
+                    await approveTx.wait();
+                    showStatus(App.ui.poolAddStatus, 'ok', 'Approved! Confirm add liquidity...');
+                }
+                setLoading(App.ui.poolAddBtn, true, 'Adding...');
+                showStatus(App.ui.poolAddStatus, 'info', 'Confirm transaction in wallet...');
+                const router = new ethers.Contract(CONFIG.OXO_SWAP_ROUTER_ADDRESS, ROUTER_ABI, App.state.signer);
+                const deadline = Math.floor(Date.now() / 1000) + 600;
+                const btcMin = btcIn * (10000n - 300n) / 10000n; // 3% slippage for liquidity
+                const ethMin = ethIn * (10000n - 300n) / 10000n;
+                const tx = await router.addLiquidityETH(
+                    CONFIG.TOKEN_ADDRESS, btcIn, btcMin, ethMin,
+                    App.state.account, deadline, { value: ethIn }
+                );
+                showStatus(App.ui.poolAddStatus, 'info', `Tx sent! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${tx.hash}" target="_blank">View</a>`);
+                await tx.wait();
+                addTxToHistory({ hash: tx.hash, status: 'success', amount: ethVal, tokenSymbol: 'ETH', type: 'Add Liquidity', timestamp: Date.now() });
+                await Promise.all([fetchAccountData(), fetchPoolData()]);
+                App.ui.poolEthAmount.value = '';
+                App.ui.poolBtcAmount.value = '';
+                App.ui.poolAddShare.textContent = '';
+                showStatus(App.ui.poolAddStatus, 'ok', `Liquidity added! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${tx.hash}" target="_blank">View Tx</a>`);
+            } catch (error) {
+                const reason = error.reason || error.shortMessage || 'Transaction failed. Please try again.';
+                showStatus(App.ui.poolAddStatus, 'err', `Error: ${reason}`);
+                console.error('Add liquidity error:', error);
+            } finally {
+                setLoading(App.ui.poolAddBtn, false);
+                updatePoolAddBtn();
+            }
+        };
+
+        const calcRemovePreview = () => {
+            const lpVal = App.ui.poolLpAmount.value;
+            if (!lpVal || Number(lpVal) <= 0 || App.state.lpTotalSupply === 0n) {
+                App.ui.poolRemovePreview.style.display = 'none';
+                updatePoolRemoveBtn();
+                return;
+            }
+            try {
+                const lpIn = ethers.parseUnits(lpVal, 18);
+                const ethOut = lpIn * App.state.ethReserve / App.state.lpTotalSupply;
+                const btcOut = lpIn * App.state.btcReserve / App.state.lpTotalSupply;
+                App.ui.previewEth.textContent = fmt6(ethOut, 18) + ' ETH';
+                App.ui.previewBtc.textContent = fmt6(btcOut, 8) + ' oxoBTC';
+                App.ui.poolRemovePreview.style.display = 'block';
+            } catch { App.ui.poolRemovePreview.style.display = 'none'; }
+            updatePoolRemoveBtn();
+        };
+
+        const updatePoolRemoveBtn = () => {
+            if (!App.state.signer) { App.ui.poolRemoveBtn.textContent = 'Connect Wallet'; App.ui.poolRemoveBtn.disabled = true; return; }
+            const lpVal = App.ui.poolLpAmount.value;
+            if (!lpVal || Number(lpVal) <= 0) { App.ui.poolRemoveBtn.textContent = 'Enter amount'; App.ui.poolRemoveBtn.disabled = true; return; }
+            let lpIn;
+            try { lpIn = ethers.parseUnits(lpVal, 18); } catch { App.ui.poolRemoveBtn.textContent = 'Invalid amount'; App.ui.poolRemoveBtn.disabled = true; return; }
+            if (lpIn > App.state.lpBalance) { App.ui.poolRemoveBtn.textContent = 'Insufficient LP balance'; App.ui.poolRemoveBtn.disabled = true; return; }
+            App.ui.poolRemoveBtn.disabled = false;
+            App.ui.poolRemoveBtn.textContent = 'Remove Liquidity';
+            App.ui.poolRemoveBtn.dataset.originalText = 'Remove Liquidity';
+        };
+
+        const handleRemoveLiquidity = async () => {
+            if (!App.state.signer || !App.state.pairAddress) return;
+            const lpVal = App.ui.poolLpAmount.value.trim();
+            let lpIn;
+            try { lpIn = ethers.parseUnits(lpVal, 18); if (lpIn <= 0n) throw new Error(); }
+            catch { return showStatus(App.ui.poolRemoveStatus, 'err', 'Invalid amount.'); }
+            if (lpIn > App.state.lpBalance) return showStatus(App.ui.poolRemoveStatus, 'err', 'Insufficient LP balance.');
+
+            setLoading(App.ui.poolRemoveBtn, true, 'Processing...');
+            let approveTx;
+            try {
+                const pairContract = new ethers.Contract(App.state.pairAddress, PAIR_ABI, App.state.signer);
+                const allowance = await pairContract.allowance(App.state.account, CONFIG.OXO_SWAP_ROUTER_ADDRESS);
+                if (allowance < lpIn) {
+                    setLoading(App.ui.poolRemoveBtn, true, 'Approving LP...');
+                    showStatus(App.ui.poolRemoveStatus, 'info', 'Approving LP tokens — confirm in wallet...');
+                    approveTx = await pairContract.approve(CONFIG.OXO_SWAP_ROUTER_ADDRESS, ethers.MaxUint256);
+                    await approveTx.wait();
+                    showStatus(App.ui.poolRemoveStatus, 'ok', 'Approved! Confirm removal...');
+                }
+                setLoading(App.ui.poolRemoveBtn, true, 'Removing...');
+                showStatus(App.ui.poolRemoveStatus, 'info', 'Confirm transaction in wallet...');
+                const ethOut = lpIn * App.state.ethReserve / App.state.lpTotalSupply;
+                const btcOut = lpIn * App.state.btcReserve / App.state.lpTotalSupply;
+                const ethMin = ethOut * (10000n - CONFIG.SLIPPAGE_BPS) / 10000n;
+                const btcMin = btcOut * (10000n - CONFIG.SLIPPAGE_BPS) / 10000n;
+                const router = new ethers.Contract(CONFIG.OXO_SWAP_ROUTER_ADDRESS, ROUTER_ABI, App.state.signer);
+                const deadline = Math.floor(Date.now() / 1000) + 600;
+                const tx = await router.removeLiquidityETH(
+                    CONFIG.TOKEN_ADDRESS, lpIn, btcMin, ethMin, App.state.account, deadline
+                );
+                showStatus(App.ui.poolRemoveStatus, 'info', `Tx sent! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${tx.hash}" target="_blank">View</a>`);
+                await tx.wait();
+                addTxToHistory({ hash: tx.hash, status: 'success', amount: lpVal, tokenSymbol: 'LP', type: 'Remove Liquidity', timestamp: Date.now() });
+                await Promise.all([fetchAccountData(), fetchPoolData()]);
+                App.ui.poolLpAmount.value = '';
+                App.ui.poolRemovePreview.style.display = 'none';
+                showStatus(App.ui.poolRemoveStatus, 'ok', `Liquidity removed! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${tx.hash}" target="_blank">View Tx</a>`);
+            } catch (error) {
+                const reason = error.reason || error.shortMessage || 'Transaction failed. Please try again.';
+                showStatus(App.ui.poolRemoveStatus, 'err', `Error: ${reason}`);
+                console.error('Remove liquidity error:', error);
+            } finally {
+                setLoading(App.ui.poolRemoveBtn, false);
+                updatePoolRemoveBtn();
+            }
+        };
+
+        const fetchRollupData = async () => {
+            if (!App.state.account) return;
+            try {
+                const [stateRes, balRes] = await Promise.all([
+                    fetch(`${CONFIG.ROLLUP_URL}/state`),
+                    fetch(`${CONFIG.ROLLUP_URL}/balance/${App.state.account}`)
+                ]);
+                if (!stateRes.ok || !balRes.ok) throw new Error('Sequencer not reachable');
+                const stateData = await stateRes.json();
+                const balData = await balRes.json();
+
+                const pending = stateData.pendingTxs ?? stateData.pendingTxCount ?? 0;
+                const batchId = stateData.batchId ?? 0;
+                const stateRoot = stateData.stateRoot ?? null;
+                const l2bal = BigInt(balData.balance ?? 0);
+
+                App.state.rollupBalance = l2bal;
+                App.state.rollupPending = pending;
+                App.state.rollupBatchId = batchId;
+
+                App.ui.rollupL2Bal.textContent = ethers.formatUnits(l2bal, CONFIG.TOKEN_DECIMALS) + ' oxoBTC';
+                App.ui.rollupPendingTx.textContent = `${pending} / 4 txs`;
+                App.ui.rollupBatchId.textContent = `#${batchId}`;
+                App.ui.rollupStateRoot.textContent = stateRoot
+                    ? stateRoot.slice(0, 10) + '…' + stateRoot.slice(-8)
+                    : '—';
+
+                if (pending > 0) {
+                    App.ui.rollupBatchProgress.style.display = 'block';
+                    App.ui.batchProgressFill.style.width = `${(pending / 4) * 100}%`;
+                    App.ui.batchProgressText.textContent = `${pending} of 4 txs queued — ${4 - pending} more to trigger ZK proof`;
+                } else {
+                    App.ui.rollupBatchProgress.style.display = 'none';
+                }
+            } catch {
+                App.ui.rollupL2Bal.textContent = '—';
+                App.ui.rollupPendingTx.textContent = 'Sequencer offline';
+            }
+        };
+
+        const updateRollupDepositBtn = () => {
+            if (!App.state.signer) {
+                App.ui.rollupDepositBtn.textContent = 'Connect Wallet';
+                App.ui.rollupDepositBtn.disabled = true;
+                return;
+            }
+            if (!CONFIG.ROLLUP_ADDRESS) {
+                App.ui.rollupDepositBtn.textContent = 'Rollup Not Deployed Yet';
+                App.ui.rollupDepositBtn.disabled = true;
+                return;
+            }
+            const val = App.ui.rollupDepositAmount.value;
+            if (!val || Number(val) <= 0) {
+                App.ui.rollupDepositBtn.textContent = 'Enter an amount';
+                App.ui.rollupDepositBtn.disabled = true;
+                return;
+            }
+            let amount;
+            try { amount = ethers.parseUnits(val, CONFIG.TOKEN_DECIMALS); } catch {
+                App.ui.rollupDepositBtn.textContent = 'Invalid Amount';
+                App.ui.rollupDepositBtn.disabled = true;
+                return;
+            }
+            if (amount > App.state.oxoBTCBalance) {
+                App.ui.rollupDepositBtn.textContent = 'Insufficient oxoBTC Balance';
+                App.ui.rollupDepositBtn.disabled = true;
+                return;
+            }
+            App.ui.rollupDepositBtn.disabled = false;
+            App.ui.rollupDepositBtn.textContent = 'Deposit to Rollup';
+            App.ui.rollupDepositBtn.dataset.originalText = 'Deposit to Rollup';
+        };
+
+        const handleRollupDeposit = async () => {
+            if (!App.state.signer || !CONFIG.ROLLUP_ADDRESS) return;
+            const amountStr = App.ui.rollupDepositAmount.value.trim();
+            let amount;
+            try {
+                amount = ethers.parseUnits(amountStr, CONFIG.TOKEN_DECIMALS);
+                if (amount <= 0n) throw new Error();
+            } catch {
+                return showStatus(App.ui.rollupDepositStatus, 'err', 'Invalid amount.');
+            }
+            setLoading(App.ui.rollupDepositBtn, true, 'Processing...');
+            let approveTx, depositTx;
+            try {
+                const tokenContract = new ethers.Contract(CONFIG.TOKEN_ADDRESS, TOKEN_ABI, App.state.signer);
+                const allowance = await tokenContract.allowance(App.state.account, CONFIG.ROLLUP_ADDRESS);
+                if (allowance < amount) {
+                    setLoading(App.ui.rollupDepositBtn, true, 'Approving...');
+                    showStatus(App.ui.rollupDepositStatus, 'info', 'Approval required. Please confirm in wallet.');
+                    approveTx = await tokenContract.approve(CONFIG.ROLLUP_ADDRESS, ethers.MaxUint256);
+                    await approveTx.wait();
+                    showStatus(App.ui.rollupDepositStatus, 'ok', 'Approved! Confirm deposit...');
+                }
+                setLoading(App.ui.rollupDepositBtn, true, 'Depositing...');
+                showStatus(App.ui.rollupDepositStatus, 'info', 'Confirm deposit in wallet...');
+                const rollupContract = new ethers.Contract(CONFIG.ROLLUP_ADDRESS, ROLLUP_ABI, App.state.signer);
+                depositTx = await rollupContract.deposit(amount);
+                showStatus(App.ui.rollupDepositStatus, 'info', `Tx sent! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${depositTx.hash}" target="_blank">View</a>`);
+                await depositTx.wait();
+                try {
+                    await fetch(`${CONFIG.ROLLUP_URL}/deposit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address: App.state.account, amount: amount.toString() })
+                    });
+                } catch { /* sequencer may be offline */ }
+                addTxToHistory({ hash: depositTx.hash, status: 'success', amount: amountStr, tokenSymbol: 'oxoBTC', type: 'L2 Deposit', timestamp: Date.now() });
+                await fetchAccountData();
+                await fetchRollupData();
+                App.ui.rollupDepositAmount.value = '';
+                showStatus(App.ui.rollupDepositStatus, 'ok', `Deposited to L2! <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${depositTx.hash}" target="_blank">View Tx</a>`);
+            } catch (error) {
+                const hash = depositTx?.hash || approveTx?.hash;
+                if (hash) addTxToHistory({ hash, status: 'failed', amount: amountStr, tokenSymbol: 'oxoBTC', type: 'L2 Deposit', timestamp: Date.now() });
+                const reason = error.reason || error.shortMessage || 'Transaction failed. Please try again.';
+                showStatus(App.ui.rollupDepositStatus, 'err', `Error: ${reason}`);
+                console.error('Rollup deposit error:', error);
+            } finally {
+                setLoading(App.ui.rollupDepositBtn, false);
+                updateRollupDepositBtn();
+            }
+        };
+
+        const updateRollupTransferBtn = () => {
+            if (!App.state.signer) {
+                App.ui.rollupTransferBtn.textContent = 'Connect Wallet';
+                App.ui.rollupTransferBtn.disabled = true;
+                return;
+            }
+            const to = App.ui.rollupToAddr.value.trim();
+            const val = App.ui.rollupTransferAmount.value;
+            if (!to || !val || Number(val) <= 0) {
+                App.ui.rollupTransferBtn.textContent = 'Enter details';
+                App.ui.rollupTransferBtn.disabled = true;
+                return;
+            }
+            if (!ethers.isAddress(to)) {
+                App.ui.rollupTransferBtn.textContent = 'Invalid address';
+                App.ui.rollupTransferBtn.disabled = true;
+                return;
+            }
+            App.ui.rollupTransferBtn.disabled = false;
+            App.ui.rollupTransferBtn.textContent = 'Transfer';
+            App.ui.rollupTransferBtn.dataset.originalText = 'Transfer';
+        };
+
+        const handleRollupTransfer = async () => {
+            if (!App.state.signer) return;
+            const to = App.ui.rollupToAddr.value.trim();
+            const amountStr = App.ui.rollupTransferAmount.value.trim();
+            let amount;
+            try {
+                amount = ethers.parseUnits(amountStr, CONFIG.TOKEN_DECIMALS);
+                if (amount <= 0n) throw new Error();
+            } catch {
+                return showStatus(App.ui.rollupTransferStatus, 'err', 'Invalid amount.');
+            }
+            if (!ethers.isAddress(to)) return showStatus(App.ui.rollupTransferStatus, 'err', 'Invalid recipient address.');
+            setLoading(App.ui.rollupTransferBtn, true, 'Submitting...');
+            showStatus(App.ui.rollupTransferStatus, 'info', 'Sending to sequencer...');
+            try {
+                const res = await fetch(`${CONFIG.ROLLUP_URL}/transfer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: App.state.account, to, amount: amount.toString() })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Sequencer error');
+                await fetchRollupData();
+                const pending = App.state.rollupPending;
+                const msg = pending >= 4
+                    ? 'Transfer queued! Batch is full — ZK proof is being generated...'
+                    : `Transfer queued! ${pending}/4 in current batch.`;
+                showStatus(App.ui.rollupTransferStatus, 'ok', msg);
+                App.ui.rollupToAddr.value = '';
+                App.ui.rollupTransferAmount.value = '';
+            } catch (error) {
+                showStatus(App.ui.rollupTransferStatus, 'err', `Error: ${error.message}`);
+                console.error('Rollup transfer error:', error);
+            } finally {
+                setLoading(App.ui.rollupTransferBtn, false);
+                updateRollupTransferBtn();
+            }
+        };
+
+        const updateRollupWithdrawBtn = () => {
+            if (!App.state.signer) {
+                App.ui.rollupWithdrawBtn.textContent = 'Connect Wallet';
+                App.ui.rollupWithdrawBtn.disabled = true;
+                App.ui.rollupWithdrawL2Bal.textContent = '';
+                return;
+            }
+            const l2bal = App.state.rollupBalance;
+            App.ui.rollupWithdrawL2Bal.textContent = `L2 Balance: ${ethers.formatUnits(l2bal, CONFIG.TOKEN_DECIMALS)} oxoBTC`;
+            const val = App.ui.rollupWithdrawAmount.value;
+            if (!val || Number(val) <= 0) {
+                App.ui.rollupWithdrawBtn.textContent = 'Enter an amount';
+                App.ui.rollupWithdrawBtn.disabled = true;
+                return;
+            }
+            let amount;
+            try { amount = ethers.parseUnits(val, CONFIG.TOKEN_DECIMALS); } catch {
+                App.ui.rollupWithdrawBtn.textContent = 'Invalid Amount';
+                App.ui.rollupWithdrawBtn.disabled = true;
+                return;
+            }
+            if (amount > l2bal) {
+                App.ui.rollupWithdrawBtn.textContent = 'Insufficient L2 Balance';
+                App.ui.rollupWithdrawBtn.disabled = true;
+                return;
+            }
+            App.ui.rollupWithdrawBtn.disabled = false;
+            App.ui.rollupWithdrawBtn.textContent = 'Withdraw to Wallet';
+            App.ui.rollupWithdrawBtn.dataset.originalText = 'Withdraw to Wallet';
+        };
+
+        const handleRollupWithdraw = async () => {
+            if (!App.state.signer) return;
+            const amountStr = App.ui.rollupWithdrawAmount.value.trim();
+            let amount;
+            try {
+                amount = ethers.parseUnits(amountStr, CONFIG.TOKEN_DECIMALS);
+                if (amount <= 0n) throw new Error();
+            } catch {
+                return showStatus(App.ui.rollupWithdrawStatus, 'err', 'Invalid amount.');
+            }
+            if (amount > App.state.rollupBalance) {
+                return showStatus(App.ui.rollupWithdrawStatus, 'err', 'Insufficient L2 balance.');
+            }
+            setLoading(App.ui.rollupWithdrawBtn, true, 'Withdrawing...');
+            showStatus(App.ui.rollupWithdrawStatus, 'info', 'Sending withdrawal to sequencer...');
+            try {
+                const res = await fetch(`${CONFIG.ROLLUP_URL}/withdraw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: App.state.account, amount: amount.toString() })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Sequencer error');
+
+                await fetchAccountData();
+                await fetchRollupData();
+                App.ui.rollupWithdrawAmount.value = '';
+
+                const link = data.txHash && data.txHash !== '0x_simulated'
+                    ? ` <a class="tx-link" href="${CONFIG.ETHERSCAN_URL}/tx/${data.txHash}" target="_blank">View Tx</a>`
+                    : '';
+                addTxToHistory({ hash: data.txHash || '0x_simulated', status: 'success', amount: amountStr, tokenSymbol: 'oxoBTC', type: 'L2 Withdraw', timestamp: Date.now() });
+                showStatus(App.ui.rollupWithdrawStatus, 'ok', `Withdrawn to wallet!${link}`);
+            } catch (error) {
+                showStatus(App.ui.rollupWithdrawStatus, 'err', `Error: ${error.message}`);
+                console.error('Rollup withdraw error:', error);
+            } finally {
+                setLoading(App.ui.rollupWithdrawBtn, false);
+                updateRollupWithdrawBtn();
+            }
+        };
+
+
+
+        // ═══════════════════════════════════════════════════════
+        //  ANALYTICS MODULE
+        // ═══════════════════════════════════════════════════════
+
+        const fmtUsd = n => {
+            const v = parseFloat(n);
+            if (v >= 1_000_000) return '$' + (v / 1_000_000).toFixed(2) + 'M';
+            if (v >= 1_000) return '$' + (v / 1_000).toFixed(1) + 'K';
+            return '$' + v.toFixed(2);
+        };
+        const loadStats = async () => {
+            try {
+                const res = await fetch(`${CONFIG.BACKEND_URL}/stats`);
+                if (!res.ok) return;
+                const d = await res.json();
+                document.getElementById('stats-card').style.display = '';
+                document.getElementById('statsBtcPrice').textContent = 'BTC ' + fmtUsd(d.btcPriceUsd);
+                document.getElementById('statTvl').textContent = fmtUsd(d.tvl.total);
+                document.getElementById('statSupply').textContent = parseFloat(d.oxoBtc.supply).toFixed(6) + ' oxoBTC';
+                document.getElementById('statReserve').textContent = fmtUsd(d.treasury.reserveEthUsd);
+                document.getElementById('statStaked0').textContent = parseFloat(d.staking.pool0Staked).toFixed(6) + ' oxoBTC';
+                document.getElementById('statStaked0Sub').textContent = d.staking.annualOxoPerOxoBtc + ' OXO/yr per oxoBTC';
+                document.getElementById('statStaked1').textContent = parseFloat(d.staking.pool1Staked).toFixed(2) + ' OXO';
+                document.getElementById('statDexTvl').textContent = fmtUsd(d.dex.tvlUsd);
+                document.getElementById('statDexSub').textContent = d.dex.ethReserve + ' ETH / ' + d.dex.btcReserve + ' oxoBTC';
+            } catch (e) { console.error('loadStats error:', e); }
+        };
+
+        const getStakingContract = (withSigner = false) => {
+            const prov = withSigner ? App.state.signer : App.state.provider;
+            return new ethers.Contract(CONFIG.STAKING_ADDRESS, STAKING_ABI, prov);
+        };
+        const getOxoTokenContract = (withSigner = false) => {
+            const prov = withSigner ? App.state.signer : App.state.provider;
+            return new ethers.Contract(CONFIG.OXO_TOKEN_ADDRESS, TOKEN_ABI, prov);
+        };
+
+        const fmtOxo = v => parseFloat(ethers.formatUnits(v, 18)).toFixed(4);
+        const fmtBtc = v => parseFloat(ethers.formatUnits(v, 8)).toFixed(6);
+        const fmtEth = v => parseFloat(ethers.formatEther(v)).toFixed(6);
+
+        const setStakeStatus = (poolIdx, type, msg) => {
+            const el = document.getElementById('stakeStatus' + poolIdx);
+            if (!el) return;
+            el.style.display = msg ? 'flex' : 'none';
+            el.className = 'status ' + type;
+            el.textContent = msg;
+        };
+
+        const formatCooldown = (cooldownEnd) => {
+            const now = Math.floor(Date.now() / 1000);
+            const end = Number(cooldownEnd);
+            if (end === 0 || now >= end) return null;
+            const rem = end - now;
+            const h = Math.floor(rem / 3600);
+            const m = Math.floor((rem % 3600) / 60);
+            return h + 'h ' + m + 'm remaining';
+        };
+
+        const COOLDOWN_SECS = 3 * 24 * 3600;
+
+        const loadStakeData = async () => {
+            if (!App.state.account) return;
+            try {
+                const sc = getStakingContract();
+                const addr = App.state.account;
+                const [minStake, u0, u1, pendOxo, pendFees, pool0Data] = await Promise.all([
+                    sc.minOxoBtcStake(),
+                    sc.usersPool0(addr),
+                    sc.usersPool1(addr),
+                    sc.pendingOxo(addr),
+                    sc.pendingFees(addr),
+                    sc.pool0(),
+                ]);
+                const minBtc = parseFloat(ethers.formatUnits(minStake, 8)).toFixed(6);
+                document.getElementById('stakeMinLabel').textContent = minBtc + ' oxoBTC (~$50)';
+
+                // Pool 0
+                document.getElementById('s0Staked').textContent = fmtBtc(u0.staked) + ' oxoBTC';
+                document.getElementById('s0Pending').textContent = fmtOxo(pendOxo) + ' OXO';
+                const opsF = parseFloat(ethers.formatUnits(pool0Data.oxoPerSecond, 18));
+                const staked0F = parseFloat(ethers.formatUnits(pool0Data.totalStaked, 8));
+                if (staked0F > 0) {
+                    document.getElementById('stakeApy0').textContent = (opsF * 86400 * 365 / staked0F).toFixed(2) + ' OXO/oxoBTC/yr';
+                }
+                const now = Math.floor(Date.now() / 1000);
+                const cd0El = document.getElementById('s0Cooldown');
+                if (u0.cooldownAmount > 0n) {
+                    const end0 = Number(u0.cooldownEnd);
+                    cd0El.style.display = '';
+                    document.getElementById('s0CooldownTime').textContent = formatCooldown(u0.cooldownEnd) || 'Ready to withdraw!';
+                    document.getElementById('s0CooldownFill').style.width = Math.min(100, (COOLDOWN_SECS - Math.max(0, end0 - now)) / COOLDOWN_SECS * 100) + '%';
+                    document.getElementById('s0WithdrawBtn').style.display = now >= end0 ? '' : 'none';
+                } else {
+                    cd0El.style.display = 'none';
+                    document.getElementById('s0WithdrawBtn').style.display = 'none';
+                }
+
+                // Pool 1
+                document.getElementById('s1Staked').textContent = fmtOxo(u1.staked) + ' OXO';
+                document.getElementById('s1PendingEth').textContent = fmtEth(pendFees.ethAmt) + ' ETH';
+                document.getElementById('s1PendingBtc').textContent = fmtBtc(pendFees.oxoBtcAmt) + ' oxoBTC';
+                const oxoBal = await getOxoTokenContract().balanceOf(addr);
+                document.getElementById('s1OxoBal').textContent = fmtOxo(oxoBal) + ' OXO';
+                App.state.oxoBalance = oxoBal;
+                const cd1El = document.getElementById('s1Cooldown');
+                if (u1.cooldownAmount > 0n) {
+                    const end1 = Number(u1.cooldownEnd);
+                    cd1El.style.display = '';
+                    document.getElementById('s1CooldownTime').textContent = formatCooldown(u1.cooldownEnd) || 'Ready to withdraw!';
+                    document.getElementById('s1CooldownFill').style.width = Math.min(100, (COOLDOWN_SECS - Math.max(0, end1 - now)) / COOLDOWN_SECS * 100) + '%';
+                    document.getElementById('s1WithdrawBtn').style.display = now >= end1 ? '' : 'none';
+                } else {
+                    cd1El.style.display = 'none';
+                    document.getElementById('s1WithdrawBtn').style.display = 'none';
+                }
+            } catch (e) { console.error('loadStakeData error:', e); }
+        };
+
+        // ─── STAKING HANDLERS ────────────────────────────────────────────
+        const handleStakeOxoBTC = async () => {
+            const btn = document.getElementById('s0StakeBtn');
+            const amtStr = document.getElementById('s0Amount').value;
+            if (!amtStr || parseFloat(amtStr) <= 0) return setStakeStatus(0, 'err', 'Enter an amount');
+            try {
+                setLoading(btn, true, 'Approving...');
+                const amt = ethers.parseUnits(amtStr, 8);
+                const tokenC = new ethers.Contract(CONFIG.TOKEN_ADDRESS, TOKEN_ABI, App.state.signer);
+                const allowance = await tokenC.allowance(App.state.account, CONFIG.STAKING_ADDRESS);
+                if (allowance < amt) {
+                    const appTx = await tokenC.approve(CONFIG.STAKING_ADDRESS, amt);
+                    setLoading(btn, true, 'Waiting approval...');
+                    await appTx.wait();
+                }
+                setLoading(btn, true, 'Staking...');
+                const tx = await getStakingContract(true).stakeOxoBTC(amt);
+                await tx.wait();
+                setStakeStatus(0, 'ok', 'Staked ' + amtStr + ' oxoBTC!');
+                document.getElementById('s0Amount').value = '';
+                await loadStakeData();
+            } catch (e) { setStakeStatus(0, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleUnstakeOxoBTC = async () => {
+            const btn = document.getElementById('s0UnstakeBtn');
+            const amtStr = document.getElementById('s0Amount').value;
+            if (!amtStr || parseFloat(amtStr) <= 0) return setStakeStatus(0, 'err', 'Enter an amount');
+            try {
+                setLoading(btn, true, 'Requesting...');
+                const amt = ethers.parseUnits(amtStr, 8);
+                const tx = await getStakingContract(true).requestUnstakeOxoBTC(amt);
+                await tx.wait();
+                setStakeStatus(0, 'info', '3-day cooldown started.');
+                document.getElementById('s0Amount').value = '';
+                await loadStakeData();
+            } catch (e) { setStakeStatus(0, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleWithdrawOxoBTC = async () => {
+            const btn = document.getElementById('s0WithdrawBtn');
+            try {
+                setLoading(btn, true, 'Withdrawing...');
+                const tx = await getStakingContract(true).withdrawOxoBTC();
+                await tx.wait();
+                setStakeStatus(0, 'ok', 'oxoBTC withdrawn to wallet!');
+                await loadStakeData();
+            } catch (e) { setStakeStatus(0, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleClaimPool0 = async () => {
+            const btn = document.getElementById('s0ClaimBtn');
+            try {
+                setLoading(btn, true, 'Claiming...');
+                const tx = await getStakingContract(true).claimPool0();
+                await tx.wait();
+                setStakeStatus(0, 'ok', 'OXO rewards claimed!');
+                await loadStakeData();
+            } catch (e) { setStakeStatus(0, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleCompound = async () => {
+            const btn = document.getElementById('s0CompoundBtn');
+            try {
+                setLoading(btn, true, 'Compounding...');
+                const tx = await getStakingContract(true).compound();
+                await tx.wait();
+                setStakeStatus(0, 'ok', 'OXO compounded to Pool 1!');
+                await loadStakeData();
+            } catch (e) { setStakeStatus(0, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleStakeOXO = async () => {
+            const btn = document.getElementById('s1StakeBtn');
+            const amtStr = document.getElementById('s1Amount').value;
+            if (!amtStr || parseFloat(amtStr) <= 0) return setStakeStatus(1, 'err', 'Enter an amount');
+            try {
+                setLoading(btn, true, 'Approving...');
+                const amt = ethers.parseUnits(amtStr, 18);
+                const oxoC = getOxoTokenContract(true);
+                const allowance = await oxoC.allowance(App.state.account, CONFIG.STAKING_ADDRESS);
+                if (allowance < amt) {
+                    const appTx = await oxoC.approve(CONFIG.STAKING_ADDRESS, amt);
+                    setLoading(btn, true, 'Waiting approval...');
+                    await appTx.wait();
+                }
+                setLoading(btn, true, 'Staking...');
+                const tx = await getStakingContract(true).stakeOXO(amt);
+                await tx.wait();
+                setStakeStatus(1, 'ok', 'Staked ' + amtStr + ' OXO!');
+                document.getElementById('s1Amount').value = '';
+                await loadStakeData();
+            } catch (e) { setStakeStatus(1, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleUnstakeOXO = async () => {
+            const btn = document.getElementById('s1UnstakeBtn');
+            const amtStr = document.getElementById('s1Amount').value;
+            if (!amtStr || parseFloat(amtStr) <= 0) return setStakeStatus(1, 'err', 'Enter an amount');
+            try {
+                setLoading(btn, true, 'Requesting...');
+                const amt = ethers.parseUnits(amtStr, 18);
+                const tx = await getStakingContract(true).requestUnstakeOXO(amt);
+                await tx.wait();
+                setStakeStatus(1, 'info', '3-day cooldown started.');
+                document.getElementById('s1Amount').value = '';
+                await loadStakeData();
+            } catch (e) { setStakeStatus(1, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleWithdrawOXO = async () => {
+            const btn = document.getElementById('s1WithdrawBtn');
+            try {
+                setLoading(btn, true, 'Withdrawing...');
+                const tx = await getStakingContract(true).withdrawOXO();
+                await tx.wait();
+                setStakeStatus(1, 'ok', 'OXO withdrawn to wallet!');
+                await loadStakeData();
+            } catch (e) { setStakeStatus(1, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+
+        const handleClaimPool1 = async () => {
+            const btn = document.getElementById('s1ClaimBtn');
+            try {
+                setLoading(btn, true, 'Claiming...');
+                const tx = await getStakingContract(true).claimPool1();
+                await tx.wait();
+                setStakeStatus(1, 'ok', 'ETH + oxoBTC rewards claimed!');
+                await loadStakeData();
+            } catch (e) { setStakeStatus(1, 'err', e.reason || e.shortMessage || 'Transaction failed'); }
+            finally { setLoading(btn, false); }
+        };
+        // ═══════════════════════════════════════════════════════
+        //  LEND
+        // ═══════════════════════════════════════════════════════
+        const fetchLendData = async () => {
+            if (!App.state.account || !CONFIG.LENDING_ADDRESS) return;
+            try {
+                const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.provider);
+                const [pos, debt, maxB, hf] = await Promise.all([
+                    lending.positions(App.state.account),
+                    lending.currentDebt(App.state.account),
+                    lending.maxBorrow(App.state.account),
+                    lending.healthFactor(App.state.account)
+                ]);
+                document.getElementById('lendCollateral').textContent =
+                    ethers.formatUnits(pos.collateral, 8) + ' oxoBTC';
+                document.getElementById('lendDebt').textContent =
+                    parseFloat(ethers.formatEther(debt)).toFixed(6) + ' ETH';
+                document.getElementById('lendMaxBorrow').textContent =
+                    parseFloat(ethers.formatEther(maxB)).toFixed(6) + ' ETH';
+                const hfNum = parseFloat(ethers.formatEther(hf));
+                const hfEl  = document.getElementById('lendHealth');
+                if (hf === ethers.MaxUint256) {
+                    hfEl.textContent = '∞';
+                    hfEl.style.color = 'var(--success)';
+                } else {
+                    hfEl.textContent = hfNum.toFixed(2);
+                    hfEl.style.color = hfNum >= 1.5 ? 'var(--success)' : hfNum >= 1.1 ? 'orange' : 'var(--error)';
+                }
+                // Repay helper
+                document.getElementById('lendRepayHelp').textContent =
+                    debt > 0n ? `Current debt: ${parseFloat(ethers.formatEther(debt)).toFixed(6)} ETH` : '';
+                document.getElementById('lendBorrowHelp').textContent =
+                    `Available: ${parseFloat(ethers.formatEther(maxB)).toFixed(6)} ETH`;
+                document.getElementById('lendDepositHelp').textContent =
+                    `Balance: ${ethers.formatUnits(App.state.oxoBTCBalance, 8)} oxoBTC`;
+                document.getElementById('lendWithdrawHelp').textContent =
+                    `Collateral: ${ethers.formatUnits(pos.collateral, 8)} oxoBTC`;
+            } catch (e) { console.error('fetchLendData:', e); }
+        };
+
+        const handleLendDeposit = async () => {
+            const amtStr = document.getElementById('lendDepositAmt').value.trim();
+            const status = document.getElementById('lendDepositStatus');
+            if (!amtStr || parseFloat(amtStr) <= 0) return;
+            const amt = ethers.parseUnits(amtStr, 8);
+            const token   = new ethers.Contract(CONFIG.TOKEN_ADDRESS, TOKEN_ABI, App.state.signer);
+            const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.signer);
+            try {
+                showStatus(status, 'info', 'Approving...');
+                const appTx = await token.approve(CONFIG.LENDING_ADDRESS, amt);
+                await appTx.wait();
+                showStatus(status, 'info', 'Depositing collateral...');
+                const tx = await lending.depositCollateral(amt);
+                await tx.wait();
+                showStatus(status, 'ok', `✅ Deposited ${amtStr} oxoBTC as collateral.`);
+                document.getElementById('lendDepositAmt').value = '';
+                await Promise.all([fetchLendData(), fetchAccountData()]);
+            } catch (e) { showStatus(status, 'err', e.reason || 'Transaction failed.'); }
+        };
+
+        const handleLendBorrow = async () => {
+            const amtStr = document.getElementById('lendBorrowAmt').value.trim();
+            const status = document.getElementById('lendBorrowStatus');
+            if (!amtStr || parseFloat(amtStr) <= 0) return;
+            const amt = ethers.parseEther(amtStr);
+            const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.signer);
+            try {
+                showStatus(status, 'info', 'Borrowing ETH...');
+                const tx = await lending.borrow(amt);
+                const rc = await tx.wait();
+                showStatus(status, 'ok', `✅ Borrowed ${amtStr} ETH — <a href="https://sepolia.etherscan.io/tx/${rc.hash}" target="_blank" style="color:var(--oxo-accent)">Etherscan</a>`);
+                document.getElementById('lendBorrowAmt').value = '';
+                await Promise.all([fetchLendData(), fetchAccountData()]);
+            } catch (e) { showStatus(status, 'err', e.reason || 'Transaction failed.'); }
+        };
+
+        const handleLendRepay = async () => {
+            const amtStr = document.getElementById('lendRepayAmt').value.trim();
+            const status = document.getElementById('lendRepayStatus');
+            if (!amtStr || parseFloat(amtStr) <= 0) return;
+            const amt = ethers.parseEther(amtStr);
+            const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.signer);
+            try {
+                showStatus(status, 'info', 'Repaying...');
+                const tx = await lending.repay({ value: amt });
+                const rc = await tx.wait();
+                showStatus(status, 'ok', `✅ Repaid — <a href="https://sepolia.etherscan.io/tx/${rc.hash}" target="_blank" style="color:var(--oxo-accent)">Etherscan</a>`);
+                document.getElementById('lendRepayAmt').value = '';
+                await Promise.all([fetchLendData(), fetchAccountData()]);
+            } catch (e) { showStatus(status, 'err', e.reason || 'Transaction failed.'); }
+        };
+
+        const handleLendWithdraw = async () => {
+            const amtStr = document.getElementById('lendWithdrawAmt').value.trim();
+            const status = document.getElementById('lendWithdrawStatus');
+            if (!amtStr || parseFloat(amtStr) <= 0) return;
+            const amt = ethers.parseUnits(amtStr, 8);
+            const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.signer);
+            try {
+                showStatus(status, 'info', 'Withdrawing collateral...');
+                const tx = await lending.withdrawCollateral(amt);
+                const rc = await tx.wait();
+                showStatus(status, 'ok', `✅ Withdrawn ${amtStr} oxoBTC — <a href="https://sepolia.etherscan.io/tx/${rc.hash}" target="_blank" style="color:var(--oxo-accent)">Etherscan</a>`);
+                document.getElementById('lendWithdrawAmt').value = '';
+                await Promise.all([fetchLendData(), fetchAccountData()]);
+            } catch (e) { showStatus(status, 'err', e.reason || 'Transaction failed.'); }
+        };
+
+        const initLendTabs = () => {
+            const lTabs    = document.querySelectorAll('[data-ltab]');
+            const lPanels  = document.querySelectorAll('#lend-content .tab-content');
+            lTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    lTabs.forEach(t => t.classList.remove('active'));
+                    lPanels.forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.ltab}-content`).classList.add('active');
+                });
+            });
+
+            // MAX butonları
+            document.getElementById('lendDepositMax').addEventListener('click', () => {
+                document.getElementById('lendDepositAmt').value =
+                    ethers.formatUnits(App.state.oxoBTCBalance, 8);
+            });
+            document.getElementById('lendBorrowMax').addEventListener('click', async () => {
+                if (!App.state.account) return;
+                const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.provider);
+                const max = await lending.maxBorrow(App.state.account);
+                document.getElementById('lendBorrowAmt').value = ethers.formatEther(max);
+            });
+            document.getElementById('lendRepayMax').addEventListener('click', async () => {
+                if (!App.state.account) return;
+                const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.provider);
+                const debt = await lending.currentDebt(App.state.account);
+                // %1 buffer
+                const withBuffer = debt + debt / 100n;
+                document.getElementById('lendRepayAmt').value = ethers.formatEther(withBuffer);
+            });
+            document.getElementById('lendWithdrawMax').addEventListener('click', async () => {
+                if (!App.state.account) return;
+                const lending = new ethers.Contract(CONFIG.LENDING_ADDRESS, LENDING_ABI, App.state.provider);
+                const pos = await lending.positions(App.state.account);
+                document.getElementById('lendWithdrawAmt').value = ethers.formatUnits(pos.collateral, 8);
+            });
+
+            // Butonlar
+            document.getElementById('lendDepositBtn').addEventListener('click', handleLendDeposit);
+            document.getElementById('lendBorrowBtn').addEventListener('click', handleLendBorrow);
+            document.getElementById('lendRepayBtn').addEventListener('click', handleLendRepay);
+            document.getElementById('lendWithdrawBtn').addEventListener('click', handleLendWithdraw);
+        };
+
+        const updateLendButtons = () => {
+            const btns = ['lendDepositBtn','lendBorrowBtn','lendRepayBtn','lendWithdrawBtn'];
+            const labels = ['Deposit Collateral','Borrow ETH','Repay Debt','Withdraw Collateral'];
+            btns.forEach((id, i) => {
+                const btn = document.getElementById(id);
+                if (!App.state.signer) {
+                    btn.textContent = 'Connect Wallet';
+                    btn.disabled = true;
+                } else {
+                    btn.textContent = labels[i];
+                    btn.disabled = false;
+                }
+            });
+        };
+
+        const init = async () => {
+            if (App.ui.tabs.length && App.ui.tabContents.length) {
+                App.ui.tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const targetTab = tab.dataset.tab; // "swap" veya "bridge"
+
+                        App.ui.tabs.forEach(t => t.classList.remove('active'));
+                        App.ui.tabContents.forEach(c => c.classList.remove('active'));
+
+                        tab.classList.add('active');
+                        document.getElementById(`${targetTab}-content`).classList.add('active');
+
+                        if (targetTab === 'bridge') {
+                            App.ui.bridgeTabs.forEach((t, i) => t.classList.toggle('active', i === 0));
+                            App.ui.bridgeTabContents.forEach((c, i) => c.classList.toggle('active', i === 0));
+                            startDepositPolling();
+                        } else if (targetTab === 'pool') {
+                            stopDepositPolling();
+                            App.ui.poolTabs.forEach((t, i) => t.classList.toggle('active', i === 0));
+                            App.ui.poolTabContents.forEach((c, i) => c.classList.toggle('active', i === 0));
+                            fetchPoolData();
+                        } else if (targetTab === 'stake') {
+                            stopDepositPolling();
+                            loadStakeData();
+                            loadStats();
+                        } else if (targetTab === 'lend') {
+                            stopDepositPolling();
+                            fetchLendData();
+                        } else if (targetTab === 'rollup') {
+                            stopDepositPolling();
+                            App.ui.rollupTabs.forEach((t, i) => t.classList.toggle('active', i === 0));
+                            App.ui.rollupTabContents.forEach((c, i) => c.classList.toggle('active', i === 0));
+                        } else {
+                            stopDepositPolling();
+                        }
+                    });
+                });
+            }
+
+            App.ui.bridgeTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    App.ui.bridgeTabs.forEach(t => t.classList.remove('active'));
+                    App.ui.bridgeTabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
+                });
+            });
+
+            App.ui.poolTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    App.ui.poolTabs.forEach(t => t.classList.remove('active'));
+                    App.ui.poolTabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.ptab}-content`).classList.add('active');
+                });
+            });
+
+            App.ui.rollupTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    App.ui.rollupTabs.forEach(t => t.classList.remove('active'));
+                    App.ui.rollupTabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.rtab}-content`).classList.add('active');
+                    if (tab.dataset.rtab === 'r-status' || tab.dataset.rtab === 'r-withdraw') fetchRollupData().then(updateRollupWithdrawBtn);
+                });
+            });
+
+            App.ui.connectBtn.addEventListener('click', () => {
+                discoverWallets();
+                App.ui.walletSelector.classList.add('visible');
+            });
+            App.ui.walletSelector.addEventListener('click', (e) => {
+                if (e.target === App.ui.walletSelector) {
+                    App.ui.walletSelector.classList.remove('visible');
+                }
+            });
+
+            App.ui.copyBtc.addEventListener('click', () => copyToClipboard(App.state.btcAddress, App.ui.copyBtc));
+            App.ui.refreshBalanceBtn.addEventListener('click', async () => {
+                setLoading(App.ui.refreshBalanceBtn, true, 'Refreshing...');
+                await Promise.all([fetchAccountData(), pollDepositStatus()]);
+                setLoading(App.ui.refreshBalanceBtn, false);
+                App.ui.refreshBalanceBtn.dataset.originalText = 'Refresh Status';
+            });
+            App.ui.refreshBalanceBtn.dataset.originalText = 'Refresh Status';
+
+            App.ui.redeemBtn.addEventListener('click', handleRedeem);
+            App.ui.redeemAmount.addEventListener('input', updateRedeemButtonState);
+            App.ui.maxBtn.addEventListener('click', () => {
+                App.ui.redeemAmount.value = ethers.formatUnits(App.state.oxoBTCBalance, CONFIG.TOKEN_DECIMALS);
+                updateRedeemButtonState();
+            });
+
+            App.ui.fromAmount.addEventListener('input', () => {
+                clearTimeout(App.state.debounceTimer);
+                App.state.debounceTimer = setTimeout(handleAmountIn, 300);
+                updateSwapButtonState();
+            });
+            App.ui.swapDirBtn.addEventListener('click', flipSwapDirection);
+            App.ui.swapBtn.addEventListener('click', handleSwap);
+
+            App.ui.poolAddBtn.addEventListener('click', handleAddLiquidity);
+            App.ui.poolRemoveBtn.addEventListener('click', handleRemoveLiquidity);
+            App.ui.poolEthAmount.addEventListener('input', () => {
+                clearTimeout(App.state.poolDebounce);
+                App.state.poolDebounce = setTimeout(() => calcAddOtherSide('eth'), 300);
+            });
+            App.ui.poolBtcAmount.addEventListener('input', () => {
+                clearTimeout(App.state.poolDebounce);
+                App.state.poolDebounce = setTimeout(() => calcAddOtherSide('btc'), 300);
+            });
+            App.ui.poolEthMaxBtn.addEventListener('click', () => {
+                App.ui.poolEthAmount.value = ethers.formatUnits(App.state.ethBalance, 18);
+                calcAddOtherSide('eth');
+            });
+            App.ui.poolBtcMaxBtn.addEventListener('click', () => {
+                App.ui.poolBtcAmount.value = ethers.formatUnits(App.state.oxoBTCBalance, 8);
+                calcAddOtherSide('btc');
+            });
+            App.ui.poolLpAmount.addEventListener('input', calcRemovePreview);
+            App.ui.poolLpMaxBtn.addEventListener('click', () => {
+                App.ui.poolLpAmount.value = ethers.formatUnits(App.state.lpBalance, 18);
+                calcRemovePreview();
+            });
+
+            App.ui.rollupDepositBtn.addEventListener('click', handleRollupDeposit);
+            App.ui.rollupDepositAmount.addEventListener('input', updateRollupDepositBtn);
+            App.ui.rollupDepositMaxBtn.addEventListener('click', () => {
+                App.ui.rollupDepositAmount.value = ethers.formatUnits(App.state.oxoBTCBalance, CONFIG.TOKEN_DECIMALS);
+                updateRollupDepositBtn();
+            });
+            App.ui.rollupTransferBtn.addEventListener('click', handleRollupTransfer);
+            App.ui.rollupToAddr.addEventListener('input', updateRollupTransferBtn);
+            App.ui.rollupTransferAmount.addEventListener('input', updateRollupTransferBtn);
+            App.ui.rollupWithdrawBtn.addEventListener('click', handleRollupWithdraw);
+            App.ui.rollupWithdrawAmount.addEventListener('input', updateRollupWithdrawBtn);
+            App.ui.rollupWithdrawMaxBtn.addEventListener('click', async () => {
+                await fetchRollupData();
+                App.ui.rollupWithdrawAmount.value = ethers.formatUnits(App.state.rollupBalance, CONFIG.TOKEN_DECIMALS);
+                updateRollupWithdrawBtn();
+            });
+
+            App.ui.rollupRefreshBtn.addEventListener('click', async () => {
+                setLoading(App.ui.rollupRefreshBtn, true, 'Refreshing...');
+                await fetchRollupData();
+                setLoading(App.ui.rollupRefreshBtn, false);
+                App.ui.rollupRefreshBtn.dataset.originalText = 'Refresh State';
+            });
+            App.ui.rollupRefreshBtn.dataset.originalText = 'Refresh State';
+
+            // ─── STAKE ────────────────────────────────────────────────
+            document.getElementById('s0StakeBtn').addEventListener('click', handleStakeOxoBTC);
+            document.getElementById('s0UnstakeBtn').addEventListener('click', handleUnstakeOxoBTC);
+            document.getElementById('s0WithdrawBtn').addEventListener('click', handleWithdrawOxoBTC);
+            document.getElementById('s0ClaimBtn').addEventListener('click', handleClaimPool0);
+            document.getElementById('s0CompoundBtn').addEventListener('click', handleCompound);
+            document.getElementById('s1StakeBtn').addEventListener('click', handleStakeOXO);
+            document.getElementById('s1UnstakeBtn').addEventListener('click', handleUnstakeOXO);
+            document.getElementById('s1WithdrawBtn').addEventListener('click', handleWithdrawOXO);
+            document.getElementById('s1ClaimBtn').addEventListener('click', handleClaimPool1);
+            document.getElementById('s0MaxBtn').addEventListener('click', () => {
+                document.getElementById('s0Amount').value = ethers.formatUnits(App.state.oxoBTCBalance, 8);
+            });
+            document.getElementById('s1MaxBtn').addEventListener('click', () => {
+                if (App.state.oxoBalance) document.getElementById('s1Amount').value = ethers.formatUnits(App.state.oxoBalance, 18);
+            });
+
+            // ─── LEND ─────────────────────────────────────────────────
+            initLendTabs();
+
+            // ─── FLASH EXIT ───────────────────────────────────────────
+            const feInstantBtn   = document.getElementById('feInstantBtn');
+            const feChunkedBtn   = document.getElementById('feChunkedBtn');
+            const feOrdersBtn    = document.getElementById('feOrdersBtn');
+            const feInstantPanel = document.getElementById('fe-instant-panel');
+            const feChunkedPanel = document.getElementById('fe-chunked-panel');
+            const feOrdersPanel  = document.getElementById('fe-orders-panel');
+
+            function setFEMode(mode) {
+                feInstantBtn.classList.toggle('active', mode === 'instant');
+                feChunkedBtn.classList.toggle('active', mode === 'chunked');
+                feOrdersBtn.classList.toggle('active',  mode === 'orders');
+                feInstantPanel.style.display = mode === 'instant'  ? '' : 'none';
+                feChunkedPanel.style.display = mode === 'chunked' ? '' : 'none';
+                feOrdersPanel.style.display  = mode === 'orders'  ? '' : 'none';
+                if (mode === 'orders') loadFEOrders();
+            }
+            feInstantBtn.addEventListener('click', () => setFEMode('instant'));
+            feChunkedBtn.addEventListener('click', () => setFEMode('chunked'));
+            feOrdersBtn.addEventListener('click',  () => setFEMode('orders'));
+
+            function getFlashExit(signer) {
+                return new ethers.Contract(CONFIG.FLASH_EXIT_ADDRESS, FLASH_EXIT_ABI, signer || App.state.provider);
+            }
+
+            async function updateFEInstantQuote() {
+                const ethAmt = parseFloat(document.getElementById('fe-eth-amount').value);
+                const quoteBox = document.getElementById('feInstantQuote');
+                if (!ethAmt || ethAmt <= 0 || !App.state.provider) { quoteBox.classList.remove('visible'); return; }
+                try {
+                    const fe = getFlashExit();
+                    const ethWei = ethers.parseEther(ethAmt.toString());
+                    const fee = ethWei * 10n / 10000n;
+                    const ethIn = ethWei - fee;
+                    const [, est, slip] = await fe.getExitQuote(ethIn, 200);
+                    const dustWarn = document.getElementById('feDustWarn');
+                    document.getElementById('feQEst').textContent = ethers.formatUnits(est, CONFIG.TOKEN_DECIMALS) + ' oxoBTC';
+                    if (dustWarn) dustWarn.style.display = est < 546n ? '' : 'none';
+                    const slipEl = document.getElementById('feQSlip');
+                    slipEl.textContent = (Number(slip) / 100).toFixed(2) + '%';
+                    slipEl.className = 'q-value ' + (Number(slip) > 100 ? 'warn' : 'ok');
+                    document.getElementById('feQFee').textContent = ethers.formatEther(fee) + ' ETH';
+                    quoteBox.classList.add('visible');
+                } catch { quoteBox.classList.remove('visible'); }
+            }
+
+            async function updateFEChunkedQuote() {
+                const ethAmt  = parseFloat(document.getElementById('fe-chunk-eth').value);
+                const slipBps = parseInt(document.getElementById('fe-chunk-slip').value) || 50;
+                const quoteBox = document.getElementById('feChunkedQuote');
+                if (!ethAmt || ethAmt <= 0 || !App.state.provider) { quoteBox.classList.remove('visible'); return; }
+                try {
+                    const fe = getFlashExit();
+                    const ethWei = ethers.parseEther(ethAmt.toString());
+                    const fee    = ethWei * 10n / 10000n;
+                    const ethIn  = ethWei - fee;
+                    const [chunks, est, slip] = await fe.getExitQuote(ethIn, slipBps);
+                    const interval = await fe.chunkInterval();
+                    document.getElementById('feQChunks').textContent   = chunks.toString();
+                    document.getElementById('feQChunkSlip').textContent = (Number(slip)/100).toFixed(2) + '%';
+                    document.getElementById('feQChunkEst').textContent  = ethers.formatUnits(est, CONFIG.TOKEN_DECIMALS) + ' oxoBTC';
+                    document.getElementById('feQInterval').textContent  = interval.toString() + 's';
+                    quoteBox.classList.add('visible');
+                } catch { quoteBox.classList.remove('visible'); }
+            }
+
+            document.getElementById('fe-eth-amount').addEventListener('input', updateFEInstantQuote);
+            document.getElementById('fe-chunk-eth').addEventListener('input', updateFEChunkedQuote);
+            document.getElementById('fe-chunk-slip').addEventListener('input', updateFEChunkedQuote);
+
+            document.getElementById('feEthMaxBtn').addEventListener('click', async () => {
+                if (!App.state.provider) return;
+                const bal = await App.state.provider.getBalance(App.state.account);
+                const safeMax = bal > ethers.parseEther('0.01') ? bal - ethers.parseEther('0.01') : 0n;
+                document.getElementById('fe-eth-amount').value = ethers.formatEther(safeMax);
+                updateFEInstantQuote();
+            });
+            document.getElementById('feChunkEthMaxBtn').addEventListener('click', async () => {
+                if (!App.state.provider) return;
+                const bal = await App.state.provider.getBalance(App.state.account);
+                const safeMax = bal > ethers.parseEther('0.01') ? bal - ethers.parseEther('0.01') : 0n;
+                document.getElementById('fe-chunk-eth').value = ethers.formatEther(safeMax);
+                updateFEChunkedQuote();
+            });
+
+            const feInstantExitBtn = document.getElementById('feInstantExitBtn');
+            feInstantExitBtn.dataset.originalText = 'Exit to Bitcoin';
+            feInstantExitBtn.addEventListener('click', async () => {
+                if (!App.state.signer) return;
+                const ethAmt  = document.getElementById('fe-eth-amount').value;
+                const btcAddr = document.getElementById('fe-btc-addr').value.trim();
+                const statusEl = document.getElementById('feInstantStatus');
+                if (!ethAmt || parseFloat(ethAmt) <= 0) return;
+                if (!btcAddr) { showStatus(statusEl, 'err', 'Enter a Bitcoin address.'); return; }
+                const ethWei = ethers.parseEther(ethAmt);
+                const fee    = ethWei * 10n / 10000n;
+                const ethIn  = ethWei - fee;
+                let minOut = 0n;
+                try {
+                    const [, est] = await getFlashExit().getExitQuote(ethIn, 200);
+                    if (est < 546n) {
+                        showStatus(statusEl, 'err', 'Amount too small — estimated output (' + est.toString() + ' sats) is below Bitcoin dust limit (546 sats). Please use a larger amount.');
+                        return;
+                    }
+                    minOut = est * 90n / 100n;
+                } catch {}
+                setLoading(feInstantExitBtn, true, 'Swapping...');
+                showStatus(statusEl, 'info', 'Sending transaction...');
+                try {
+                    const tx = await getFlashExit(App.state.signer).exitInstant(btcAddr, minOut, { value: ethWei });
+                    showStatus(statusEl, 'info', 'Pending... <a class="tx-link" target="_blank" href="' + CONFIG.ETHERSCAN_URL + '/tx/' + tx.hash + '">' + tx.hash.slice(0,18) + '...</a>');
+                    await tx.wait();
+                    showStatus(statusEl, 'ok', 'Exit submitted! BTC will arrive in ~15 minutes.');
+                    document.getElementById('fe-eth-amount').value = '';
+                    document.getElementById('feInstantQuote').classList.remove('visible');
+                } catch(e) {
+                    showStatus(statusEl, 'err', e.reason || e.shortMessage || 'Transaction failed.');
+                }
+                setLoading(feInstantExitBtn, false);
+            });
+
+            const feChunkedExitBtn = document.getElementById('feChunkedExitBtn');
+            feChunkedExitBtn.dataset.originalText = 'Create Chunked Exit';
+            feChunkedExitBtn.addEventListener('click', async () => {
+                if (!App.state.signer) return;
+                const ethAmt  = document.getElementById('fe-chunk-eth').value;
+                const slipBps = parseInt(document.getElementById('fe-chunk-slip').value) || 50;
+                const btcAddr = document.getElementById('fe-chunk-btc-addr').value.trim();
+                const statusEl = document.getElementById('feChunkedStatus');
+                if (!ethAmt || parseFloat(ethAmt) <= 0) return;
+                if (!btcAddr) { showStatus(statusEl, 'err', 'Enter a Bitcoin address.'); return; }
+                if (slipBps < 10 || slipBps > 1000) { showStatus(statusEl, 'err', 'Slippage: 10-1000 bps.'); return; }
+                const ethWei = ethers.parseEther(ethAmt);
+                // Dust limit check
+                try {
+                    const fee2 = ethWei * 10n / 10000n;
+                    const [, est2] = await getFlashExit().getExitQuote(ethWei - fee2, slipBps);
+                    if (est2 < 546n) {
+                        showStatus(statusEl, 'err', 'Amount too small — estimated output (' + est2.toString() + ' sats) is below Bitcoin dust limit (546 sats). Use a larger amount.');
+                        return;
+                    }
+                } catch {}
+                setLoading(feChunkedExitBtn, true, 'Creating order...');
+                showStatus(statusEl, 'info', 'Sending transaction...');
+                try {
+                    const tx = await getFlashExit(App.state.signer).exitChunked(btcAddr, slipBps, { value: ethWei });
+                    showStatus(statusEl, 'info', 'Pending... <a class="tx-link" target="_blank" href="' + CONFIG.ETHERSCAN_URL + '/tx/' + tx.hash + '">' + tx.hash.slice(0,18) + '...</a>');
+                    await tx.wait();
+                    showStatus(statusEl, 'ok', 'Order created! Chunks will execute automatically.');
+                    document.getElementById('fe-chunk-eth').value = '';
+                    document.getElementById('feChunkedQuote').classList.remove('visible');
+                    setFEMode('orders');
+                } catch(e) {
+                    showStatus(statusEl, 'err', e.reason || e.shortMessage || 'Transaction failed.');
+                }
+                setLoading(feChunkedExitBtn, false);
+            });
+
+            async function loadFEOrders() {
+                if (!App.state.account || !App.state.provider) return;
+                const listEl = document.getElementById('feOrdersList');
+                listEl.innerHTML = '<p class="muted" style="text-align:center;padding:20px 0">Loading...</p>';
+                try {
+                    const fe = getFlashExit();
+                    const orderIds = await fe.getUserOrders(App.state.account);
+                    if (orderIds.length === 0) {
+                        listEl.innerHTML = '<p class="muted" style="text-align:center;padding:20px 0">No orders found.</p>';
+                        return;
+                    }
+                    listEl.innerHTML = '';
+                    for (let i = orderIds.length - 1; i >= 0; i--) {
+                        const id = orderIds[i];
+                        const o  = await fe.getOrder(id);
+                        const totalChunks = o.chunkEth > 0n ? (o.totalEth + o.chunkEth - 1n) / o.chunkEth : 1n;
+                        const doneChunks  = totalChunks > o.chunksLeft ? totalChunks - o.chunksLeft : 0n;
+                        const pct = totalChunks > 0n ? Number(doneChunks * 100n / totalChunks) : 100;
+                        const badge     = o.completed ? 'completed' : o.cancelled ? 'cancelled' : 'active';
+                        const statusTxt = o.completed ? 'Completed'  : o.cancelled ? 'Cancelled'  : 'Active';
+                        const btcShort  = o.btcAddress.length > 20 ? o.btcAddress.slice(0,20) + '...' : o.btcAddress;
+
+                        const div = document.createElement('div');
+                        div.className = 'order-item';
+                        div.innerHTML =
+                            '<div class="order-header">' +
+                            '  <span class="order-id">Order #' + id + '</span>' +
+                            '  <span class="order-badge ' + badge + '">' + statusTxt + '</span>' +
+                            '</div>' +
+                            '<div style="font-size:.85rem;color:var(--oxo-dim);margin-bottom:6px">' +
+                            '  ' + ethers.formatEther(o.totalEth) + ' ETH to <span class="mono">' + btcShort + '</span>' +
+                            '</div>' +
+                            '<div class="order-progress"><div class="order-progress-fill" style="width:' + pct + '%"></div></div>' +
+                            '<div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--oxo-dim);margin-bottom:8px">' +
+                            '  <span>' + doneChunks + '/' + totalChunks + ' chunks done</span>' +
+                            '  <span>' + ethers.formatUnits(o.acquiredOxoBtc, CONFIG.TOKEN_DECIMALS) + ' oxoBTC</span>' +
+                            '</div>' +
+                            '<div class="order-actions">' +
+                            '  <button id="feExec_' + id + '" ' + ((!o.completed && !o.cancelled) ? '' : 'disabled') + '>Execute Chunk</button>' +
+                            '  <button id="feCancel_' + id + '" ' + ((!o.completed && !o.cancelled) ? '' : 'disabled') + '>Cancel</button>' +
+                            '</div>';
+                        listEl.appendChild(div);
+
+                        if (!o.completed && !o.cancelled) {
+                            document.getElementById('feExec_' + id).addEventListener('click', async (e) => {
+                                e.target.disabled = true; e.target.textContent = 'Executing...';
+                                try {
+                                    const tx = await getFlashExit(App.state.signer).executeNextChunk(id);
+                                    await tx.wait();
+                                    loadFEOrders();
+                                } catch(err) {
+                                    e.target.disabled = false; e.target.textContent = 'Execute Chunk';
+                                    alert(err.reason || err.shortMessage || 'Failed');
+                                }
+                            });
+                            document.getElementById('feCancel_' + id).addEventListener('click', async (e) => {
+                                if (!confirm('Cancel this order? Remaining ETH will be refunded.')) return;
+                                e.target.disabled = true; e.target.textContent = 'Cancelling...';
+                                try {
+                                    const tx = await getFlashExit(App.state.signer).cancelOrder(id);
+                                    await tx.wait();
+                                    loadFEOrders();
+                                } catch(err) {
+                                    e.target.disabled = false; e.target.textContent = 'Cancel';
+                                    alert(err.reason || err.shortMessage || 'Failed');
+                                }
+                            });
+                        }
+                    }
+                } catch(e) {
+                    listEl.innerHTML = '<p class="muted" style="text-align:center;padding:20px 0">Error loading orders.</p>';
+                }
+            }
+
+            document.getElementById('feRefreshOrdersBtn').addEventListener('click', loadFEOrders);
+            // ─────────────────────────────────────────────────────────
+
+            updateUI();
+        };
+
+
+        // ─── BACKGROUND NETWORK CANVAS ───────────────────────────────
+        try {
+            const bgC = document.getElementById('bg-canvas');
+            const bgX = bgC.getContext('2d');
+            let bW, bH;
+            function bgResize() { bW = bgC.width = window.innerWidth; bH = bgC.height = window.innerHeight; }
+            bgResize();
+            window.addEventListener('resize', bgResize, { passive: true });
+            const VH = 3600;
+            const bgNodes = [];
+            for (let i = 0; i < 110; i++) {
+                bgNodes.push({
+                    x: Math.random() * 1440,
+                    y: Math.random() * VH,
+                    vx: (Math.random()-.5)*.55, vy: (Math.random()-.5)*.55,
+                    r: Math.random()*2+.5,
+                    phase: Math.random()*Math.PI*2,
+                    bright: Math.random()>.7
+                });
+            }
+            const bgPulses = [];
+            let lastSY = 0, scrollEnergy = 0, bgFrame = 0;
+            window.addEventListener('scroll', () => {
+                scrollEnergy = Math.min(1, scrollEnergy + Math.abs(window.scrollY - lastSY) * 0.02);
+                lastSY = window.scrollY;
+            }, { passive: true });
+            function spawnPulse(sc) {
+                const vis = bgNodes.filter(n => Math.abs(n.y - sc - bH/2) < bH);
+                if (vis.length < 2) return;
+                for (let t = 0; t < 20; t++) {
+                    const a = vis[Math.floor(Math.random()*vis.length)];
+                    const b = vis[Math.floor(Math.random()*vis.length)];
+                    const dx = a.x-b.x, dy = (a.y-sc)-(b.y-sc);
+                    const d = Math.sqrt(dx*dx+dy*dy);
+                    if (d > 40 && d < 200) { bgPulses.push({a,b,t:0,spd:.018}); return; }
+                }
+            }
+            function drawBg() {
+                bgX.clearRect(0,0,bW,bH); bgFrame++;
+                const sc = window.scrollY;
+                scrollEnergy *= 0.88;
+                if (bgFrame % 6 === 0 && bgPulses.length < 14) spawnPulse(sc);
+                const MAX_D = 150;
+                for (let i = 0; i < bgNodes.length; i++) {
+                    const n = bgNodes[i];
+                    n.x += n.vx; n.y += n.vy;
+                    if (n.x < 0 || n.x > 1440) n.vx *= -1;
+                    if (n.y < 0 || n.y > VH) n.vy *= -1;
+                    const sy = n.y - sc;
+                    if (sy < -100 || sy > bH+100) continue;
+                    const pulse = .5 + .5 * Math.sin(bgFrame * .055 + n.phase);
+                    const g = 180 + pulse*60, b2 = 195 + pulse*40;
+                    const alpha = n.bright ? (.7 + pulse*.3) : (.35 + pulse*.35);
+                    bgX.beginPath();
+                    bgX.arc(n.x, sy, n.r*(1+pulse*.3), 0, Math.PI*2);
+                    bgX.fillStyle = 'rgba(28,'+g+','+b2+','+alpha+')';
+                    bgX.fill();
+                    if (n.bright) {
+                        const grd = bgX.createRadialGradient(n.x,sy,0,n.x,sy,n.r*9);
+                        grd.addColorStop(0,'rgba(28,'+g+','+b2+',0.18)');
+                        grd.addColorStop(1,'transparent');
+                        bgX.beginPath(); bgX.arc(n.x,sy,n.r*9,0,Math.PI*2);
+                        bgX.fillStyle = grd; bgX.fill();
+                    }
+                    for (let j = i+1; j < bgNodes.length; j++) {
+                        const m = bgNodes[j], msy = m.y - sc;
+                        if (msy < -100 || msy > bH+100) continue;
+                        const dx = n.x-m.x, dy = sy-msy, d = Math.sqrt(dx*dx+dy*dy);
+                        if (d < MAX_D) {
+                            const a2 = (1-d/MAX_D)*.22;
+                            bgX.beginPath(); bgX.moveTo(n.x,sy); bgX.lineTo(m.x,msy);
+                            bgX.strokeStyle = 'rgba(20,200,210,'+a2+')';
+                            bgX.lineWidth = .7; bgX.stroke();
+                        }
+                    }
+                }
+                for (let i = bgPulses.length-1; i >= 0; i--) {
+                    const p = bgPulses[i]; p.t += p.spd;
+                    if (p.t >= 1) { bgPulses.splice(i,1); continue; }
+                    const life = Math.sin(p.t*Math.PI);
+                    const ax=p.a.x, ay=p.a.y-sc, bx=p.b.x, by=p.b.y-sc;
+                    const hx = ax+(bx-ax)*p.t, hy = ay+(by-ay)*p.t;
+                    bgX.beginPath(); bgX.moveTo(ax,ay); bgX.lineTo(hx,hy);
+                    bgX.strokeStyle = 'rgba(20,220,210,'+(0.5*life)+')';
+                    bgX.lineWidth = 1.5; bgX.stroke();
+                    bgX.beginPath(); bgX.arc(hx,hy,2.5,0,Math.PI*2);
+                    bgX.fillStyle = 'rgba(20,230,220,'+(0.9*life)+')';
+                    bgX.shadowColor = '#14e0d0'; bgX.shadowBlur = 10;
+                    bgX.fill(); bgX.shadowBlur = 0;
+                }
+                requestAnimationFrame(drawBg);
+            }
+            drawBg();
+        } catch(e) { console.warn('BG canvas error:', e.message); }
+        // ─────────────────────────────────────────────────────────────
+        init();
+    </script>
+</body>
+</html>
