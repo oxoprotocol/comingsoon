@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OXO Protocol</title>
 <link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="theme-color" content="#000000">
 <meta name="description" content="OXO Protocol — Bitcoin's security meets Ethereum's programmability. Native yield, natively.">
 <meta property="og:title" content="OXO Protocol">
 <meta property="og:description" content="Bitcoin's security. Ethereum's programmability. Native yield, natively.">
@@ -18,7 +21,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; color-scheme: dark; }
 body {
   background: #000;
   color: #fff;
@@ -617,9 +620,14 @@ body::after {
 /* ── REDUCED MOTION ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; }
   #c { display: none; }
   .ticker-track { animation: none; }
 }
+
+/* ── TEXT WRAP & TOUCH ── */
+.hero-h1, .cta-h2, .step-title { text-wrap: balance; }
+.wl-btn, .cta-btn { touch-action: manipulation; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
@@ -647,19 +655,22 @@ body::after {
 </head>
 <body>
 
-<a href="#hero" class="skip-link">Skip to main content</a>
-<canvas id="c"></canvas>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<canvas id="c" aria-hidden="true"></canvas>
 <div id="cursor-glow" aria-hidden="true"></div>
 
-<a class="wordmark" href="/">
-  <img src="images/logo.png" alt="OXO">
-  <span class="wordmark-name">OXO Protocol</span>
-</a>
+<header>
+  <a class="wordmark" href="/">
+    <img src="images/logo.png" alt="OXO Protocol" width="120" height="120">
+    <span class="wordmark-name" aria-hidden="true">OXO Protocol</span>
+  </a>
+  <nav class="nav-right" aria-label="Main navigation">
+    <a href="whitepaper.html">Litepaper</a>
+    <a href="docs.html">Docs</a>
+  </nav>
+</header>
 
-<nav class="nav-right">
-  <a href="whitepaper.html">Litepaper</a>
-  <a href="docs.html">Docs</a>
-</nav>
+<main id="main-content">
 
 <!-- ── HERO ── -->
 <section id="hero">
@@ -677,7 +688,7 @@ body::after {
     </p>
     <div class="wl-wrap">
       <div class="wl-row">
-        <input id="wl-email" class="wl-input" type="email" placeholder="your@email.com" autocomplete="email" aria-label="Email address for waitlist">
+        <input id="wl-email" class="wl-input" type="email" placeholder="your@email.com…" autocomplete="email" aria-label="Email address for waitlist" aria-required="true" spellcheck="false">
         <button id="wl-btn" class="wl-btn" onclick="joinWaitlist()" aria-label="Join OXO Protocol early access waitlist">Early Access</button>
       </div>
       <p id="wl-msg" class="wl-msg" role="status" aria-live="polite" aria-atomic="true"></p>
@@ -800,15 +811,17 @@ body::after {
   <a href="#hero" class="cta-btn">Join Waitlist</a>
 </section>
 
+</main>
+
 <!-- ── FOOTER ── -->
 <footer>
   <span class="footer-left">© 2026 OXO Protocol</span>
-  <div class="footer-links">
+  <nav class="footer-links" aria-label="Footer navigation">
     <a href="whitepaper.html">Litepaper</a>
     <a href="docs.html">Docs</a>
     <a href="#">Twitter</a>
     <a href="#">Discord</a>
-  </div>
+  </nav>
 </footer>
 
 <script>
@@ -1055,6 +1068,31 @@ window.addEventListener('mousemove', e => { glowX = e.clientX; glowY = e.clientY
   glow.style.left = curX + 'px';
   glow.style.top  = curY + 'px';
   requestAnimationFrame(animGlow);
+})();
+
+/* ── TEXT SCRAMBLE (frontend-design: the ONE unforgettable thing) ── */
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.hero-h1 strong');
+  if (!el) return;
+  const final = 'Money Layer';
+  const chars = '₿ΞΩ∆◆◈▲01XO░▒▓';
+  const fps   = 40;
+  const total = Math.round(1400 / fps);
+  let frame   = 0;
+  setTimeout(() => {
+    const iv = setInterval(() => {
+      frame++;
+      const progress = frame / total;
+      const resolved = Math.floor(final.length * progress);
+      el.textContent = final.split('').map((ch, i) => {
+        if (ch === ' ') return ' ';
+        if (i < resolved) return ch;
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join('');
+      if (frame >= total) { clearInterval(iv); el.textContent = final; }
+    }, fps);
+  }, 1800);
 })();
 
 /* ── VISIBILITY API — pause canvas when tab hidden ── */
