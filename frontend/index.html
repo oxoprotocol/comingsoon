@@ -101,7 +101,10 @@ body {
 }
 .hero-h1 strong {
   font-weight: 300;
-  color: rgba(255,255,255,0.18);
+  background: linear-gradient(135deg, rgba(72,218,200,0.9) 0%, rgba(255,255,255,0.55) 60%, rgba(232,197,71,0.5) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   display: block;
 }
 
@@ -114,7 +117,7 @@ body {
 
 .hero-sub {
   font-size: 13px; font-weight: 400;
-  color: rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.42);
   letter-spacing: 0.01em; line-height: 1.85;
   max-width: 320px; margin-bottom: 48px;
   opacity: 0; animation: rise 1s 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
@@ -335,7 +338,7 @@ body {
 }
 .rc-back-body {
   font-size: 14px; font-weight: 300;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.62);
   line-height: 1.8; letter-spacing: 0.01em;
 }
 .reveal-card:hover .rc-front { opacity: 0; transform: translateY(-8px); }
@@ -403,7 +406,7 @@ body {
 }
 .step-desc {
   font-size: 15px; font-weight: 300;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.42);
   line-height: 1.85; letter-spacing: 0.01em;
   max-width: 260px;
 }
@@ -438,6 +441,54 @@ footer {
 @keyframes rise {
   from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── FOCUS RINGS (a11y) ── */
+:focus-visible {
+  outline: 2px solid rgba(72,218,200,0.7);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.wl-btn:focus-visible {
+  outline: 2px solid rgba(72,218,200,0.8);
+  outline-offset: 4px;
+  border-radius: 100px;
+}
+
+/* ── SKIP LINK (a11y) ── */
+.skip-link {
+  position: fixed; top: -100%; left: 16px;
+  background: rgba(72,218,200,1); color: #000;
+  padding: 8px 16px; border-radius: 4px;
+  font-size: 13px; font-weight: 500;
+  z-index: 9999; text-decoration: none;
+}
+.skip-link:focus { top: 16px; }
+
+/* ── STEP DOT GLOW (when visible) ── */
+.how-step.visible .step-dot {
+  animation: dotGlow 3s ease-in-out infinite;
+}
+.how-step:nth-child(2).visible .step-dot { animation-delay: 0.5s; }
+.how-step:nth-child(3).visible .step-dot { animation-delay: 1s; }
+@keyframes dotGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(72,218,200,0); }
+  50%       { box-shadow: 0 0 28px 4px rgba(72,218,200,0.18), 0 0 0 1px rgba(72,218,200,0.12); }
+}
+
+/* ── COUNTER NUMBERS ── */
+.counter-n {
+  letter-spacing: -0.03em;
+}
+
+/* ── GOLD ACCENT ── */
+.nav-right a:last-child,
+.footer-links a:first-child {
+  color: rgba(232,197,71,0.45);
+}
+.nav-right a:last-child:hover,
+.footer-links a:first-child:hover {
+  color: rgba(232,197,71,0.85);
 }
 
 /* ── GRAIN OVERLAY ── */
@@ -596,8 +647,9 @@ body::after {
 </head>
 <body>
 
+<a href="#hero" class="skip-link">Skip to main content</a>
 <canvas id="c"></canvas>
-<div id="cursor-glow"></div>
+<div id="cursor-glow" aria-hidden="true"></div>
 
 <a class="wordmark" href="/">
   <img src="images/logo.png" alt="OXO">
@@ -625,10 +677,10 @@ body::after {
     </p>
     <div class="wl-wrap">
       <div class="wl-row">
-        <input id="wl-email" class="wl-input" type="email" placeholder="your@email.com" autocomplete="email">
-        <button id="wl-btn" class="wl-btn" onclick="joinWaitlist()">Early Access</button>
+        <input id="wl-email" class="wl-input" type="email" placeholder="your@email.com" autocomplete="email" aria-label="Email address for waitlist">
+        <button id="wl-btn" class="wl-btn" onclick="joinWaitlist()" aria-label="Join OXO Protocol early access waitlist">Early Access</button>
       </div>
-      <p id="wl-msg" class="wl-msg"></p>
+      <p id="wl-msg" class="wl-msg" role="status" aria-live="polite" aria-atomic="true"></p>
     </div>
   </div>
 
