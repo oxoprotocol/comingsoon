@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OXO Protocol</title>
 <link rel="icon" type="image/png" href="/favicon.png">
+<meta name="description" content="OXO Protocol — Bitcoin's security meets Ethereum's programmability. Native yield, natively.">
+<meta property="og:title" content="OXO Protocol">
+<meta property="og:description" content="Bitcoin's security. Ethereum's programmability. Native yield, natively.">
+<meta property="og:image" content="/images/og.png">
+<meta property="og:url" content="https://oxoprotocol.com">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OXO Protocol">
+<meta name="twitter:description" content="Bitcoin's security. Ethereum's programmability. Native yield, natively.">
+<meta name="twitter:image" content="/images/og.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -144,6 +154,19 @@ body {
   color: #000; cursor: pointer; white-space: nowrap;
   transition: background 0.2s, opacity 0.2s, transform 0.15s;
   flex-shrink: 0;
+  position: relative; overflow: hidden;
+}
+.wl-btn::after {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-20deg);
+  animation: btnShimmer 3.5s ease-in-out infinite;
+}
+@keyframes btnShimmer {
+  0%, 55% { left: -100%; }
+  100% { left: 160%; }
 }
 .wl-btn:hover { background: rgba(255,255,255,0.88); transform: scale(0.98); }
 .wl-btn:disabled { opacity: 0.35; cursor: default; transform: none; }
@@ -417,6 +440,136 @@ footer {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── GRAIN OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.038;
+  pointer-events: none;
+  z-index: 997;
+}
+
+/* ── CARD TILT ── */
+.reveal-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ── HERO PARALLAX LAYERS ── */
+.hero-tag, .hero-h1, .hero-sub, .wl-wrap {
+  will-change: transform;
+}
+
+/* ── CURSOR GLOW ── */
+#cursor-glow {
+  position: fixed;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(72,218,200,0.045) 0%, transparent 65%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  transition: opacity 0.6s;
+  will-change: transform;
+}
+
+/* ── TICKER ── */
+.ticker-wrap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  z-index: 2;
+}
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: tickerMove 32s linear infinite;
+}
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 24px;
+  padding: 13px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 300;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.ticker-dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(72,218,200,0.45);
+  flex-shrink: 0;
+}
+@keyframes tickerMove {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── CTA SECTION ── */
+.s-cta {
+  position: relative; z-index: 1;
+  padding: 180px 44px;
+  background: rgba(0,0,0,0.92);
+  text-align: center;
+  overflow: hidden;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.cta-glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(72,218,200,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cta-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 300;
+  letter-spacing: 0.26em; text-transform: uppercase;
+  color: rgba(72,218,200,0.5);
+  margin-bottom: 36px;
+}
+.cta-h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(52px, 7.5vw, 104px);
+  font-weight: 300; line-height: 0.95;
+  letter-spacing: -0.035em; color: #fff;
+  margin-bottom: 36px;
+}
+.cta-sub {
+  font-size: 14px; font-weight: 300;
+  color: rgba(255,255,255,0.25);
+  line-height: 1.85; letter-spacing: 0.01em;
+  margin-bottom: 64px;
+}
+.cta-btn {
+  display: inline-block;
+  padding: 18px 56px;
+  background: rgba(72,218,200,0.07);
+  border: 1px solid rgba(72,218,200,0.22);
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(72,218,200,0.8);
+  text-decoration: none;
+  transition: background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+.cta-btn:hover {
+  background: rgba(72,218,200,0.13);
+  border-color: rgba(72,218,200,0.48);
+  color: rgba(72,218,200,1);
+  box-shadow: 0 0 50px rgba(72,218,200,0.14), 0 0 0 1px rgba(72,218,200,0.1);
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  #c { display: none; }
+  .ticker-track { animation: none; }
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .reveal-grid { grid-template-columns: 1fr; }
@@ -432,6 +585,7 @@ footer {
 @media (max-width: 640px) {
   .wordmark { left: 20px; top: 16px; }
   .wordmark img { height: 40px; }
+  .wordmark-name { display: none; }
   .nav-right { display: none; }
   .hero-h1 { font-size: 52px; }
   .wl-input { width: 160px; }
@@ -443,6 +597,7 @@ footer {
 <body>
 
 <canvas id="c"></canvas>
+<div id="cursor-glow"></div>
 
 <a class="wordmark" href="/">
   <img src="images/logo.png" alt="OXO">
@@ -499,6 +654,27 @@ footer {
   <div class="scroll-ind">
     <div class="scroll-track"><div class="scroll-thumb"></div></div>
     <span class="scroll-label">Explore</span>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <span class="ticker-item">Native Yield<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Permissionless<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Trustless<span class="ticker-dot"></span></span>
+      <span class="ticker-item">ZK Rollups<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Bitcoin Native<span class="ticker-dot"></span></span>
+      <span class="ticker-item">L1.5 Architecture<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Always Liquid<span class="ticker-dot"></span></span>
+      <span class="ticker-item">oxoBTC 1:1<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Native Yield<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Permissionless<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Trustless<span class="ticker-dot"></span></span>
+      <span class="ticker-item">ZK Rollups<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Bitcoin Native<span class="ticker-dot"></span></span>
+      <span class="ticker-item">L1.5 Architecture<span class="ticker-dot"></span></span>
+      <span class="ticker-item">Always Liquid<span class="ticker-dot"></span></span>
+      <span class="ticker-item">oxoBTC 1:1<span class="ticker-dot"></span></span>
+    </div>
   </div>
 </section>
 
@@ -561,6 +737,15 @@ footer {
     </div>
 
   </div>
+</section>
+
+<!-- ── CTA SECTION ── -->
+<section class="s-cta">
+  <div class="cta-glow"></div>
+  <p class="cta-tag">Early Access · Limited</p>
+  <h2 class="cta-h2">Be first.<br>Not second.</h2>
+  <p class="cta-sub">Mainnet is coming. The exit is always yours.<br>Join the builders and believers already on the list.</p>
+  <a href="#hero" class="cta-btn">Join Waitlist</a>
 </section>
 
 <!-- ── FOOTER ── -->
@@ -805,6 +990,70 @@ function setMsg(el, text, cls) {
 
 document.getElementById('wl-email').addEventListener('keydown', e => {
   if (e.key === 'Enter') joinWaitlist();
+});
+
+/* ── CURSOR GLOW ── */
+const glow = document.getElementById('cursor-glow');
+let glowX = window.innerWidth / 2, glowY = window.innerHeight / 2;
+let curX = glowX, curY = glowY;
+window.addEventListener('mousemove', e => { glowX = e.clientX; glowY = e.clientY; }, { passive: true });
+(function animGlow() {
+  curX += (glowX - curX) * 0.08;
+  curY += (glowY - curY) * 0.08;
+  glow.style.left = curX + 'px';
+  glow.style.top  = curY + 'px';
+  requestAnimationFrame(animGlow);
+})();
+
+/* ── VISIBILITY API — pause canvas when tab hidden ── */
+document.addEventListener('visibilitychange', () => {
+  canvasAlpha = document.hidden ? 0 : 1;
+});
+
+/* ── 3D CARD TILT ── */
+document.querySelectorAll('.reveal-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width  - 0.5) * 12;
+    const y = ((e.clientY - r.top)  / r.height - 0.5) * -12;
+    card.style.transition = 'none';
+    card.style.transform = `perspective(700px) rotateY(${x}deg) rotateX(${y}deg) translateZ(6px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+    card.style.transform = 'perspective(700px) rotateY(0deg) rotateX(0deg) translateZ(0px)';
+  });
+});
+
+/* ── HERO PARALLAX ── */
+const pTag = document.querySelector('.hero-tag');
+const pH1  = document.querySelector('.hero-h1');
+const pSub = document.querySelector('.hero-sub');
+const pWl  = document.querySelector('.wl-wrap');
+const pVH  = window.innerHeight;
+
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y > pVH) return;
+  pTag.style.transform = `translateY(${y * 0.18}px)`;
+  pH1.style.transform  = `translateY(${y * 0.10}px)`;
+  pSub.style.transform = `translateY(${y * 0.06}px)`;
+  pWl.style.transform  = `translateY(${y * 0.04}px)`;
+}, { passive: true });
+
+/* ── MAGNETIC BUTTON ── */
+const wlBtn = document.getElementById('wl-btn');
+wlBtn.addEventListener('mousemove', e => {
+  if (wlBtn.disabled) return;
+  const r = wlBtn.getBoundingClientRect();
+  const x = (e.clientX - r.left - r.width  / 2) * 0.28;
+  const y = (e.clientY - r.top  - r.height / 2) * 0.38;
+  wlBtn.style.transition = 'none';
+  wlBtn.style.transform = `translate(${x}px, ${y}px) scale(0.97)`;
+});
+wlBtn.addEventListener('mouseleave', () => {
+  wlBtn.style.transition = 'transform 0.5s cubic-bezier(0.16,1,0.3,1), background 0.2s, opacity 0.2s';
+  wlBtn.style.transform = '';
 });
 </script>
 </body>
