@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OXO Protocol — Whitepaper v1.1</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #05090c;
@@ -245,7 +246,7 @@
     </div>
     <p>
       The protocol is live on Sepolia testnet with all core modules deployed and auditable.
-      Mainnet launch is targeted for Q4 2026 following a community audit contest.
+      Mainnet launch will follow a competitive public security audit. No arbitrary deadline — security first.
     </p>
   </section>
 
@@ -606,103 +607,74 @@
   <section id="tokenomics">
     <div class="section-number">06</div>
     <h2>Tokenomics</h2>
+    <h2 style="font-size:16px;font-weight:400;color:var(--muted);margin-top:-16px;margin-bottom:32px;">Architecture &amp; Value Capture</h2>
 
-    <h3>6.1 — Token Overview</h3>
+    <p>
+      The exact supply, emission schedules, and distribution percentages are currently undergoing
+      rigorous optimization and will be published closer to the <strong>Mainnet Genesis</strong> event.
+      OXO Protocol is committed to a community-first distribution model.
+    </p>
+
+    <h3>6.1 — Dual-Token Ecosystem</h3>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Token</th><th>Role</th><th>Supply</th><th>Decimals</th></tr></thead>
         <tbody>
-          <tr><td><strong>OXO</strong></td><td>Governance + utility token</td><td>50,000,000 (fixed)</td><td>18</td></tr>
-          <tr><td><strong>oxoBTC</strong></td><td>Wrapped Bitcoin (1:1 backed)</td><td>Dynamic (mint/burn)</td><td>8</td></tr>
+          <tr>
+            <td><strong>oxoBTC</strong></td>
+            <td>The core liquid asset. 1:1 fully backed, redeemable, non-yield-bearing by itself but highly composable across DeFi.</td>
+            <td>Dynamic (mint/burn)</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td><strong>OXO Token</strong></td>
+            <td>The native protocol asset. Designed for value capture, governance, and fee utility.</td>
+            <td>Fixed — revealed at TGE</td>
+            <td>18</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
-    <h3>6.2 — OXO Distribution</h3>
+    <h3>6.2 — OXO Value Drivers (Mechanisms)</h3>
 
-    <!-- DIAGRAM 4: Pie chart via SVG -->
-    <div class="diagram">
-      <svg width="600" height="260" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
-        <!-- Pie slices (manual arc paths for precision) -->
-        <!-- Total: 360 degrees
-             35% staking = 126°  → 0°  to 126°
-             25% ecosystem = 90° → 126° to 216°
-             20% team = 72°      → 216° to 288°
-             10% community = 36° → 288° to 324°
-             10% liquidity = 36° → 324° to 360° -->
-
-        <g transform="translate(160,130)">
-          <!-- 35% Staking Rewards: 0 to 126deg -->
-          <path d="M0,0 L0,-100 A100,100 0 0,1 80.9,-58.8 Z" fill="#4ecdc4" opacity="0.9"/>
-          <!-- 25% Ecosystem: 126 to 216 -->
-          <path d="M0,0 L80.9,-58.8 A100,100 0 0,1 -80.9,-58.8 Z" fill="#38b2aa" opacity="0.8"/>
-          <!-- 20% Team: 216 to 288 -->
-          <path d="M0,0 L-80.9,-58.8 A100,100 0 0,1 -30.9,95.1 Z" fill="#2d8a83" opacity="0.8"/>
-          <!-- 10% Community: 288 to 324 -->
-          <path d="M0,0 L-30.9,95.1 A100,100 0 0,1 30.9,95.1 Z" fill="#f7931a" opacity="0.8"/>
-          <!-- 10% Liquidity: 324 to 360 -->
-          <path d="M0,0 L30.9,95.1 A100,100 0 0,1 0,-100 Z" fill="#e2784a" opacity="0.8"/>
-          <!-- Center -->
-          <circle cx="0" cy="0" r="40" fill="#05090c"/>
-          <text x="0" y="5" text-anchor="middle" fill="#4ecdc4" font-size="10" font-weight="700" font-family="Inter">50M OXO</text>
-        </g>
-
-        <!-- Legend -->
-        <g transform="translate(300,40)">
-          <rect x="0" y="0" width="12" height="12" rx="2" fill="#4ecdc4"/>
-          <text x="18" y="11" fill="#e2e8f0" font-size="12" font-family="Inter">35% — Staking Rewards (17.5M) — 4yr emission</text>
-
-          <rect x="0" y="30" width="12" height="12" rx="2" fill="#38b2aa"/>
-          <text x="18" y="41" fill="#e2e8f0" font-size="12" font-family="Inter">25% — Ecosystem &amp; Treasury (12.5M) — DAO</text>
-
-          <rect x="0" y="60" width="12" height="12" rx="2" fill="#2d8a83"/>
-          <text x="18" y="71" fill="#e2e8f0" font-size="12" font-family="Inter">20% — Core Team (10M) — 1yr cliff + 3yr vest</text>
-
-          <rect x="0" y="90" width="12" height="12" rx="2" fill="#f7931a"/>
-          <text x="18" y="101" fill="#e2e8f0" font-size="12" font-family="Inter">10% — Early Community (5M) — 6mo unlock</text>
-
-          <rect x="0" y="120" width="12" height="12" rx="2" fill="#e2784a"/>
-          <text x="18" y="131" fill="#e2e8f0" font-size="12" font-family="Inter">10% — Liquidity &amp; MM (5M) — at launch</text>
-        </g>
-      </svg>
+    <div class="modules" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div class="module">
+        <div class="module-icon">💸</div>
+        <div class="module-name">Fee Capture</div>
+        <div class="module-desc">A portion of protocol fees (bridge, swap, flash-exit) is routed to OXO stakers and the protocol treasury.</div>
+      </div>
+      <div class="module">
+        <div class="module-icon">🔥</div>
+        <div class="module-name">Deflationary Pressure</div>
+        <div class="module-desc">The protocol incorporates buy-back and burn mechanics funded by system revenue, permanently removing OXO from circulation.</div>
+      </div>
+      <div class="module">
+        <div class="module-icon">🌱</div>
+        <div class="module-name">Ecosystem Incentives</div>
+        <div class="module-desc">Dedicated pools for bootstrapping liquidity and rewarding early network participants — including Testnet Genesis users.</div>
+      </div>
     </div>
 
     <h3>6.3 — OXO Utility</h3>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Action</th><th>Benefit</th><th>Threshold</th></tr></thead>
+        <thead><tr><th>Action</th><th>Benefit</th></tr></thead>
         <tbody>
-          <tr><td>Stake OXO (Pool 1)</td><td>Earn ETH + oxoBTC protocol fees</td><td>Any amount</td></tr>
-          <tr><td>Stake ≥100 OXO</td><td>Lending LTV: 70% → 75%</td><td>100 OXO</td></tr>
-          <tr><td>Stake ≥1,000 OXO</td><td>Zero bridge fee</td><td>1,000 OXO</td></tr>
-          <tr><td>OXO governance (roadmap)</td><td>Vote on protocol parameters</td><td>Any amount</td></tr>
+          <tr><td>Stake OXO</td><td>Earn a share of protocol fee revenue (ETH + oxoBTC)</td></tr>
+          <tr><td>Hold OXO</td><td>Lending LTV boost — borrow more against your oxoBTC</td></tr>
+          <tr><td>Stake OXO (large)</td><td>Zero bridge fee — free BTC entry and exit</td></tr>
+          <tr><td>OXO Governance</td><td>Vote on protocol parameters, fee rates, and treasury allocation</td></tr>
         </tbody>
       </table>
     </div>
-
-    <h3>6.4 — Emission Schedule</h3>
-    <p>
-      Staking rewards are emitted at <strong>0.1 OXO/second</strong> (8,640 OXO/day) from the
-      Staking contract's OXO reward pool. The emission rate is adjustable by the admin and
-      will transition to DAO governance. At current rate, the 17.5M reward allocation
-      lasts approximately <strong>5.5 years</strong>.
-    </p>
-
-    <h3>6.5 — Deflationary Mechanism</h3>
-    <p>
-      5% of all protocol fee revenue collected by the Treasury is used for OXO buyback
-      and burn. The purchased OXO is sent to the dead address
-      (<code>0x000...dEaD</code>), permanently removing it from circulation.
-      This creates a deflationary counterforce to staking emissions.
-      Total burned OXO is tracked on-chain via the <code>totalOxoBurned</code> variable.
-    </p>
 
     <div class="stats">
       <div class="stat"><div class="stat-val">0.1%</div><div class="stat-lbl">Bridge fee</div></div>
       <div class="stat"><div class="stat-val">0.3%</div><div class="stat-lbl">Swap fee</div></div>
       <div class="stat"><div class="stat-val">5% APR</div><div class="stat-lbl">Lending interest</div></div>
-      <div class="stat"><div class="stat-val">5%</div><div class="stat-lbl">OXO buyback share</div></div>
-      <div class="stat"><div class="stat-val">8,640</div><div class="stat-lbl">OXO/day emission</div></div>
+      <div class="stat"><div class="stat-val">Buy &amp; Burn</div><div class="stat-lbl">From revenue</div></div>
+      <div class="stat"><div class="stat-val">TGE</div><div class="stat-lbl">Full details</div></div>
     </div>
   </section>
 
@@ -746,12 +718,12 @@
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Pool</th><th>Phase</th><th>Source</th><th>Target Depth</th></tr></thead>
+        <thead><tr><th>Pool</th><th>Phase</th><th>Source</th></tr></thead>
         <tbody>
-          <tr><td>oxoBTC / ETH</td><td>Launch</td><td>Treasury POL + team allocation</td><td>$500K</td></tr>
-          <tr><td>oxoBTC / USDT</td><td>Week 2</td><td>Treasury POL + LP incentives</td><td>$500K</td></tr>
-          <tr><td>OXO / ETH</td><td>Launch</td><td>Liquidity allocation (10% supply)</td><td>$200K</td></tr>
-          <tr><td>OXO / oxoBTC</td><td>Month 2</td><td>Staking rewards flywheel</td><td>$100K</td></tr>
+          <tr><td>oxoBTC / ETH</td><td>Launch</td><td>Treasury POL + protocol allocation</td></tr>
+          <tr><td>oxoBTC / USDT</td><td>Phase 2</td><td>Treasury POL + LP incentives</td></tr>
+          <tr><td>OXO / ETH</td><td>Launch</td><td>Liquidity allocation (% of supply)</td></tr>
+          <tr><td>OXO / oxoBTC</td><td>Phase 2</td><td>Staking rewards flywheel</td></tr>
         </tbody>
       </table>
     </div>
@@ -775,34 +747,40 @@
   <section id="roadmap">
     <div class="section-number">08</div>
     <h2>Roadmap</h2>
+    <h2 style="font-size:16px;font-weight:400;color:var(--muted);margin-top:-16px;margin-bottom:32px;">The Path to L1.5</h2>
+
+    <p style="margin-bottom:32px;">
+      OXO Protocol development follows a strict <strong>milestone-driven approach</strong>, prioritizing
+      security and architectural robustness over arbitrary deadlines.
+    </p>
 
     <div class="timeline">
       <div class="phase">
         <div class="phase-dot active">✓</div>
         <div>
-          <div class="phase-title">Phase 1 — Foundation (Complete)</div>
-          <div class="phase-sub">Bridge V3 · AMM Swap · Lending · Staking · Treasury · ZK Rollup · FlashExit · Sepolia testnet deployment</div>
+          <div class="phase-title">Phase 1 — Foundation <span style="color:var(--teal);font-size:12px;margin-left:8px;">Current</span></div>
+          <div class="phase-sub">Core Smart Contracts Deployed · Sepolia Testnet Live (Bridge, Swap, Lending, Staking, ZK Rollup) · Early Access Waitlist Activation</div>
         </div>
       </div>
       <div class="phase">
         <div class="phase-dot active">→</div>
         <div>
-          <div class="phase-title">Phase 2 — Growth (Q2–Q3 2026)</div>
-          <div class="phase-sub">Waitlist &amp; community launch · LayerZero cross-chain (OP, ARB, SOL) · Code4rena audit contest · USDT/oxoBTC liquidity bootstrapping</div>
+          <div class="phase-title">Phase 2 — Decentralization &amp; Hardening</div>
+          <div class="phase-sub">Incentivized Testnet (Points Program) · Threshold Signature Scheme (TSS) Integration · Competitive Public Security Audits (Code4rena) · LayerZero cross-chain (OP, ARB, SOL)</div>
         </div>
       </div>
       <div class="phase">
         <div class="phase-dot">3</div>
         <div>
-          <div class="phase-title">Phase 3 — Mainnet (Q4 2026)</div>
-          <div class="phase-sub">Ethereum mainnet deployment · TSS bridge upgrade · OXO governance activation · Protocol-owned liquidity campaign</div>
+          <div class="phase-title">Phase 3 — Mainnet Genesis</div>
+          <div class="phase-sub">Ethereum Mainnet Deployment · Official Tokenomics Reveal &amp; TGE (Token Generation Event) · Protocol-Owned Liquidity Bootstrapping · OXO Governance Activation</div>
         </div>
       </div>
       <div class="phase">
         <div class="phase-dot">4</div>
         <div>
-          <div class="phase-title">Phase 4 — Ecosystem (2027)</div>
-          <div class="phase-sub">NFC payments via mobile app · OXO card partnership · DAO treasury governance · Additional chain deployments · Bitcoin mass-adoption campaigns</div>
+          <div class="phase-title">Phase 4 — Expansion <span style="color:var(--muted);font-size:12px;margin-left:8px;">Research Phase</span></div>
+          <div class="phase-sub">Omnichain oxoBTC (LayerZero to Solana, Arbitrum, and beyond) · NFC / Real-World Payments Integration · DAO Governance Handover · Bitcoin mass-adoption campaigns</div>
         </div>
       </div>
     </div>
