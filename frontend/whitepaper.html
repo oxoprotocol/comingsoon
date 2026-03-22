@@ -515,58 +515,80 @@
     <div class="section-number">04</div>
     <h2>Protocol Architecture</h2>
 
-    <!-- DIAGRAM 2: Stack -->
+    <!-- DIAGRAM 2: Architecture — BTC + ETH parallel L1s, OXO bridges between -->
     <div class="diagram">
-      <svg width="700" height="300" viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+      <svg width="700" height="340" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
         <defs>
           <marker id="a3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <polygon points="0 0,8 3,0 6" fill="#4ecdc4"/>
+            <polygon points="0 0,8 3,0 6" fill="#48DAC8"/>
+          </marker>
+          <marker id="a3b" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#f7931a"/>
+          </marker>
+          <marker id="a3e" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#627eea"/>
           </marker>
         </defs>
 
-        <!-- Layer labels -->
-        <text x="14" y="62" fill="#7a8fa6" font-size="10" font-family="Inter" writing-mode="vertical-rl" transform="rotate(180,14,90)">USER</text>
-        <text x="14" y="162" fill="#7a8fa6" font-size="10" font-family="Inter" writing-mode="vertical-rl" transform="rotate(180,14,190)">PROTOCOL</text>
-        <text x="14" y="265" fill="#7a8fa6" font-size="10" font-family="Inter" writing-mode="vertical-rl" transform="rotate(180,14,265)">SETTLEMENT</text>
+        <!-- ── LAYER 1: Users (top) ── -->
+        <rect x="20" y="16" width="660" height="34" rx="4" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <text x="350" y="37" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="11" font-family="DM Sans,sans-serif" font-weight="400">Bitcoin Holders — 500M+ potential users</text>
 
-        <!-- Layer 0: Bitcoin -->
-        <rect x="30" y="252" width="640" height="36" rx="6" fill="#1a1206" stroke="#f7931a" stroke-width="1"/>
-        <text x="350" y="274" text-anchor="middle" fill="#f7931a" font-size="12" font-weight="600" font-family="Inter">Bitcoin Network (L1)</text>
+        <!-- arrow down to UI -->
+        <line x1="350" y1="50" x2="350" y2="66" stroke="#48DAC8" stroke-width="1" marker-end="url(#a3)"/>
 
-        <!-- Layer 1: Ethereum -->
-        <rect x="30" y="205" width="640" height="36" rx="6" fill="#0a101a" stroke="#627eea" stroke-width="1"/>
-        <text x="350" y="227" text-anchor="middle" fill="#627eea" font-size="12" font-weight="600" font-family="Inter">Ethereum — Smart Contract Settlement (L1)</text>
+        <!-- ── LAYER 2: User Interface ── -->
+        <rect x="20" y="68" width="660" height="34" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="350" y="88" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="11" font-family="DM Sans,sans-serif" font-weight="500">User Interface — Web App · NFC Payments · Cross-Chain</text>
 
-        <!-- Layer 1.5: OXO Core -->
-        <rect x="30" y="125" width="640" height="68" rx="6" fill="#071510" stroke="#4ecdc4" stroke-width="1.5"/>
-        <text x="350" y="148" text-anchor="middle" fill="#4ecdc4" font-size="12" font-weight="700" font-family="Inter">OXO Protocol Core (Layer 1.5)</text>
-        <!-- sub boxes -->
-        <rect x="44" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#4ecdc4" stroke-width="1"/>
-        <text x="89" y="172" text-anchor="middle" fill="#4ecdc4" font-size="10" font-family="Inter">Bridge V3</text>
-        <rect x="146" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
-        <text x="191" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">AMM Swap</text>
-        <rect x="248" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
-        <text x="293" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">Lending</text>
-        <rect x="350" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
-        <text x="395" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">Staking</text>
-        <rect x="452" y="155" width="90" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
-        <text x="497" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">ZK Rollup</text>
-        <rect x="554" y="155" width="102" height="26" rx="4" fill="#0a1a15" stroke="#1a2535" stroke-width="1"/>
-        <text x="605" y="172" text-anchor="middle" fill="#e2e8f0" font-size="10" font-family="Inter">FlashExit</text>
+        <!-- arrow down to OXO -->
+        <line x1="350" y1="102" x2="350" y2="118" stroke="#48DAC8" stroke-width="1" marker-end="url(#a3)"/>
 
-        <!-- Layer 2: User Apps -->
-        <rect x="30" y="75" width="640" height="38" rx="6" fill="#0a0f1a" stroke="#1a2535" stroke-width="1"/>
-        <text x="350" y="97" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600" font-family="Inter">User Interface — Web App · NFC Payments · Cross-Chain</text>
+        <!-- ── LAYER 3: OXO Protocol Core L1.5 (center, wide) ── -->
+        <rect x="20" y="120" width="660" height="88" rx="4" fill="rgba(72,218,200,0.04)" stroke="#48DAC8" stroke-width="1.5"/>
+        <text x="350" y="143" text-anchor="middle" fill="#48DAC8" font-size="12" font-family="DM Sans,sans-serif" font-weight="700" letter-spacing="0.5">OXO PROTOCOL CORE — LAYER 1.5</text>
+        <!-- module chips inside OXO block -->
+        <rect x="36" y="152" width="88" height="22" rx="3" fill="rgba(72,218,200,0.08)" stroke="#48DAC8" stroke-width="0.8"/>
+        <text x="80" y="167" text-anchor="middle" fill="#48DAC8" font-size="9.5" font-family="DM Mono,monospace">Bridge V3</text>
+        <rect x="132" y="152" width="88" height="22" rx="3" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+        <text x="176" y="167" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9.5" font-family="DM Mono,monospace">AMM Swap</text>
+        <rect x="228" y="152" width="88" height="22" rx="3" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+        <text x="272" y="167" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9.5" font-family="DM Mono,monospace">Lending</text>
+        <rect x="324" y="152" width="88" height="22" rx="3" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+        <text x="368" y="167" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9.5" font-family="DM Mono,monospace">Staking</text>
+        <rect x="420" y="152" width="88" height="22" rx="3" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+        <text x="464" y="167" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9.5" font-family="DM Mono,monospace">ZK Rollup</text>
+        <rect x="516" y="152" width="88" height="22" rx="3" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+        <text x="560" y="167" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9.5" font-family="DM Mono,monospace">FlashExit</text>
+        <!-- sub label -->
+        <text x="350" y="200" text-anchor="middle" fill="rgba(72,218,200,0.3)" font-size="9" font-family="DM Mono,monospace" letter-spacing="0.15em">BRIDGES BOTH NETWORKS — ALWAYS THE EXIT GATE</text>
 
-        <!-- Layer 3: Bitcoin holders -->
-        <rect x="30" y="30" width="640" height="34" rx="6" fill="#0d0d0d" stroke="#1a2535" stroke-width="1"/>
-        <text x="350" y="51" text-anchor="middle" fill="#7a8fa6" font-size="12" font-family="Inter">Bitcoin Holders — 500M+ potential users</text>
+        <!-- ── ARROWS: OXO down to BTC (left) and ETH (right) ── -->
+        <!-- left arrow to BTC -->
+        <line x1="195" y1="208" x2="195" y2="256" stroke="#f7931a" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#a3b)"/>
+        <!-- right arrow to ETH -->
+        <line x1="505" y1="208" x2="505" y2="256" stroke="#627eea" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#a3e)"/>
 
-        <!-- Arrows -->
-        <line x1="350" y1="64" x2="350" y2="73" stroke="#4ecdc4" stroke-width="1.2" marker-end="url(#a3)"/>
-        <line x1="350" y1="113" x2="350" y2="123" stroke="#4ecdc4" stroke-width="1.2" marker-end="url(#a3)"/>
-        <line x1="350" y1="193" x2="350" y2="203" stroke="#4ecdc4" stroke-width="1.2" marker-end="url(#a3)"/>
-        <line x1="350" y1="241" x2="350" y2="250" stroke="#f7931a" stroke-width="1.2" marker-end="url(#a3)"/>
+        <!-- ── LAYER 4: BTC and ETH side by side (parallel L1s) ── -->
+        <!-- BTC block — left -->
+        <rect x="20" y="258" width="310" height="52" rx="4" fill="rgba(247,147,26,0.05)" stroke="#f7931a" stroke-width="1"/>
+        <text x="175" y="279" text-anchor="middle" fill="#f7931a" font-size="12" font-family="DM Sans,sans-serif" font-weight="600">₿ Bitcoin Network</text>
+        <text x="175" y="298" text-anchor="middle" fill="rgba(247,147,26,0.45)" font-size="9.5" font-family="DM Mono,monospace">L1 · BTC custody · Bridge deposit/redeem</text>
+
+        <!-- ETH block — right -->
+        <rect x="370" y="258" width="310" height="52" rx="4" fill="rgba(98,126,234,0.05)" stroke="#627eea" stroke-width="1"/>
+        <text x="525" y="279" text-anchor="middle" fill="#627eea" font-size="12" font-family="DM Sans,sans-serif" font-weight="600">Ξ Ethereum Network</text>
+        <text x="525" y="298" text-anchor="middle" fill="rgba(98,126,234,0.45)" font-size="9.5" font-family="DM Mono,monospace">L1 · Smart contract settlement · EVM</text>
+
+        <!-- separator label between the two L1s -->
+        <text x="350" y="290" text-anchor="middle" fill="rgba(255,255,255,0.12)" font-size="9" font-family="DM Mono,monospace">PARALLEL</text>
+        <line x1="340" y1="283" x2="340" y2="296" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <line x1="360" y1="283" x2="360" y2="296" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+        <!-- Side labels (clean, no overlap) -->
+        <text x="8" y="37" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="8" font-family="DM Mono,monospace" writing-mode="vertical-rl" transform="rotate(180,8,37)">USER</text>
+        <text x="8" y="165" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="8" font-family="DM Mono,monospace" writing-mode="vertical-rl" transform="rotate(180,8,165)">L1.5</text>
+        <text x="8" y="295" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="8" font-family="DM Mono,monospace" writing-mode="vertical-rl" transform="rotate(180,8,295)">L1</text>
       </svg>
     </div>
 
