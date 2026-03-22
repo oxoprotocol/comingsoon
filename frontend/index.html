@@ -569,11 +569,14 @@ nav.footer-links a:hover .footer-icon { opacity: 0.75; }
   .how-step:nth-child(even) { direction: ltr; }
   .step-num-col { display: none; }
   .step-content-col { padding: 44px 28px; }
-  footer { flex-direction: column; gap: 16px; text-align: center; }
+  footer { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+  .footer-socials { justify-content: center; }
+  nav.footer-links { justify-content: center; }
 }
 @media (max-width: 640px) {
   header { padding: 0 20px; height: 60px; }
-  .wordmark img { height: 44px; }
+  .wordmark img { height: 52px; }
+  .s-cta { min-height: 60vh; }
   .wordmark-name { display: none; }
   nav.nav-right { gap: 20px; }
   .hl-2, .hl-3 { font-size: 17vw; }
