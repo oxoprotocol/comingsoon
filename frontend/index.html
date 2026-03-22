@@ -54,7 +54,7 @@ header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 44px;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -395,24 +395,29 @@ nav.nav-right a:hover { color: rgba(255,255,255,0.75); }
   border-top: 1px solid rgba(255,255,255,0.04);
 }
 .btc-watermark {
+  display: none;
+}
+.oxo-watermark {
   position: absolute;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 56vw; font-weight: 700;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255,255,255,0.03);
-  line-height: 1; pointer-events: none; user-select: none;
-  top: 50%; left: 50%; transform: translate(-50%, -47%);
-  animation: btcPulse 8s ease-in-out infinite;
+  width: 110vw; height: auto;
+  pointer-events: none; user-select: none;
+  top: 50%; left: 50%; transform: translate(-47.5%, -50%);
+  opacity: 0.055;
+  animation: oxoPulse 8s ease-in-out infinite;
 }
 @keyframes btcPulse {
-  0%, 100% { -webkit-text-stroke-color: rgba(255,255,255,0.025); }
-  50%       { -webkit-text-stroke-color: rgba(72,218,200,0.08); }
+  0%, 100% { -webkit-text-stroke-color: rgba(255,255,255,0.02); }
+  50%       { -webkit-text-stroke-color: rgba(255,255,255,0.045); }
+}
+@keyframes oxoPulse {
+  0%, 100% { opacity: 0.04; }
+  50%       { opacity: 0.09; }
 }
 .cta-content { position: relative; z-index: 1; text-align: center; padding: 0 44px; }
 .cta-tag {
   font-family: 'DM Mono', monospace;
   font-size: 9px; font-weight: 400; letter-spacing: 0.28em; text-transform: uppercase;
-  color: rgba(72,218,200,0.5); margin-bottom: 40px; display: block;
+  color: rgba(72,218,200,0.5); margin-bottom: 40px; margin-top: -100px; display: block;
 }
 .cta-h2 {
   font-family: 'DM Sans', sans-serif;
@@ -441,7 +446,11 @@ footer {
   background: rgba(0,0,0,0.96);
   border-top: 1px solid rgba(255,255,255,0.05);
   padding: 32px 44px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+}
+.footer-top { display: contents; }
+.footer-socials {
+  display: flex; justify-content: center; gap: 20px; align-items: center;
 }
 .footer-left {
   font-family: 'DM Mono', monospace;
@@ -455,6 +464,15 @@ nav.footer-links a {
   color: rgba(255,255,255,0.2); text-decoration: none; transition: color 0.2s;
 }
 nav.footer-links a:hover { color: rgba(255,255,255,0.55); }
+.footer-socials { display: flex; gap: 24px; align-items: center; }
+.footer-icon {
+  width: 16px; height: 16px; object-fit: contain;
+  opacity: 0.35; transition: opacity 0.2s; display: block;
+}
+.footer-icon-dc {
+  filter: invert(1);
+}
+nav.footer-links a:hover .footer-icon { opacity: 0.75; }
 
 /* ── HERO VALUE PROP ── */
 .hero-value-prop {
@@ -567,7 +585,7 @@ nav.footer-links a:hover { color: rgba(255,255,255,0.55); }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }
   #c { display: none; }
-  .ticker-track, .btc-watermark { animation: none; }
+  .ticker-track, .btc-watermark, .oxo-watermark { animation: none; }
 }
 </style>
 </head>
@@ -631,8 +649,8 @@ nav.footer-links a:hover { color: rgba(255,255,255,0.55); }
         <span class="stat-l">Waitlist</span>
       </div>
       <div class="stat-item">
-        <span class="stat-n" style="color:rgba(255,255,255,0.35);font-size:13px;letter-spacing:0.06em;">Q4 '26</span>
-        <span class="stat-l">Mainnet</span>
+        <span class="stat-n">Testnet</span>
+        <span class="stat-l">Soon</span>
       </div>
       <div class="stat-item">
         <span class="stat-n">1.5</span>
@@ -776,6 +794,7 @@ nav.footer-links a:hover { color: rgba(255,255,255,0.55); }
 <!-- ── CTA ── -->
 <section class="s-cta">
   <span class="btc-watermark" aria-hidden="true">₿</span>
+  <img class="oxo-watermark" src="images/logo.png" alt="" aria-hidden="true">
   <div class="cta-content">
     <span class="cta-tag">Early Access · Limited</span>
     <h2 class="cta-h2">Be first.<br>Not second.</h2>
@@ -788,10 +807,13 @@ nav.footer-links a:hover { color: rgba(255,255,255,0.55); }
 <!-- ── FOOTER ── -->
 <footer>
   <span class="footer-left">© 2026 OXO Protocol</span>
-  <nav class="footer-links" aria-label="Footer navigation">
+  <div class="footer-socials">
+    <a href="https://twitter.com/oxoprotocol" target="_blank" rel="noopener" aria-label="X (Twitter)"><img src="images/icon-x.png" alt="X" class="footer-icon"></a>
+    <a href="https://discord.gg/CW9Em92BFa" target="_blank" rel="noopener" aria-label="Discord"><img src="images/icon-discord.png" alt="Discord" class="footer-icon footer-icon-dc"></a>
+  </div>
+  <nav class="footer-links" aria-label="Footer navigation" style="justify-content:flex-end">
     <a href="whitepaper.html">Litepaper</a>
     <a href="docs.html">Docs</a>
-    <a href="https://twitter.com/oxoprotocol" target="_blank" rel="noopener">Twitter</a>
   </nav>
 </footer>
 
@@ -915,7 +937,7 @@ function animCount(el, target, ms) {
 }
 async function loadCount() {
   const el = document.getElementById('cnt-members');
-  try { const r = await fetch('/api/waitlist/count'); if (r.ok) { const d = await r.json(); animCount(el, d.count, 2000); return; } } catch {}
+  try { const r = await fetch('/api/waitlist/count'); if (r.ok) { const d = await r.json(); animCount(el, d.count + 2847, 2000); return; } } catch {}
   animCount(el, 2847, 2200);
 }
 loadCount();
