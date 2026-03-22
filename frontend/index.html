@@ -930,18 +930,18 @@ const observer = new IntersectionObserver(entries => {
 document.querySelectorAll('.how-step').forEach(el => observer.observe(el));
 
 /* ── COUNTER ── */
-function animCount(el, target, ms) {
+function animCount(el, from, target, ms) {
   const s = performance.now();
   (function step(now) {
     const p = Math.min((now-s)/ms, 1), e = 1 - Math.pow(1-p, 4);
-    el.textContent = Math.round(target*e).toLocaleString();
+    el.textContent = Math.round(from + (target - from) * e).toLocaleString();
     if (p < 1) requestAnimationFrame(step);
   })(s);
 }
 async function loadCount() {
   const el = document.getElementById('cnt-members');
-  try { const r = await fetch('/api/waitlist/count'); if (r.ok) { const d = await r.json(); animCount(el, d.count + 2847, 2000); return; } } catch {}
-  animCount(el, 2847, 2200);
+  el.textContent = '2,847';
+  try { const r = await fetch('/api/waitlist/count'); if (r.ok) { const d = await r.json(); if (d.count > 0) animCount(el, 2847, d.count + 2847, 1200); return; } } catch {}
 }
 loadCount();
 
@@ -960,7 +960,7 @@ async function joinWaitlist() {
       input.value = ''; btn.textContent = "You're in";
       setMsg(msg, data.position ? `#${data.position} on the list` : 'welcome to oxo protocol', 'ok');
       const el = document.getElementById('cnt-members');
-      animCount(el, (parseInt(el.textContent.replace(/,/g,'')) || 2847) + 1, 600);
+      const cur = parseInt(el.textContent.replace(/,/g,'')) || 2847; animCount(el, cur, cur + 1, 600);
     } else { setMsg(msg, data.error||'something went wrong','err'); btn.disabled=false; btn.textContent='Early Access'; }
   } catch { setMsg(msg,'could not connect','err'); btn.disabled=false; btn.textContent='Early Access'; }
 }
